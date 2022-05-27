@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Sun Clock</title>
+	<meta name="description" content="A 24-hour clock that displays times of sunrise, sunset, and twilight times for your current location">
+	<meta name="keywords" content="24-hour, clock, sunrise, sunset, twilight, dawn, dusk">
+	<meta name="author" content="virtualgeoff">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+
+		body {margin:0; padding:0; font-size:1em; font-family:Helvetica, Arial, sans-serif;}
+		h1 {font-size:1.3em; margin:0 1em 0.5em 1em; text-align:center;}
+		h2 {font-size:1.2em; margin:0 0 1em 0;}
+		h3 {font-size:1.0em; margin:3em 0 1em 0}
+		h4 {font-size:0.9em; margin:3em 0 1em 0}
+		p {margin:0 0 1em 0;}
+
+		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
+
+		big {font-size:1.2em;}
+		.close {position:absolute; right:0.7em; top:0.7em; margin:0; line-height:1;}
+
+		table {margin:0 0 1em 0; border-collapse:collapse;}
+		td {padding:0.3em 0.6em; border:1px solid #eee;}
+
+		#menu {position:fixed; left:0; top:0; margin:0.5em 0 0 1em;}
+		#menu a, a.close, #menu a:visited, a.close:visited {text-decoration:none; color:#000;}
+		#menu a:hover, a.close:hover {color:#f50;}
+		#menu big {font-size:1.8em; position:relative; top:0.1em;}
+
+		svg {display:block; width:90vmin; height:90vmin; margin:0 auto;}
+		#times {margin:2em auto; border:1px dotted green;}
+
+		#info {position:absolute; left:0; top:0; margin:6em 0 1em 1em;}
+
+		#about, #settings {height:100vh;}
+		.overlay {display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; margin:0; padding:0; background:rgba(192,192,192,0.8); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);}
+		#about > div, #settings > div {position:relative; width:40em; max-width:80vmin; height:auto; margin:10vh auto 0 auto; padding:1em; border: 1px solid #999; border-radius:7px; background:rgba(255,255,255,0.85);}
+		#settings > div {width:20em;}
+		#settings p {line-height:1.7em;}
+		#settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
+
+		#locationForm {display:none; margin:-0.5em 0 1em 2em;}
+		#locationForm label {display:inline-block; width:6em; font-size:0.9em;}
+		#locationForm input {width:8em;}
+		#locationForm input[type="submit"] {width:auto; font-size:1em;}
+
+	</style>
+	<!-- script src="https://raw.githubusercontent.com/mourner/suncalc/master/suncalc.js"></script -->
+	<script src="./libs/mourner/suncalc/suncalc.js"></script>
+	<script src="./main.js"></script>
+</head>
+<body>
+
+	<p id="menu">
+		<!-- a href="#about" title="About">ⓘ</a>&nbsp;&nbsp;<a href="#settings" title="Settings"><big>⚙︎</big></a><br -->
+		<a href="#about" title="About">ℹ️</a>&nbsp;&nbsp;<a href="#settings" title="Settings"><big style="font-size:1.5em;">⚙</big></a>
+	</p>
+
+	<svg id="clock" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+		<linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
+			<stop offset="0%"  stop-color="#dceaff"/>
+			<stop offset="37%" stop-color="#dceaff"/>
+			<stop offset="49%" stop-color="#ffe988"/>
+			<stop offset="50%" stop-color="#ff9900"/>
+			<stop offset="51%" stop-color="#88a6d4"/>
+			<stop offset="54%" stop-color="#4574bc"/>
+			<stop offset="59%" stop-color="#213c66"/>
+			<stop offset="64%" stop-color="#192029"/>
+			<stop offset="100%" stop-color="#192029"/>
+		</linearGradient>
+
+		<g transform="translate(150,150)">
+    		<!-- circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/ -->
+			<circle id="clockFace" cx="0" cy="0" r="125" fill="url(#Gradient2)" stroke="#000" stroke-width="1"/>
+
+			<g id="periods" fill="none" stroke="none" stroke-width="0"></g>
+			<path id="midnight" d="M 0,0 L 0,0" stroke="#669" stroke-width="1"/>
+			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="1"/>
+
+			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
+			<g id="quarterMarks"  fill="none" stroke="#000" stroke-width="4"></g>
+			<g id="minuteMarks"   fill="none" stroke="#090" stroke-width="1"></g>
+			<g id="hourNumbers"   fill="#000" font-size="8px" font-family="Verdana" text-anchor="middle"></g>
+			<g id="minuteNumbers" fill="#090" font-size="5px" font-family="Verdana" text-anchor="middle"></g>
+
+			<g id="hourHand" transform="rotate(0)">
+				<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round"/>
+				<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0"/>
+			</g>
+			<g id="minuteHand" transform="rotate(0)">
+				<line x1="0" y1="0" x2="0" y2="-110" fill="none" stroke="#0a0" stroke-width="2" stroke-linecap="round"/>
+				<circle cx="0" cy="0" r="4.0" fill="#0a0" stroke="#0a0" stroke-width="0"/>
+			</g>
+			<g id="secondHand" transform="rotate(0)">
+				<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round"/>
+				<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0"/>
+			</g>
+		</g>
+	</svg>
+
+	<section>
+		<h1 id="date">Getting date...</h1>
+		<p id="location">Getting location...</p>
+
+		<table id="times">
+			<tbody></tbody>
+		</table>
+
+		<div id="info"></div>
+	</section>
+
+	<section id="about">
+		<div>
+			<h2>About</h2>
+			<noscript><p>This site requires JavaScript to work.</p></noscript>
+			<p>Sun-Clock is a small app that displays the position of the Sun, and its rising and setting times.</p>
+			<p>Civil, Nautical, and Astronomical Twilight ...</p>
+			<p>For more information, see: <a href="https://en.wikipedia.org/wiki/Twilight">Wikipedia</a>.</p>
+			<p></p>
+			<p>This site uses <a href="https://github.com/mourner/suncalc">SunCalc</a>, a JavaScript library to calculate sun position and times.</p>
+
+			<h3>Privacy</h3>
+			<p>We collect aggregate user stats but no other information is collected or stored. Your location data is private and is not sent to the server.</p>
+
+			<a href="#" class="close">✕</a>
+		</div>
+	</section>
+
+	<section id="settings">
+		<div>
+			<h2>Settings</h2>
+
+			<form id="settingsForm">
+				<p><label><input type="checkbox"  name="antiClockwise" onchange="SunClock.setOption(this)" checked> turn anti-clockwise</label><br></p>
+				<p>
+					<label><input type="checkbox" name="showMinuteHand"    onchange="SunClock.setOption(this)" checked> show minutes hand</label><br>
+					<label><input type="checkbox" name="showMinuteMarks"   onchange="SunClock.setOption(this)" checked> show minute marks</label><br>
+					<label><input type="checkbox" name="showMinuteNumbers" onchange="SunClock.setOption(this)" checked> show minute numbers</label><br>
+				</p>
+				<p><label><input type="checkbox" name="showSecondHand" onchange="SunClock.setOption(this)" checked> show seconds hand</label></p>
+				<p><label><input type="checkbox" name="manualLocation" onchange="SunClock.setOption(this)"> set location manually</label></p>
+			</form>
+
+			<form id="locationForm" onsubmit="return SunClock.updateLocation(this);">
+				<p>
+					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" length="10" required> <!-- small>(0 to ±90)</small --><br>
+					<label for="longitude">Longitude</label> <input name="longitude" type="number" min="-180" max="180" step="0.001" size="10" required> <!-- small>(0 to ±180)</small --><br>
+					<label></label> <input type="submit" value="Update">
+				</p>
+			</form>
+
+			<a href="#" class="close">✕</a>
+		</div>
+	</section>
+
+</body>
+</html>

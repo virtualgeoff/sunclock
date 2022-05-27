@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>JavaScript Geolocation API</title>
+	<script>
+
+		// get location using the JavaScript Geolocation API:
+		// https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition
+
+		var options = {
+			enableHighAccuracy: true,
+			timeout: 5000,
+			maximumAge: 0
+		};
+		var geoErrors = ['','PERMISSION_DENIED','POSITION_UNAVAILABLE','TIMEOUT'];
+
+		function getLocation() {		
+			if (navigator.geolocation) {
+				document.querySelector('#status').innerHTML = "<p>Getting location....</p>";
+				navigator.geolocation.getCurrentPosition(showLocation, showError, options);
+			} else { 
+				document.querySelector('#status').innerHTML = "<p>Geolocation is not supported by this browser.<p>";
+			}
+		}
+
+		function showLocation(position) {
+			document.querySelector('#status').innerHTML = `
+				<table>
+					<tr><td>Latitude:  </td><td>${position.coords.latitude}</td></tr>
+					<tr><td>Longitude: </td><td>${position.coords.longitude}</td></tr>
+					<tr><td>Accuracy:  </td><td>~${position.coords.accuracy}m</td></tr>
+				</table>
+			`;
+		}
+
+		function showError(err) {
+			console.log(err);
+			document.querySelector('#status').innerHTML = `ERROR: ${geoErrors[err.code]}<br>${err.message}`;
+		}
+		
+		window.addEventListener("load", getLocation);
+
+	</script>
+</head>
+<body>
+
+	<h1>JavaScript Geolocation API</h1>
+
+	<div id="status"></div>
+
+</body>
+</html>
