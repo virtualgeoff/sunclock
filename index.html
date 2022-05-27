@@ -15,6 +15,7 @@
 		h3 {font-size:1.0em; margin:3em 0 1em 0}
 		h4 {font-size:0.9em; margin:3em 0 1em 0}
 		p {margin:0 0 1em 0;}
+		.center {text-align:center;}
 
 		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
 
@@ -23,6 +24,7 @@
 
 		table {margin:0 0 1em 0; border-collapse:collapse;}
 		td {padding:0.3em 0.6em; border:1px solid #eee;}
+		td:nth-child(2) {text-align:right;}
 
 		#menu {position:fixed; left:0; top:0; margin:0.5em 0 0 1em;}
 		#menu a, a.close, #menu a:visited, a.close:visited {text-decoration:none; color:#000;}
@@ -48,7 +50,7 @@
 
 	</style>
 	<!-- script src="https://raw.githubusercontent.com/mourner/suncalc/master/suncalc.js"></script -->
-	<script src="./libs/mourner/suncalc/suncalc.js"></script>
+	<script src="./libs/suncalc/suncalc.js"></script>
 	<script src="./main.js"></script>
 </head>
 <body>
@@ -115,14 +117,17 @@
 		<div>
 			<h2>About</h2>
 			<noscript><p>This site requires JavaScript to work.</p></noscript>
-			<p>Sun-Clock is a small app that displays the position of the Sun, and its rising and setting times.</p>
-			<p>Civil, Nautical, and Astronomical Twilight ...</p>
-			<p>For more information, see: <a href="https://en.wikipedia.org/wiki/Twilight">Wikipedia</a>.</p>
-			<p></p>
-			<p>This site uses <a href="https://github.com/mourner/suncalc">SunCalc</a>, a JavaScript library to calculate sun position and times.</p>
+			<p>Sun Clock is a 24-hour clock that displays the position of the sun, and sunrise, sunset, and twilight times for your current location.</p>
+			<p><a href="https://en.wikipedia.org/wiki/Twilight#Civil_twilight">Civil Twilight</a> occurs when the sun is less than 6º below the horizon. The sky is bright enough that artificial light is not needed.</p>
+			<p><a href="https://en.wikipedia.org/wiki/Twilight#Nautical_twilight">Nautical Twilight</a> occurs when the sun is between 6º and 12º below the horizon. The horizon is still visible, and sailors can take sightings of stars for navigation.</p>
+			<p><a href="https://en.wikipedia.org/wiki/Twilight#Astronomical_twilight">Astronomical Twilight</a> occurs when the sun is between 12º and 18º below the horizon. The sky is dark but the faintest stars will not yet be visible.</p>
+			<p><a href="https://en.wikipedia.org/wiki/Golden_hour_(photography)">Golden Hour</a> is the period shortly after sunrise or before sunset, when the light is redder and softer than when the sun is higher in the sky.</p>
 
 			<h3>Privacy</h3>
 			<p>We collect aggregate user stats but no other information is collected or stored. Your location data is private and is not sent to the server.</p>
+
+			<br>
+			<p class="center"><small><a href="https://github.com/virtualgeoff/sunclock">Source</a> &nbsp; 〜 &nbsp; <a href="https://github.com/mourner/suncalc">SunCalc</a></small></p>
 
 			<a href="#" class="close">✕</a>
 		</div>

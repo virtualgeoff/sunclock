@@ -140,8 +140,8 @@ var SunClock = (function() {
 
 		$('#times tbody').innerHTML += `
 			<tr><td colspan="2"><br><b>Altitude of sun:</b></td></tr>
-			<tr><td>at noon</td><td>${toDegrees(noonPosition.altitude).toFixed(3)}°</td></tr>
-			<tr><td>at midnight</td><td>${toDegrees(nadirPosition.altitude).toFixed(3)}°</td></tr>
+			<tr><td>at noon</td><td>${toDegrees(noonPosition.altitude).toFixed(2)}°</td></tr>
+			<tr><td>at midnight</td><td>${toDegrees(nadirPosition.altitude).toFixed(2)}°</td></tr>
 		`;
 
 		drawTimeSegments();
