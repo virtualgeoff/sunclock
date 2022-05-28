@@ -393,7 +393,7 @@ var SunClock = (function() {
 		getLocation();
 
 		// handle navigation links
-		$All('#about, #settings').forEach(item => { item.classList.add('overlay'); });
+		$All('#about, #settings').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
 		$All('#menu a').forEach(link => {
 			link.addEventListener('click', function(e){
 				$(link.hash).style.display = 'block';
