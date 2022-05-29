@@ -22,7 +22,7 @@
 
 		body {margin:0; padding:0; font-size:1em; font-family:Helvetica, Arial, sans-serif;}
 		h1 {font-size:1.3em; margin:0 1em 0.5em 1em; text-align:center;}
-		h2 {font-size:1.2em; margin:0 0 1em 0;}
+		h2 {font-size:1.2em; margin:1em 0;}
 		h3 {font-size:1.0em; margin:3em 0 1em 0}
 		h4 {font-size:0.9em; margin:3em 0 1em 0}
 		p {margin:0 0 1em 0;}
@@ -37,7 +37,7 @@
 		td {padding:0.3em 0.6em; border:1px solid #eee;}
 		td:nth-child(2) {text-align:right;}
 
-		#menu {position:fixed; left:0; top:0; margin:0.5em 0 0 1em;}
+		#menu {position:absolute; left:0; top:0; margin:0.5em 0 0 1em;}
 		#menu a, a.close, #menu a:visited, a.close:visited {text-decoration:none; color:#000;}
 		#menu a:hover, a.close:hover {color:#f50;}
 		#menu big {font-size:1.8em; position:relative; top:0.1em;}
@@ -49,7 +49,7 @@
 
 		#about, #settings {height:100vh;}
 		.overlay {display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; margin:0; padding:0; background:rgba(192,192,192,0.8); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);}
-		#about > div, #settings > div {position:relative; width:40em; max-width:80vmin; height:auto; margin:10vh auto 0 auto; padding:1em; border: 1px solid #999; border-radius:7px; background:rgba(255,255,255,0.85);}
+		#about > div, #settings > div {position:relative; width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; padding:0 1em; border: 1px solid #999; border-radius:7px; background:rgba(255,255,255,0.85); overflow-y: scroll;}
 		#settings > div {width:20em;}
 		#settings p {line-height:1.7em;}
 		#settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
