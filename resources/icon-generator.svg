@@ -1,0 +1,150 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="100%" height="100%" viewBox="0 0 300 300"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	version="1.1">
+	<desc>Sun Clock Icon Generator</desc>
+	<script type="text/ecmascript">
+	<![CDATA[
+
+		/*
+			Sun Clock Icon Generator
+			This is a cut-down version of the clock script for generating site icons
+			Use: set times manually as desired, open in browser, save generated source to disk, clean up, then convert to PNG
+		*/
+
+		/* jshint esversion: 6 */
+
+		const $ = document.querySelector.bind(document);
+
+		var SunClock = (function() {
+			'use strict';
+
+			let now,
+				hours, minutes, seconds,
+				radius,
+				direction = 1,
+
+				periods = [
+					// name:                        from:               to:                 color:
+					['earlyMorning',                'nadir',            'nightEnd',         '#192029'],
+					['astronomicalMorningTwilight', 'nightEnd',         'nauticalDawn',     '#213c66'],
+					['nauticalMorningTwilight',     'nauticalDawn',     'dawn',             '#4574bc'],
+					['civilMorningTwilight',        'dawn',             'sunrise',          '#88a6d4'],
+					['sunrise',                     'sunrise',          'sunriseEnd',       '#ff9900'],
+					['morningGoldenHour',           'sunriseEnd',       'goldenHourEnd',    '#ffe988'],
+					['morning',                     'goldenHourEnd',    'solarNoon',        '#dceaff'],
+					['afternoon',                   'solarNoon',        'goldenHour',       '#dceaff'],
+					['eveningGoldenHour',           'goldenHour',       'sunsetStart',      '#ffe988'],
+					['sunset',                      'sunsetStart',      'sunset',           '#ff9900'],
+					['civilEveningTwilight',        'sunset',           'dusk',             '#88a6d4'],
+					['nauticalEveningTwilight',     'dusk',             'nauticalDusk',     '#4574bc'],
+					['astronomicalEveningTwilight', 'nauticalDusk',     'night',            '#213c66'],
+					['lateEvening',                 'night',            'nadir',            '#192029']
+				],
+				sunTimes = {
+					nadir:         new Date("Tue June 21 2022 00:00:00"),
+					nightEnd:      new Date("Tue June 21 2022 04:00:00"),
+					nauticalDawn:  new Date("Tue June 21 2022 05:00:00"),
+					dawn:          new Date("Tue June 21 2022 06:00:00"),
+					sunrise:       new Date("Tue June 21 2022 07:00:00"),
+					sunriseEnd:    new Date("Tue June 21 2022 07:15:00"),
+					goldenHourEnd: new Date("Tue June 21 2022 08:00:00"),
+					solarNoon:     new Date("Tue June 21 2022 12:00:00"),
+					goldenHour:    new Date("Tue June 21 2022 16:00:00"),
+					sunsetStart:   new Date("Tue June 21 2022 16:45:00"),
+					sunset:        new Date("Tue June 21 2022 17:00:00"),
+					dusk:          new Date("Tue June 21 2022 18:00:00"),
+					nauticalDusk:  new Date("Tue June 21 2022 19:00:00"),
+					night:         new Date("Tue June 21 2022 20:00:00"),
+				};
+
+			function getPointFromTime(date) {
+				// get point on clock perimeter from time
+				var angle = ((date.getHours() + date.getMinutes()/60) / 24 * 2 * Math.PI), // radians
+					x = Math.sin(angle) * radius * -direction,
+					y = Math.cos(angle) * radius;
+				return (x + "," + y); // return as string to paste straight into svg path attribute
+			}
+
+			function drawTimeSegments() {
+				// draw time periods on clock face
+				for (let i=0; i<periods.length; i++) {
+					let p = periods[i];
+					let P1, P2, newPath;
+
+					// draw the arc
+					P1 = getPointFromTime(sunTimes[p[1]]);
+					P2 = getPointFromTime(sunTimes[p[2]]);
+					newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+					//newPath.setAttribute('id', p[0]);
+					newPath.setAttribute('d',`M 0,0 L ${P1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${P2} z`); // sweep-flag depends on direction
+					newPath.setAttribute('fill', p[3]);
+					$('#periods').appendChild(newPath);
+				}
+			}
+
+			function drawMarks(parent, n, length) {
+				var m;
+
+				for (let i=0; i<=(n-1); i++) {
+					m = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+					m.setAttribute('x1', 0);
+					m.setAttribute('y1', 0);
+					m.setAttribute('x2', 0);
+					m.setAttribute('y2', length);
+					m.setAttribute('transform', `rotate(${i * (360/n)}) translate(0,${radius})`);
+					$(parent).appendChild(m);
+				}
+			}
+
+			function tick() {
+				now = new Date("Tue June 21 2022 14:25:55");
+				seconds = now.getSeconds() + (now.getMilliseconds())/1000;
+				minutes = now.getMinutes() + seconds/60;
+				hours   = now.getHours()   + minutes/60;
+
+				$('#secondHand').setAttribute('transform', 'rotate(' + (seconds * direction * 6) + ')'); //  6° per second
+				$('#minuteHand').setAttribute('transform', 'rotate(' + (minutes * direction * 6) + ')'); //  6° per minute
+				$('#hourHand').setAttribute('transform',   'rotate(' + (hours  * direction * 15) + ')'); // 15° per hour
+
+				//setTimeout(tick, 1000);
+			}
+
+			function init() {
+				// draw clock
+				radius = parseInt($('#clockFace').getAttribute('r'));
+				drawMarks('#hourMarks', 24, 3);
+				drawTimeSegments();
+				tick();
+			}
+
+			window.addEventListener('load', init);
+		})();
+	]]>
+	</script>
+
+	<g transform="translate(150,150)">
+		<circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/>
+
+		<g id="periods" fill="none" stroke="none" stroke-width="0"></g>
+		<g id="hourMarks" fill="none" stroke="#000" stroke-width="2"></g>
+
+		<g id="hourHand" transform="rotate(0)">
+			<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round"/>
+			<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0"/>
+		</g>
+		<g id="minuteHand" transform="rotate(0)">
+			<line x1="0" y1="0" x2="0" y2="-110" fill="none" stroke="#0a0" stroke-width="2" stroke-linecap="round"/>
+			<circle cx="0" cy="0" r="4.0" fill="#0a0" stroke="#0a0" stroke-width="0"/>
+		</g>
+		<g id="secondHand" transform="rotate(0)">
+			<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round"/>
+			<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0"/>
+		</g>
+	</g>
+</svg>
+
