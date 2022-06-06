@@ -53,7 +53,7 @@
 		#about > div, #settings > div {position:relative; width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; padding:0 1em; border: 1px solid #999; border-radius:7px; background:rgba(255,255,255,0.85); overflow-y: scroll;}
 		#settings > div {width:20em;}
 		#settings p {line-height:1.7em;}
-		#settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
+		#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
 
 		#locationForm {display:none; margin:-0.5em 0 1em 2em;}
 		#locationForm label {display:inline-block; width:6em; font-size:0.9em;}
@@ -151,6 +151,10 @@
 
 			<form id="settingsForm">
 				<p><label><input type="checkbox"  name="antiClockwise" onchange="SunClock.setOption(this)" checked> turn anti-clockwise</label><br></p>
+				<p>
+					<label><input type="checkbox" name="showHourNumbers" onchange="SunClock.setOption(this)" checked> show hour numbers</label><br>
+					<label><input type="checkbox" name="showHourMarks"   onchange="SunClock.setOption(this)" checked> show hour marks</label><br>
+				</p>
 				<p>
 					<label><input type="checkbox" name="showMinuteHand"    onchange="SunClock.setOption(this)" checked> show minutes hand</label><br>
 					<label><input type="checkbox" name="showMinuteMarks"   onchange="SunClock.setOption(this)" checked> show minute marks</label><br>

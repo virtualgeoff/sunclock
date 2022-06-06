@@ -303,6 +303,13 @@ var SunClock = (function() {
 			drawNumbers('#minuteNumbers', 60, -8, true);
 			drawTimeSegments();
 			break;
+		  case 'showHourNumbers':
+			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
+			break;
+		  case 'showHourMarks':
+			$('#hourMarks').style.display = (checkbox.checked) ? 'block' : 'none';
+			$('#quarterMarks').style.display = (checkbox.checked) ? 'block' : 'none';
+			break;
 		  case 'showMinuteHand':
 			minuteHand.style.display = (checkbox.checked) ? 'block' : 'none';
 			break;
@@ -342,6 +349,15 @@ var SunClock = (function() {
 			direction = 1;
 			drawNumbers('#hourNumbers', 24, 9, false);
 			drawNumbers('#minuteNumbers', 60, -8, true);
+		}
+		if (getItem('showHourNumbers') === false) {
+			$('input[name="showHourNumbers"]').checked = false;
+			$('#hourNumbers').style.display = 'none';
+		}
+		if (getItem('showHourMarks') === false) {
+			$('input[name="showHourMarks"]').checked = false;
+			$('#hourMarks').style.display = 'none';
+			$('#quarterMarks').style.display = 'none';
 		}
 		if (getItem('showMinuteHand') === false) {
 			$('input[name="showMinuteHand"]').checked = false;
