@@ -85,7 +85,7 @@ var SunClock = (function() {
 			// see: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
 			navigator.geolocation.getCurrentPosition(showLocation, showLocationError, geoOptions);
 		} else {
-			$('#location').innerHTML = 'Geolocation is not supported by this browser. Please set location manually.';
+			showLocationError({message: 'Geolocation is not supported. Please set location manually.'});
 		}
 	}
 
@@ -108,18 +108,10 @@ var SunClock = (function() {
 		return (angle / (2 * Math.PI) * 360);
 	}
 
-	function getAngleFromTime(date) {
-		// get angle on clock from time
-		return ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
-	}
-
 	function getPointFromTime(date) {
 		// get point on clock perimeter from time
-		var angle = getAngleFromTime(date),
-			x = Math.sin(angle) * radius * -direction,
-			y = Math.cos(angle) * radius;
-
-		return (x + "," + y); // return as string to paste straight into svg path attribute
+		var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
+		return `${Math.sin(angle) * radius * -direction}, ${Math.cos(angle) * radius}`; // return as string for svg path attribute
 	}
 
 	function getSunTimes() {
