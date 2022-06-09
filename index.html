@@ -38,10 +38,13 @@
 		td {padding:0.3em 0.6em; border:1px solid #eee;}
 		td:nth-child(2) {text-align:right;}
 
-		#menu {position:absolute; left:0; top:0; margin:0.5em 0 0 1em;}
-		#menu a, a.close, #menu a:visited, a.close:visited {text-decoration:none; color:#000;}
-		#menu a:hover, a.close:hover {color:#f50;}
-		#menu big {font-size:1.8em; position:relative; top:0.1em;}
+		a.menu {margin:0.5em 0 0 1em;}
+		a.menu big {font-size:1.8em; position:relative; top:0.1em;}
+		a.menu , a.close, a.menu:visited, a.close:visited {text-decoration:none; color:#000;}
+		a:hover, a.close:hover {color:#f50;}
+
+		#menu1 {position:absolute; left:0;  top:0; width:3em; margin:0.5em 1em 0 1em;}
+		#menu2 {position:absolute; right:0; top:0; width:3em; margin:0.5em 1em 0 1em; text-align:right;}
 
 		svg {display:block; width:90vmin; height:90vmin; margin:0 auto;}
 		#times {margin:2em auto; border:1px dotted green;}
@@ -67,10 +70,8 @@
 </head>
 <body>
 
-	<p id="menu">
-		<!-- a href="#about" title="About">ⓘ</a>&nbsp;&nbsp;<a href="#settings" title="Settings"><big>⚙︎</big></a><br -->
-		<a href="#about" title="About">ℹ️</a>&nbsp;&nbsp;<a href="#settings" title="Settings"><big style="font-size:1.5em;">⚙</big></a>
-	</p>
+	<a href="#about"    class="menu" id="menu1" title="About">ℹ️</a>
+	<a href="#settings" class="menu" id="menu2" title="Settings"><big style="font-size:1.5em;">⚙</big></a>
 
 	<svg id="clock" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 		<linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
