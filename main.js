@@ -252,7 +252,7 @@ var SunClock = (function() {
 			m.setAttribute('x', 0);
 			m.setAttribute('y', 0);
 			angle = ((i * direction * (360/n) + angleOffset + 360) % 360); // 0 <= angle < 360
-			m.setAttribute('transform', `rotate(${angle}) translate(0,${radius + offset})`);
+			m.setAttribute('transform', `rotate(${angle}) translate(0,${radius + h * offset})`);
 
 			if ((angle >= 90) && (angle <= 270)) {
 				m.innerHTML = `<text x="0" y="0" transform="rotate(180)">${i}</text>`;
@@ -400,8 +400,8 @@ var SunClock = (function() {
 		drawMarks('#hourMarks', 24, 3);
 		drawMarks('#quarterMarks', 4, 4);
 		drawMarks('#minuteMarks', 60, -2);
-		drawNumbers('#hourNumbers', 24, 9, false);
-		drawNumbers('#minuteNumbers', 60, -8, true);
+		drawNumbers('#hourNumbers', 24, 1, false);
+		drawNumbers('#minuteNumbers', 60, -1.7, true);
 
 		// start clock
 		loadOptions();
