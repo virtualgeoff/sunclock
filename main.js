@@ -19,14 +19,14 @@ var SunClock = (function() {
 	let now, then,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, dateText,
-		sunTimes, noonPosition, nadirPosition,
+		sunTimes, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
 		radius,
 		direction = -1, // 1 = clockwise, -1 = anticlockwise
 		geoLocation = {latitude:0, longitude:167.5};
 
 	const debug = true,
 		testFlag = false,
-		testDate = new Date('March 20, 2022 12:00:00'), 	// n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
+		testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
 		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
 		periods = [
@@ -115,19 +115,30 @@ var SunClock = (function() {
 	}
 
 	function getSunTimes() {
+		let event;
+
 		// get times from suncalc.js
+		sunTimes = null;
 		sunTimes = SunCalc.getTimes(now, geoLocation.latitude, geoLocation.longitude, 0);
 		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, geoLocation.latitude, geoLocation.longitude);
 		nadirPosition = SunCalc.getPosition(sunTimes.nadir, geoLocation.latitude, geoLocation.longitude);
+		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun does not set
+		sunAlwaysDown = (toDegrees(noonPosition.altitude)  < -0.833) ? true : false; // sun does not rise
 
-		if (debug) { console.log(sunTimes); }
+		if (debug) {
+			console.log(sunTimes);
+			console.log(`sunAlwaysUp: ${sunAlwaysUp}, sunAlwaysDown: ${sunAlwaysDown}`);
+		}
 
 		$('#times tbody').innerHTML = '';
 
+		// TODO: write only midnight, sunrise, sunset, and noon events instead of whole list
+
 		for (let i=0; i<periods.length; i++) {
-			$('#times tbody').innerHTML += `
-				<tr><td>${textReplacements[periods[i][1]]}</td>
-				<td>${sunTimes[periods[i][1]].toLocaleTimeString()}</td></tr>`;
+			event = sunTimes[periods[i][1]].toLocaleTimeString();
+			if (event == 'Invalid Date') { event = 'Does not occur'; }
+
+			$('#times tbody').innerHTML += `<tr><td>${textReplacements[periods[i][1]]}</td><td>${event}</td></tr>`;
 		}
 
 		$('#times tbody').innerHTML += `
@@ -136,63 +147,60 @@ var SunClock = (function() {
 			<tr><td>at midnight</td><td>${toDegrees(nadirPosition.altitude).toFixed(2)}°</td></tr>
 		`;
 
-		drawTimeSegments();
+		drawArcs();
 	}
 
-	function drawTimeSegments() {
+	function drawArcs() {
 		// draw time periods on clock face
+		let p, t1, t2, point1, point2, path;
 
-		// clear any previous segments (i.e. if changing direction or setting location manually)
-		while (periods.firstChild) {
-			periods.removeChild(periods.firstChild);
+		// clear any previous arcs (i.e. if changing direction or setting location manually)
+		let arcs = $('#arcs');
+		while (arcs.firstChild) {
+			arcs.removeChild(arcs.firstChild);
 		}
 
-		// draw time periods
-		for (let i=0; i<periods.length; i++) {
-			let p = periods[i];
-			let P1, P2, newPath;
+		// make a deep copy of periods (so can modify 'from' and 'to', but keep original for next time);
+		periodsTemp = JSON.parse(JSON.stringify(periods));
 
-			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${Date.parse(sunTimes[p[1]])}, ${p[2]}: ${Date.parse(sunTimes[p[2]])} `); }
+		// draw time periods
+		for (let i=0; i<periodsTemp.length; i++) {
+			p = periodsTemp[i];
+			t1 = Date.parse(sunTimes[p[1]]);
+			t2 = Date.parse(sunTimes[p[2]]);
+
+			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
 
 			// test if beginning and end times are valid
-			if ( isNaN(Date.parse(sunTimes[p[1]])) && isNaN(Date.parse(sunTimes[p[2]])) ) {
-				// both times are 'invalid' - period doesn't occur
-				if (debug) { console.log(`${i}: skipping ${p[0]}`); }
+			if ( isNaN(t1) && isNaN(t2) ) {
+				// both times are invalid - period doesn't occur
 				continue;
+			} else if ( isNaN(t1) ) {
+				// first time is invalid, second time valid
+				if ((i === 6) && !sunAlwaysUp) { continue; }    // morning
+				if ((i === 13) && !sunAlwaysDown) { continue; } // evening
+				// use nadir (for morning periods) or noon (for evening periods) as t1 instead
+				p[1] = (i <= 6) ? 'nadir' : 'solarNoon';
+			} else if ( isNaN(t2) ) {
+				// first time valid, second time invalid
+				if ((i === 0) && !sunAlwaysDown) { continue; } // early morning
+				if ((i === 7) && !sunAlwaysUp) { continue; }   // afternoon
+				// use noon (for morning periods) or nadir (for evening periods) as t2 instead
+				p[2] = (i <= 6) ? 'solarNoon' : 'nadir';
 			} else {
-				if ( isNaN(Date.parse(sunTimes[p[1]])) ) {
-					// first time is invalid
-					if ((i === 6) || (i === 13)){
-						// skip morning and late evening 'filler' periods
-						if (debug) { console.log(`${i}: skipping ${p[0]}`); }
-						continue;
-					}
-					// use nadir (for morning periods) or noon (for evening periods) as start time instead
-					p[1] = (i <= 6) ? 'nadir' : 'solarNoon';
-				} else if ( isNaN(Date.parse(sunTimes[p[2]])) ) {
-					// second time is invalid
-					if ((i === 0) || (i === 7)){
-						// skip early morning and afternoon 'filler' periods
-						if (debug) { console.log(`${i}: skipping ${p[0]}`); }
-						continue;
-					}
-					// use noon (for morning periods) or nadir (for evening periods) as end time instead
-					p[2] = (i <= 6) ? 'solarNoon' : 'nadir';
-				}
-
-				if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}, ${p[2]}`); }
-
-				// draw the arc
-				P1 = getPointFromTime(sunTimes[p[1]]);
-				P2 = getPointFromTime(sunTimes[p[2]]);
-				newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-				newPath.setAttribute('id', p[0]);
-				newPath.setAttribute('d',`M 0,0 L ${P1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${P2} z`); // sweep-flag depends on direction
-				newPath.setAttribute('fill', p[3]);
-				$('#periods').appendChild(newPath);
-				newPath.onmouseover = (event) => showInfo(event, p);
-				newPath.onmouseout = hideInfo;
+				// both times valid - yay!
 			}
+
+			// draw the arc
+			point1 = getPointFromTime(sunTimes[p[1]]);
+			point2 = getPointFromTime(sunTimes[p[2]]);
+			path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			path.setAttribute('id', p[0]);
+			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
+			path.setAttribute('fill', p[3]);
+			$('#arcs').appendChild(path);
+			path.onmouseover = (event) => showInfo(event, i);
+			path.onmouseout = hideInfo;
 		}
 
 		// draw solar noon and midnight lines
@@ -200,13 +208,13 @@ var SunClock = (function() {
 		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 	}
 
-	function showInfo(event, period) {
-		// display data on mouseover of time segments
-		if (debug) { console.info(event); }
+	function showInfo(event, i) {
+		//if (debug) { console.info(event, i); }
+		let p = periodsTemp[i];
 		$('#info').innerHTML = `
-			<p>${textReplacements[period[0]]}:<br>
-			from: ${sunTimes[period[1]].toLocaleTimeString()} (${textReplacements[period[1]]})<br>
-			to:   ${sunTimes[period[2]].toLocaleTimeString()} (${textReplacements[period[2]]})</p>`;
+			<p>${textReplacements[p[0]]}:<br>
+			from: ${sunTimes[p[1]].toLocaleTimeString()} (${textReplacements[p[1]]})<br>
+			to:   ${sunTimes[p[2]].toLocaleTimeString()} (${textReplacements[p[2]]})</p>`;
 	}
 
 	function hideInfo() {
@@ -293,7 +301,7 @@ var SunClock = (function() {
 			direction = (checkbox.checked) ? -1 : 1;
 			drawNumbers('#hourNumbers', 24, 9, false);
 			drawNumbers('#minuteNumbers', 60, -8, true);
-			drawTimeSegments();
+			drawArcs();
 			break;
 		  case 'showHourNumbers':
 			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
