@@ -299,8 +299,8 @@ var SunClock = (function() {
 		switch (checkbox.name) {
 		  case 'antiClockwise':
 			direction = (checkbox.checked) ? -1 : 1;
-			drawNumbers('#hourNumbers', 24, 9, false);
-			drawNumbers('#minuteNumbers', 60, -8, true);
+			drawNumbers('#hourNumbers', 24, 1, false);
+			drawNumbers('#minuteNumbers', 60, -1.7, true);
 			drawArcs();
 			break;
 		  case 'showHourNumbers':
@@ -347,8 +347,8 @@ var SunClock = (function() {
 		if (getItem('antiClockwise') === false) {
 			$('input[name="antiClockwise"]').checked = false;
 			direction = 1;
-			drawNumbers('#hourNumbers', 24, 9, false);
-			drawNumbers('#minuteNumbers', 60, -8, true);
+			drawNumbers('#hourNumbers', 24, 1, false);
+			drawNumbers('#minuteNumbers', 60, -1.7, true);
 		}
 		if (getItem('showHourNumbers') === false) {
 			$('input[name="showHourNumbers"]').checked = false;
