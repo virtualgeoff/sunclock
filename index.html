@@ -27,12 +27,14 @@
 		h3 {font-size:1.0em; margin:3em 0 1em 0}
 		h4 {font-size:0.9em; margin:3em 0 1em 0}
 		p {margin:0 0 1em 0;}
-		.center {text-align:center;}
-
 		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
 
 		big {font-size:1.2em;}
 		.close {position:absolute; right:0.7em; top:0.7em; margin:0; line-height:1;}
+		sup {}
+
+		.center {text-align:center;}
+		.hide {display:none;}
 
 		table {margin:0 0 1em 0; border-collapse:collapse;}
 		td {padding:0.3em 0.6em; border:1px solid #eee;}
@@ -131,6 +133,9 @@
 			<h2>About</h2>
 			<p>Sun Clock is a 24-hour clock that displays the position of the sun, and <a href="https://en.wikipedia.org/wiki/Sunrise" target="wikipedia">sunrise</a>, <a href="https://en.wikipedia.org/wiki/Noon#Solar_noon" target="wikipedia">solar noon</a>, <a href="https://en.wikipedia.org/wiki/Sunset" target="wikipedia">sunset</a>, <a href="https://en.wikipedia.org/wiki/Golden_hour_(photography)" target="wikipedia">golden hour</a>, and <a href="https://en.wikipedia.org/wiki/Twilight" target="wikipedia">twilight</a> times for your current location.</p>
 			<noscript><p><b>This site requires JavaScript to work.</b> Page weight is under 50 KB, and there's no advertising or tracking (only a tiny stats script from <a href="https://simpleanalytics.com">Simple Analytics</a>). It's worth it, honestly ;)</p></noscript>
+
+			<p>If you are in the Southern Hemisphere, the Sun is generally<a href="#note"><sup>[1]</sup></a> in the northern half of the sky, and travels across the sky anti-clockwise. Sun Clock replicates this, but you can change it in the settings if you don't like it.</p>
+			<p id="note"><small>1. i.e. more often than not. If you are south of the <a href="https://en.wikipedia.org/wiki/Tropic_of_Capricorn" target="wikipedia">Tropic of Capricorn</a>, then the Sun is always in the northern half of the sky.</small></p>
 
 			<h3>Privacy</h3>
 			<p>We collect aggregate user stats but no other information is collected or stored. Your location data is private and is not sent to the server.</p>

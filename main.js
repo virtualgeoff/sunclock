@@ -408,8 +408,14 @@ var SunClock = (function() {
 		tick();
 		getLocation();
 
-		// handle navigation links
+		// make overlays
 		$All('#about, #settings').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
+
+		// note link
+		$('#note').classList.add('hide');
+		$('a[href="#note"]').onclick = (e) => { e.preventDefault(); $('#note').classList.toggle('hide'); };
+
+		// handle navigation links
 		$All('a.menu').forEach(link => {
 			link.addEventListener('click', function(e){
 				$(link.hash).style.display = 'block';
