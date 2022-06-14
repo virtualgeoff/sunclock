@@ -12,6 +12,7 @@
 // shortcuts
 const $ = document.querySelector.bind(document);
 const $All = document.querySelectorAll.bind(document);
+const supportsHover = window.matchMedia('(hover: hover)').matches;
 
 var SunClock = (function() {
 	'use strict';
@@ -209,8 +210,12 @@ var SunClock = (function() {
 			path.setAttribute('fill', p[3]);
 			path.setAttribute('cursor', 'crosshair');
 			$('#arcs').appendChild(path);
-			path.onmouseover = (event) => showInfo(event, i);
-			path.onmouseout = hideInfo;
+			if (supportsHover) {
+				path.onmouseover = (event) => showInfo(event, i);
+				path.onmouseout = hideInfo;
+			} else {
+				path.onclick = (event) => showInfo(event, i);
+			}
 		}
 
 		// draw solar noon and midnight lines
@@ -222,21 +227,29 @@ var SunClock = (function() {
 		//if (debug) { console.info(event, i); }
 		let p = periodsTemp[i];
 		let dir = 'left';
-		
+
 		if (i < periodsTemp.length/2) {
 			dir = (direction > 0) ? 'left' : 'right';
 		} else {
-			dir = (direction > 0) ? 'right' : 'left';		
+			dir = (direction > 0) ? 'right' : 'left';
 		}
-		
+
 		$('#info').classList.add(dir);
+		$('#info').classList.remove('hide');
 		$('#info').innerHTML = `
 			<h3>${textReplacements[p[0]]}</h3>
-			<p>${textReplacements[p[1]]}: ${sunTimes[p[1]].toLocaleTimeString()}<br>
-			to ${textReplacements[p[2]]}: ${sunTimes[p[2]].toLocaleTimeString()}</p>`;
+			<p>${textReplacements[p[1]]}<br>${sunTimes[p[1]].toLocaleTimeString()}</p>
+			<p class="to">— to —</p>
+			<p>${textReplacements[p[2]]}<br>${sunTimes[p[2]].toLocaleTimeString()}</p>
+			<p class="done"><a href="#">ok</a></p>`;
+
+		if (!supportsHover) {
+			$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(); };
+		}
 	}
 
 	function hideInfo() {
+		$('#info').classList.add('hide');
 		$('#info').classList.remove('left','right');
 		$('#info').innerHTML = '';
 	}

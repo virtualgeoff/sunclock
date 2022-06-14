@@ -27,6 +27,7 @@
 		h3 {font-size:1.0em; margin:3em 0 1em 0}
 		h4 {font-size:0.9em; margin:3em 0 1em 0}
 		p {margin:0 0 1em 0;}
+		p.to {margin:-0.5em 0 0.5em 0; font-style:italic;}
 		big {font-size:1.2em;}
 		sup {}
 
@@ -38,11 +39,16 @@
 		td:nth-child(2) {text-align:right;}
 
 		/* links */
+		a:link {color:#00e;}
+		a:visited {color:50e;}
+		a:hover {color:#f50;}
+
 		a.menu {}
 		a.menu big {font-size:1.5em;}
-		a.menu , a.close, a.menu:visited, a.close:visited {text-decoration:none; font-weight:bold; color:#000;}
+		a.menu, a.menu:visited, a.close, a.close:visited {text-decoration:none; font-weight:bold; color:#000;}
 		a:hover, a.close:hover {color:#f50;}
 		.close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
+		.done a:visited {color:#00e;}
 
 		/* positioning */
 		svg {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
@@ -52,8 +58,10 @@
 		#datetimes {min-height:calc(100vh - 100vmin);}
 		#times {margin:2em auto; border:1px dotted green;}
 		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
-		#info {position:absolute; left:0; top:0; width:calc((100vw - 90vmin)/2); margin:6em 1em 1em 1em;}
-		#info.right {left:auto; right:0; top:0; text-align:right;}
+		#info {}
+		#info.right {}
+		#info h3 {margin:0.5em 0;}
+		#info .done {display:none;}
 
 		/* overlays */
 		#about, #settings {min-height:100vh;}
@@ -70,8 +78,20 @@
 		#locationForm input[type="submit"] {width:auto; font-size:1em;}
 
 
+		@media (orientation:portrait) {
+			#info {position:absolute; left:calc(50vw - 6em); top:25vmin; width:10em; margin:0; padding:1em; text-align:center; background:rgba(255,255,255,0.85); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
+			#info.right {}
+			#info .done {display:block;}
+		}
+
 		@media (orientation:landscape) {
 			svg {width:90vmin; height:90vmin; margin:0 auto;}
+			#info {position:absolute; left:1em; top:4em; width:calc((100vw - 90vmin)/2);}
+			#info.right {left:auto; right:1em; text-align:right;}
+		}
+
+		@media (hover:none) {		
+			#info .done {display:block;}
 		}
 
 		@media (min-width:28rem) {
@@ -104,7 +124,7 @@
 		</linearGradient>
 
 		<g transform="translate(150,150)">
-    		<!-- circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/ -->
+			<!-- circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/ -->
 			<circle id="clockFace" cx="0" cy="0" r="125" fill="url(#Gradient2)" stroke="#000" stroke-width="1"/>
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
@@ -139,9 +159,9 @@
 		<table id="times">
 			<tbody></tbody>
 		</table>
-
-		<div id="info"></div>
 	</section>
+
+	<div id="info" class="hide"></div>
 
 	<section id="about">
 		<div>
@@ -150,7 +170,7 @@
 			<noscript><p><b>This site requires JavaScript to work.</b> Page weight is under 50 KB, and there's no advertising or tracking (only a tiny stats script from <a href="https://simpleanalytics.com">Simple Analytics</a>). It's worth it, honestly ;)</p></noscript>
 
 			<p>If you are in the Southern Hemisphere, the Sun is generally<a href="#note"><sup>[1]</sup></a> in the northern half of the sky, and travels across the sky anti-clockwise. Sun Clock replicates this, but you can change it in the settings if you don't like it.</p>
-			<p id="note"><small>1. i.e. more often than not. If you are south of the <a href="https://en.wikipedia.org/wiki/Tropic_of_Capricorn" target="wikipedia">Tropic of Capricorn</a>, then the Sun is always in the northern half of the sky.</small></p>
+			<p id="note"><small>1. i.e. particularly you are south of the <a href="https://en.wikipedia.org/wiki/Tropic_of_Capricorn" target="wikipedia">Tropic of Capricorn</a>.</small></p>
 
 			<h3>Privacy</h3>
 			<p>We collect aggregate user stats but no other information is collected or stored. Your location data is private and is not sent to the server.</p>
@@ -198,7 +218,7 @@
 	</section>
 
 	<!-- 100% privacy friendly analytics --> 
-	<script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script> 
+	<script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 	<noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
 
 </body>
