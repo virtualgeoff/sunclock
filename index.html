@@ -21,16 +21,13 @@
 	<style>
 
 		html {height:-webkit-fill-available;}
-		body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:Helvetica, Arial, sans-serif;}
+		body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:Helvetica, Arial, sans-serif; background:#fff;}
 		h1 {font-size:1.3em; margin:0 1em 0.5em 1em; text-align:center;}
 		h2 {font-size:1.2em; margin:1em 0;}
 		h3 {font-size:1.0em; margin:3em 0 1em 0}
 		h4 {font-size:0.9em; margin:3em 0 1em 0}
 		p {margin:0 0 1em 0;}
-		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
-
 		big {font-size:1.2em;}
-		.close {position:absolute; right:0.7em; top:0.7em; margin:0; line-height:1;}
 		sup {}
 
 		.center {text-align:center;}
@@ -40,31 +37,48 @@
 		td {padding:0.3em 0.6em; border:1px solid #eee;}
 		td:nth-child(2) {text-align:right;}
 
-		a.menu {margin:0.5em 0 0 1em;}
-		a.menu big {font-size:1.8em; position:relative; top:0.1em;}
-		a.menu , a.close, a.menu:visited, a.close:visited {text-decoration:none; color:#000;}
+		/* links */
+		a.menu {}
+		a.menu big {font-size:1.5em;}
+		a.menu , a.close, a.menu:visited, a.close:visited {text-decoration:none; font-weight:bold; color:#000;}
 		a:hover, a.close:hover {color:#f50;}
+		.close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
 
-		#menu1 {position:absolute; left:0;  top:0; width:3em; margin:0.5em 1em 0 1em;}
-		#menu2 {position:absolute; right:0; top:0; width:3em; margin:0.5em 1em 0 1em; text-align:right;}
-
-		svg {display:block; width:90vmin; height:90vmin; margin:0 auto;}
+		/* positioning */
+		svg {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
+		.menu {position:absolute; width:2em; margin:1em;}
+		#menu1 {left:0; top:0;}
+		#menu2 {right:0; top:0; text-align:right;}
+		#datetimes {min-height:calc(100vh - 100vmin);}
 		#times {margin:2em auto; border:1px dotted green;}
+		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
 		#info {position:absolute; left:0; top:0; width:calc((100vw - 90vmin)/2); margin:6em 1em 1em 1em;}
 		#info.right {left:auto; right:0; top:0; text-align:right;}
 
+		/* overlays */
+		#about, #settings {min-height:100vh;}
+		#about > div, #settings > div {position:relative; padding:0.05em 1em 1em 1em;}		
+		.overlay {display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; margin:0; padding:0; background:rgba(221,221,221,0.75); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);}
+		.overlay > div {position:relative; width:calc(100vw - 2em); height:100vh; margin:0; padding:0 1em 1em 1em; background:rgba(255,255,255,0.7); overflow-y: scroll;}
 
-		#about, #settings {height:100vh;}
-		.overlay {display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; margin:0; padding:0; background:rgba(192,192,192,0.8); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);}
-		#about > div, #settings > div {position:relative; width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; padding:0 1em; border: 1px solid #999; border-radius:7px; background:rgba(255,255,255,0.85); overflow-y: scroll;}
-		#settings > div {width:20em;}
+		/* settings */
 		#settings p {line-height:1.7em;}
 		#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
-
 		#locationForm {display:none; margin:-0.5em 0 1em 2em;}
 		#locationForm label {display:inline-block; width:6em; font-size:0.9em;}
 		#locationForm input {width:8em;}
 		#locationForm input[type="submit"] {width:auto; font-size:1em;}
+
+
+		@media (orientation:landscape) {
+			svg {width:90vmin; height:90vmin; margin:0 auto;}
+		}
+
+		@media (min-width:28rem) {
+			.overlay {background:rgba(221,221,221,0.9);}
+			.overlay > div {width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
+			#settings.overlay > div {width:18em;}
+		}
 
 	</style>
 	<!-- script src="https://raw.githubusercontent.com/mourner/suncalc/master/suncalc.js"></script -->
@@ -74,7 +88,7 @@
 <body>
 
 	<a href="#about"    class="menu" id="menu1" title="About">ℹ️</a>
-	<a href="#settings" class="menu" id="menu2" title="Settings"><big style="font-size:1.5em;">⚙</big></a>
+	<a href="#settings" class="menu" id="menu2" title="Settings"><big>⚙</big></a>
 
 	<svg id="clock" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 		<linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
@@ -103,7 +117,7 @@
 			<g id="hourNumbers"   fill="#000" font-size="9px" font-family="Verdana" text-anchor="middle"></g>
 			<g id="minuteNumbers" fill="#090" font-size="5px" font-family="Verdana" text-anchor="middle"></g>
 
-			<g id="hourHand" transform="rotate(0)">
+			<g id="hourHand" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round"/>
 				<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0"/>
 			</g>
@@ -118,7 +132,7 @@
 		</g>
 	</svg>
 
-	<section>
+	<section id="datetimes">
 		<h1 id="date">Getting date...</h1>
 		<p id="location">Getting location...</p>
 
