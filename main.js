@@ -198,6 +198,7 @@ var SunClock = (function() {
 			path.setAttribute('id', p[0]);
 			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
 			path.setAttribute('fill', p[3]);
+			path.setAttribute('cursor', 'crosshair');
 			$('#arcs').appendChild(path);
 			path.onmouseover = (event) => showInfo(event, i);
 			path.onmouseout = hideInfo;
@@ -211,13 +212,23 @@ var SunClock = (function() {
 	function showInfo(event, i) {
 		//if (debug) { console.info(event, i); }
 		let p = periodsTemp[i];
+		let dir = 'left';
+		
+		if (i < periodsTemp.length/2) {
+			dir = (direction > 0) ? 'left' : 'right';
+		} else {
+			dir = (direction > 0) ? 'right' : 'left';		
+		}
+		
+		$('#info').classList.add(dir);
 		$('#info').innerHTML = `
-			<p>${textReplacements[p[0]]}:<br>
-			from: ${sunTimes[p[1]].toLocaleTimeString()} (${textReplacements[p[1]]})<br>
-			to:   ${sunTimes[p[2]].toLocaleTimeString()} (${textReplacements[p[2]]})</p>`;
+			<h3>${textReplacements[p[0]]}</h3>
+			<p>${textReplacements[p[1]]}: ${sunTimes[p[1]].toLocaleTimeString()}<br>
+			to ${textReplacements[p[2]]}: ${sunTimes[p[2]].toLocaleTimeString()}</p>`;
 	}
 
 	function hideInfo() {
+		$('#info').classList.remove('left','right');
 		$('#info').innerHTML = '';
 	}
 
