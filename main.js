@@ -21,8 +21,8 @@ var SunClock = (function() {
 		hourHand, minuteHand, secondHand, dateText,
 		sunTimes, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
 		radius,
-		direction = -1, // 1 = clockwise, -1 = anticlockwise
-		geoLocation = {latitude:0, longitude:167.5};
+		direction = 1, // 1 = clockwise, -1 = anticlockwise
+		geoLocation;
 
 	const debug = true,
 		testFlag = false,
@@ -95,6 +95,15 @@ var SunClock = (function() {
 			${Math.abs(geoLocation.latitude.toFixed(3))}° ${(geoLocation.latitude >=0) ? 'N' : 'S'},
 			${Math.abs(geoLocation.longitude.toFixed(3))}° ${(geoLocation.longitude >=0) ? 'E' : 'W'}`;
 			//<br><small>(Accuracy: ${geoLocation.accuracy} m)</small>`;
+
+		// if antiClockwise option not set, choose direction based on latitude
+		if (getItem('antiClockwise') === null) {
+			direction = (geoLocation.latitude >= 0) ? 1 : -1;
+			$('input[name="antiClockwise"]').checked = (geoLocation.latitude >= 0) ? false : true;
+			drawNumbers('#hourNumbers', 24, 1, false);
+			drawNumbers('#minuteNumbers', 60, -1.7, true);
+		}
+
 		getSunTimes();
 	}
 
@@ -348,18 +357,20 @@ var SunClock = (function() {
 		// handle location form submit
 		console.log(`updating geolocation to ${form.latitude.value}, ${form.longitude.value}`);
 		geoLocation = {latitude:parseFloat(form.latitude.value), longitude:parseFloat(form.longitude.value)};
-		showLocation({coords: geoLocation});
 		setItem('location', JSON.stringify(geoLocation));
+		showLocation({coords: geoLocation});
 		return false;
 	}
 
 	function loadOptions() {
 		// load options from localStorage, and set checkboxes, etc.
-		if (getItem('antiClockwise') === false) {
-			$('input[name="antiClockwise"]').checked = false;
-			direction = 1;
+		if (getItem('antiClockwise') !== null) {
+			direction = (getItem('antiClockwise')) ? -1 : 1;
+			$('input[name="antiClockwise"]').checked = (getItem('antiClockwise'));
 			drawNumbers('#hourNumbers', 24, 1, false);
 			drawNumbers('#minuteNumbers', 60, -1.7, true);
+		} else {
+			//$('input[name="antiClockwise"]').indeterminate = true;
 		}
 		if (getItem('showHourNumbers') === false) {
 			$('input[name="showHourNumbers"]').checked = false;
