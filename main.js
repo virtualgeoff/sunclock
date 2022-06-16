@@ -126,6 +126,7 @@ var SunClock = (function() {
 
 	function getSunTimes() {
 		let event;
+		let subset = ['nadir', 'sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
 
 		// get times from suncalc.js
 		sunTimes = null;
@@ -141,21 +142,11 @@ var SunClock = (function() {
 		}
 
 		$('#times tbody').innerHTML = '';
-
-		// TODO: write only midnight, sunrise, sunset, and noon events instead of whole list
-
-		for (let i=0; i<periods.length; i++) {
-			event = sunTimes[periods[i][1]].toLocaleTimeString();
+		for (let i=0; i<subset.length; i++) {
+			event = sunTimes[subset[i]].toLocaleTimeString();
 			if (event == 'Invalid Date') { event = 'Does not occur'; }
-
-			$('#times tbody').innerHTML += `<tr><td>${textReplacements[periods[i][1]]}</td><td>${event}</td></tr>`;
+			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}</td><td>${event}</td></tr>`;
 		}
-
-		$('#times tbody').innerHTML += `
-			<tr><td colspan="2"><br><b>Altitude of sun:</b></td></tr>
-			<tr><td>at noon</td><td>${toDegrees(noonPosition.altitude).toFixed(2)}°</td></tr>
-			<tr><td>at midnight</td><td>${toDegrees(nadirPosition.altitude).toFixed(2)}°</td></tr>
-		`;
 
 		drawArcs();
 	}
