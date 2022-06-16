@@ -112,24 +112,24 @@
 
 	<svg id="clock" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 		<linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
-			<stop offset="0%"  stop-color="#dceaff"/>
-			<stop offset="37%" stop-color="#dceaff"/>
-			<stop offset="49%" stop-color="#ffe988"/>
-			<stop offset="50%" stop-color="#ff9900"/>
-			<stop offset="51%" stop-color="#88a6d4"/>
-			<stop offset="54%" stop-color="#4574bc"/>
-			<stop offset="59%" stop-color="#213c66"/>
-			<stop offset="64%" stop-color="#192029"/>
-			<stop offset="100%" stop-color="#192029"/>
+			<stop offset="0%"  stop-color="#dceaff" />
+			<stop offset="37%" stop-color="#dceaff" />
+			<stop offset="49%" stop-color="#ffe988" />
+			<stop offset="50%" stop-color="#ff9900" />
+			<stop offset="51%" stop-color="#88a6d4" />
+			<stop offset="54%" stop-color="#4574bc" />
+			<stop offset="59%" stop-color="#213c66" />
+			<stop offset="64%" stop-color="#192029" />
+			<stop offset="100%" stop-color="#192029" />
 		</linearGradient>
 
 		<g transform="translate(150,150)">
 			<!-- circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/ -->
-			<circle id="clockFace" cx="0" cy="0" r="125" fill="url(#Gradient2)" stroke="#000" stroke-width="1"/>
+			<circle id="clockFace" cx="0" cy="0" r="125" fill="url(#Gradient2)" stroke="#000" stroke-width="1" />
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
-			<path id="midnight" d="M 0,0 L 0,0" stroke="#669" stroke-width="1"/>
-			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="1"/>
+			<path id="midnight" d="M 0,0 L 0,0" stroke="#669" stroke-width="1" />
+			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="1" />
 
 			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
 			<g id="quarterMarks"  fill="none" stroke="#000" stroke-width="4"></g>
@@ -137,17 +137,22 @@
 			<g id="hourNumbers"   fill="#000" font-size="9px" font-family="Verdana" text-anchor="middle"></g>
 			<g id="minuteNumbers" fill="#090" font-size="5px" font-family="Verdana" text-anchor="middle"></g>
 
-			<g id="hourHand" transform="rotate(180)">
-				<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round"/>
-				<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0"/>
+			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
+				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" stroke-linecap="round" />
+				<!-- circle cx="0" cy="80" r="6" fill="#fff" stroke="#f70" stroke-width="0" / -->
+				<text id="moonIcon" x="-6" y="85" font-size="12px">🌕 </text>
+			</g>
+			<g id="hourHand" cursor="crosshair" transform="rotate(180)">
+				<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round" />
+				<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0" />
 			</g>
 			<g id="minuteHand" transform="rotate(0)">
-				<line x1="0" y1="0" x2="0" y2="-110" fill="none" stroke="#0a0" stroke-width="2" stroke-linecap="round"/>
-				<circle cx="0" cy="0" r="4.0" fill="#0a0" stroke="#0a0" stroke-width="0"/>
+				<line x1="0" y1="0" x2="0" y2="-110" fill="none" stroke="#0a0" stroke-width="2" stroke-linecap="round" />
+				<circle cx="0" cy="0" r="4.0" fill="#0a0" stroke="#0a0" stroke-width="0" />
 			</g>
 			<g id="secondHand" transform="rotate(0)">
-				<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round"/>
-				<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0"/>
+				<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round" />
+				<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0" />
 			</g>
 		</g>
 	</svg>
@@ -192,6 +197,7 @@
 
 			<form id="settingsForm">
 				<p><label><input type="checkbox"  name="antiClockwise" onchange="SunClock.setOption(this)"> turn anti-clockwise</label><br></p>
+				<p><label><input type="checkbox" name="showMoon"       onchange="SunClock.setOption(this)" checked> show Moon</label></p>
 				<p>
 					<label><input type="checkbox" name="showHourNumbers" onchange="SunClock.setOption(this)" checked> show hour numbers</label><br>
 					<label><input type="checkbox" name="showHourMarks"   onchange="SunClock.setOption(this)" checked> show hour marks</label><br>

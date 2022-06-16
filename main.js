@@ -20,9 +20,11 @@ var SunClock = (function() {
 	let now, then,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, dateText,
-		sunTimes, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
+		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
+		moonTimes, moonPosition, moonHand, moonPhase, moonPhaseName, moonIcon, 
 		radius,
 		direction = 1, // 1 = clockwise, -1 = anticlockwise
+		showMoon = true, 
 		geoLocation;
 
 	const debug = true,
@@ -74,6 +76,16 @@ var SunClock = (function() {
 			'astronomicalEveningTwilight' : 'Astronomical Evening Twilight',
 			'night' : 'Astronomical Dusk',
 			'lateEvening' : 'Late Evening'
+		},
+		moonPhaseIcons = {
+			'New Moon':        '🌑',
+			'Waxing Crescent': '🌒',
+			'First Quarter':   '🌓',
+			'Waxing Gibbous':  '🌔',
+			'Full Moon':       '🌕',
+			'Waning Gibbous':  '🌖',
+			'Last Quarter':    '🌗',
+			'Waning Cresent':  '🌘'
 		};
 
 	function getLocation() {
@@ -126,7 +138,7 @@ var SunClock = (function() {
 
 	function getSunTimes() {
 		let event;
-		let subset = ['nadir', 'sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
+		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
 
 		// get times from suncalc.js
 		sunTimes = null;
@@ -157,6 +169,9 @@ var SunClock = (function() {
 
 		// add hover event to hour hand
 		addHoverEvent(hourHand, showSunInfo);
+
+		// add hover event to moon hand
+		addHoverEvent(moonHand, showMoonInfo);
 	}
 
 	function drawTimePeriods() {
@@ -204,8 +219,9 @@ var SunClock = (function() {
 			point2 = getPointFromTime(sunTimes[p[2]]);
 			path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 			path.setAttribute('id', p[0]);
-			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
 			path.setAttribute('fill', p[3]);
+			path.setAttribute('cursor', 'crosshair');
+			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
 			$('#arcs').appendChild(path);
 
 			// add hover event to the arc
@@ -221,7 +237,6 @@ var SunClock = (function() {
 		} else {
 			object.onclick = (event) => func();
 		}
-		object.setAttribute('cursor', 'crosshair');
 	}
 
 	function showPeriodInfo(event, i) {
@@ -245,7 +260,7 @@ var SunClock = (function() {
 
 	function showSunInfo() {
 		let dir;
-		let currentSunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
+		sunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
 
 		// get info direction
 		if (direction === 1) {  
@@ -255,12 +270,72 @@ var SunClock = (function() {
 		}
 
 		let str = `<h3>Sun</h3>
-			<p>Altitude: ${toDegrees(currentSunPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${toDegrees(currentSunPosition.azimuth).toFixed(2)}°</p>			
+			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
+			Azimuth:  ${toDegrees(sunPosition.azimuth).toFixed(2)}°</p>			
 			<p>Altitude at:<br>
 			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
 			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
 			<p class="done"><a href="#">ok</a></p>`;
+	
+		showInfo(str, dir);
+	}
+
+	function getMoonPhaseName(phase) {
+		// there's probably a really elegant way to do this, but...
+		let d = 0.0167; // 1.67 % ~= 1/2 day per month ?
+		let phaseName = 'New Moon';
+		
+		if ((phase > 0.0 + d) && (phase < 0.25 - d)) {
+			phaseName = 'Waxing Crescent';
+		} else if ((phase >= 0.25 - d) && (phase <= 0.25 + d)) {
+			phaseName = 'First Quarter';
+		} else if ((phase > 0.25 + d) && (phase < 0.50 - d)) {
+			phaseName = 'Waxing Gibbous';
+		} else if ((phase >= 0.50 - d) && (phase <= 0.50 + d)) {
+			phaseName = 'Full Moon';
+		} else if ((phase > 0.50 + d) && (phase < 0.75 - d)) {
+			phaseName = 'Waning Gibbous';
+		} else if ((phase >= 0.75 - d) && (phase <= 0.75 + d)) {
+			phaseName = 'Last Quarter';
+		} else if ((phase > 0.75 + d) && (phase < 1.0 - d)) {
+			phaseName = 'Waning Crescent';
+		}
+		return phaseName;	
+	}
+
+	function showMoonInfo() {
+		let dir;
+		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
+		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
+		moonPhase = SunCalc.getMoonIllumination(now).phase;
+		moonPhaseName = getMoonPhaseName(moonPhase);
+		if (debug) { console.log(moonTimes, moonPosition); };
+
+		let angleFraction = parseFloat(moonHand.getAttribute('transform').substring(7)) / 360;	
+		//console.log(angleFraction);	
+		if (direction === 1) {  
+			dir = ((angleFraction <= -0.5) || (angleFraction >= 0.5)) ? 'left' : 'right';
+		} else {
+			dir = ((angleFraction <= -0.5) || (angleFraction >= 0.5)) ? 'right' : 'left';
+		}
+
+		let str = `<h3>Moon</h3>
+			<p>${moonPhaseName} (${moonPhase.toFixed(2)})</p>`;
+
+		if ((moonTimes.rise) || (moonTimes.set)) {
+			str += '<p>';
+			if (moonTimes.rise) { str += `Rises: ${moonTimes.rise.toLocaleTimeString()}<br>`; }
+			if (moonTimes.set) {  str += `Sets:  ${moonTimes.set.toLocaleTimeString()}`; }
+			str += '</p>';			
+		} else if (moonTimes.alwaysUp) {
+			str += '<p>Moon is up all day</p>';
+		} else if (moonTimes.alwaysDown) {
+			str += '<p>Moon is down all day</p>';
+		}
+		str += `
+			<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
+			Azimuth:  ${toDegrees(moonPosition.azimuth).toFixed(2)}°</p>
+			<p class="done"><a href="#">ok</a></p>`;			
 	
 		showInfo(str, dir);
 	}
@@ -328,16 +403,23 @@ var SunClock = (function() {
 		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
 		minutes = now.getMinutes() + seconds/60;
 		hours   = now.getHours()   + minutes/60;
-
+		
 		// refresh the sunrise/sunset times at midnight
 		if (then && (now.getDate() !== then.getDate())) {
 			getSunTimes();
 		}
 
-		secondHand.setAttribute('transform', 'rotate(' + (seconds * direction * 6) + ')'); //  6° per second
-		minuteHand.setAttribute('transform', 'rotate(' + (minutes * direction * 6) + ')'); //  6° per minute
-		hourHand.setAttribute('transform',   'rotate(' + (hours  * direction * 15) + ')'); // 15° per hour
+		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
+		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
+		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
 		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${now.toLocaleTimeString()}`;
+
+		// TODO: does not need to be recalculated each animation frame
+		if (showMoon) {
+			moonPhase = SunCalc.getMoonIllumination(now).phase;
+			moonIcon.innerHTML = moonPhaseIcons[getMoonPhaseName(moonPhase)];
+			moonHand.setAttribute('transform', (`rotate(${ (hours  * direction * 15) + (moonPhase * -direction * 360) })`));
+		}
 
 		then = now;
 		// TODO: if not showing seconds hand, then don't need to update so often
@@ -362,6 +444,10 @@ var SunClock = (function() {
 			drawNumbers('#hourNumbers', 24, 1, false);
 			drawNumbers('#minuteNumbers', 60, -1.7, true);
 			drawTimePeriods();
+			break;
+		  case 'showMoon':
+			moonHand.style.display = (checkbox.checked) ? 'block' : 'none';
+			showMoon = (checkbox.checked) ? 'true' : 'false';
 			break;
 		  case 'showHourNumbers':
 			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
@@ -412,6 +498,11 @@ var SunClock = (function() {
 		} else {
 			//$('input[name="antiClockwise"]').indeterminate = true;
 		}
+		if (getItem('showMoon') === false) {
+			showMoon = false;
+			$('input[name="showMoon"]').checked = false;
+			moonHand.style.display = 'none';
+		}
 		if (getItem('showHourNumbers') === false) {
 			$('input[name="showHourNumbers"]').checked = false;
 			$('#hourNumbers').style.display = 'none';
@@ -456,6 +547,9 @@ var SunClock = (function() {
 		minuteHand = $('#minuteHand');
 		secondHand = $('#secondHand');
 		dateText   = $('#date');
+
+		moonHand   = $('#moonHand');
+		moonIcon   = $('#moonIcon');
 
 		// draw clock
 		radius = parseInt($('#clockFace').getAttribute('r'));
