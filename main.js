@@ -141,6 +141,7 @@ var SunClock = (function() {
 			console.log(`sunAlwaysUp: ${sunAlwaysUp}, sunAlwaysDown: ${sunAlwaysDown}`);
 		}
 
+		// write subset of times below date
 		$('#times tbody').innerHTML = '';
 		for (let i=0; i<subset.length; i++) {
 			event = sunTimes[subset[i]].toLocaleTimeString();
@@ -148,10 +149,10 @@ var SunClock = (function() {
 			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}</td><td>${event}</td></tr>`;
 		}
 
-		drawArcs();
+		drawTimePeriods();
 	}
 
-	function drawArcs() {
+	function drawTimePeriods() {
 		// draw time periods on clock face
 		let p, t1, t2, point1, point2, path;
 
@@ -169,7 +170,6 @@ var SunClock = (function() {
 			p = periodsTemp[i];
 			t1 = Date.parse(sunTimes[p[1]]);
 			t2 = Date.parse(sunTimes[p[2]]);
-
 			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
 
 			// test if beginning and end times are valid
@@ -177,14 +177,14 @@ var SunClock = (function() {
 				// both times are invalid - period doesn't occur
 				continue;
 			} else if ( isNaN(t1) ) {
-				// first time is invalid, second time valid
+				// beginning time is invalid, end time valid
 				if ((i === 6) && !sunAlwaysUp) { continue; }    // morning
-				if ((i === 13) && !sunAlwaysDown) { continue; } // evening
+				if ((i === 13) && !sunAlwaysDown) { continue; } // lateEvening
 				// use nadir (for morning periods) or noon (for evening periods) as t1 instead
 				p[1] = (i <= 6) ? 'nadir' : 'solarNoon';
 			} else if ( isNaN(t2) ) {
-				// first time valid, second time invalid
-				if ((i === 0) && !sunAlwaysDown) { continue; } // early morning
+				// beginning time valid, end time invalid
+				if ((i === 0) && !sunAlwaysDown) { continue; } // earlyMorning
 				if ((i === 7) && !sunAlwaysUp) { continue; }   // afternoon
 				// use noon (for morning periods) or nadir (for evening periods) as t2 instead
 				p[2] = (i <= 6) ? 'solarNoon' : 'nadir';
@@ -325,7 +325,7 @@ var SunClock = (function() {
 			direction = (checkbox.checked) ? -1 : 1;
 			drawNumbers('#hourNumbers', 24, 1, false);
 			drawNumbers('#minuteNumbers', 60, -1.7, true);
-			drawArcs();
+			drawTimePeriods();
 			break;
 		  case 'showHourNumbers':
 			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
