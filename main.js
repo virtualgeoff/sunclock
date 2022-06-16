@@ -150,6 +150,13 @@ var SunClock = (function() {
 		}
 
 		drawTimePeriods();
+
+		// draw solar noon and midnight lines
+		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
+		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
+
+		// add hover event to hour hand
+		addHoverEvent(hourHand, showSunInfo);
 	}
 
 	function drawTimePeriods() {
@@ -199,25 +206,27 @@ var SunClock = (function() {
 			path.setAttribute('id', p[0]);
 			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
 			path.setAttribute('fill', p[3]);
-			path.setAttribute('cursor', 'crosshair');
 			$('#arcs').appendChild(path);
-			if (supportsHover) {
-				path.onmouseover = (event) => showInfo(event, i);
-				path.onmouseout = hideInfo;
-			} else {
-				path.onclick = (event) => showInfo(event, i);
-			}
-		}
 
-		// draw solar noon and midnight lines
-		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
-		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
+			// add hover event to the arc
+			addHoverEvent(path, showPeriodInfo, event, i);
+		}
 	}
 
-	function showInfo(event, i) {
-		//if (debug) { console.info(event, i); }
+	function addHoverEvent(object, func, a, b) {
+		// add hover or click event to object
+		if (supportsHover) {
+			object.onmouseover = (event) => func(a, b);
+			object.onmouseout = hideInfo;
+		} else {
+			object.onclick = (event) => func();
+		}
+		object.setAttribute('cursor', 'crosshair');
+	}
+
+	function showPeriodInfo(event, i) {
+		let dir;
 		let p = periodsTemp[i];
-		let dir = 'left';
 
 		if (i < periodsTemp.length/2) {
 			dir = (direction > 0) ? 'left' : 'right';
@@ -225,18 +234,45 @@ var SunClock = (function() {
 			dir = (direction > 0) ? 'right' : 'left';
 		}
 
-		$('#info').classList.add(dir);
-		$('#info').classList.remove('hide');
-		$('#info').innerHTML = `
-			<h3>${textReplacements[p[0]]}</h3>
+		let str = `<h3>${textReplacements[p[0]]}</h3>
 			<p>${textReplacements[p[1]]}<br>${sunTimes[p[1]].toLocaleTimeString()}</p>
 			<p class="to">— to —</p>
 			<p>${textReplacements[p[2]]}<br>${sunTimes[p[2]].toLocaleTimeString()}</p>
 			<p class="done"><a href="#">ok</a></p>`;
 
+		showInfo(str, dir);
+	}
+
+	function showSunInfo() {
+		let dir;
+		let currentSunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
+
+		// get info direction
+		if (direction === 1) {  
+			dir = (hours >= 12) ? 'right' : 'left';
+		} else {
+			dir = (hours >= 12) ? 'left' : 'right';
+		}
+
+		let str = `<h3>Sun</h3>
+			<p>Altitude: ${toDegrees(currentSunPosition.altitude).toFixed(2)}°<br>
+			Azimuth:  ${toDegrees(currentSunPosition.azimuth).toFixed(2)}°</p>			
+			<p>Altitude at:<br>
+			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
+			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
+			<p class="done"><a href="#">ok</a></p>`;
+	
+		showInfo(str, dir);
+	}
+
+	function showInfo(str, dir) {
+		$('#info').classList.add(dir);
+		$('#info').classList.remove('hide');
+		$('#info').innerHTML = str;
+
 		if (!supportsHover) {
 			$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(); };
-		}
+		}		
 	}
 
 	function hideInfo() {
