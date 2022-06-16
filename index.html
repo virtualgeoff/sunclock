@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
+	<meta charset="utf-8">
 	<title>Sun Clock</title>
 	<meta name="description" content="A 24-hour clock that shows sunrise, sunset, golden hour, and twilight times for your current location">
 	<meta name="keywords" content="24-hour, clock, sunrise, sunset, twilight, dawn, dusk">
@@ -42,13 +42,13 @@
 		a:link {color:#00e;}
 		a:visited {color:50e;}
 		a:hover {color:#f50;}
+		a.menu, a.menu:visited, a.close, a.close:visited {text-decoration:none; font-weight:bold; color:#000;}
+		a:hover, a.close:hover {color:#f50;}
+		.done a:visited {color:#00e;}
 
 		a.menu {}
 		a.menu big {font-size:1.5em;}
-		a.menu, a.menu:visited, a.close, a.close:visited {text-decoration:none; font-weight:bold; color:#000;}
-		a:hover, a.close:hover {color:#f50;}
 		.close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
-		.done a:visited {color:#00e;}
 
 		/* positioning */
 		svg {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
@@ -56,7 +56,7 @@
 		#menu1 {left:0; top:0;}
 		#menu2 {right:0; top:0; text-align:right;}
 		#datetimes {min-height:calc(100vh - 100vmin);}
-		#times {margin:2em auto; border:1px dotted green;}
+		#times {margin:1em auto;}
 		#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
 		#info {}
 		#info.right {}
@@ -207,7 +207,7 @@
 
 			<form id="locationForm" onsubmit="return SunClock.updateLocation(this);">
 				<p>
-					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" length="10" required> <!-- small>(0 to ±90)</small --><br>
+					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" size="10" required> <!-- small>(0 to ±90)</small --><br>
 					<label for="longitude">Longitude</label> <input name="longitude" type="number" min="-180" max="180" step="0.001" size="10" required> <!-- small>(0 to ±180)</small --><br>
 					<label></label> <input type="submit" value="Update">
 				</p>
