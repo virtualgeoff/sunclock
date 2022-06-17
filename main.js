@@ -398,34 +398,6 @@ var SunClock = (function() {
 		}
 	}
 
-	function tick() {
-		now = new Date();
-		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
-		minutes = now.getMinutes() + seconds/60;
-		hours   = now.getHours()   + minutes/60;
-		
-		// refresh the sunrise/sunset times at midnight
-		if (then && (now.getDate() !== then.getDate())) {
-			getSunTimes();
-		}
-
-		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
-		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
-		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
-		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${now.toLocaleTimeString()}`;
-
-		// TODO: does not need to be recalculated each animation frame
-		if (showMoon) {
-			moonPhase = SunCalc.getMoonIllumination(now).phase;
-			moonIcon.innerHTML = moonPhaseIcons[getMoonPhaseName(moonPhase)];
-			moonHand.setAttribute('transform', (`rotate(${ (hours  * direction * 15) + (moonPhase * -direction * 360) })`));
-		}
-
-		then = now;
-		// TODO: if not showing seconds hand, then don't need to update so often
-		window.requestAnimationFrame(tick);
-	}
-
 	function setItem(itemName, value) {
 		// TODO: test if localStorage available and warn user?
 		localStorage.setItem(itemName, value);
@@ -540,6 +512,34 @@ var SunClock = (function() {
 			$('input[name="latitude"]').value  = getItem('location').latitude || 0;
 			$('input[name="longitude"]').value = getItem('location').longitude || 0;
 		}
+	}
+
+	function tick() {
+		now = new Date();
+		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
+		minutes = now.getMinutes() + seconds/60;
+		hours   = now.getHours()   + minutes/60;
+		
+		// refresh the sunrise/sunset times at midnight
+		if (then && (now.getDate() !== then.getDate())) {
+			getSunTimes();
+		}
+
+		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
+		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
+		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
+		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${now.toLocaleTimeString()}`;
+
+		// TODO: does not need to be recalculated each animation frame
+		if (showMoon) {
+			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
+			moonIcon.innerHTML = moonPhaseIcons[getMoonPhaseName(moonPhase)];
+			moonHand.setAttribute('transform', (`rotate(${ (hours  * direction * 15) + (moonPhase * -direction * 360) })`));
+		}
+
+		then = now;
+		// TODO: if not showing seconds hand, then don't need to update so often
+		window.requestAnimationFrame(tick);
 	}
 
 	function init() {
