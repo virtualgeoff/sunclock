@@ -235,7 +235,7 @@ var SunClock = (function() {
 			object.onmouseover = (event) => func(a, b);
 			object.onmouseout = hideInfo;
 		} else {
-			object.onclick = (event) => func();
+			object.onclick = (event) => func(a, b);
 		}
 	}
 
