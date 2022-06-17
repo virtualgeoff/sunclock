@@ -238,22 +238,16 @@ var SunClock = (function() {
 	function addHoverEvent(object, func, a, b) {
 		// add hover or click event to object
 		if (supportsHover) {
-			object.onmouseover = (event) => func(a, b);
+			object.onmouseover = (e) => func(e, a, b);
 			object.onmouseout = hideInfo;
 		} else {
-			object.onclick = (event) => func(a, b);
+			object.onclick = (e) => func(e, a, b);
 		}
 	}
 
-	function showPeriodInfo(event, i) {
-		let dir;
+	function showPeriodInfo(e, event, i) {
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
 		let p = periodsTemp[i];
-
-		if (i < periodsTemp.length/2) {
-			dir = (direction > 0) ? 'left' : 'right';
-		} else {
-			dir = (direction > 0) ? 'right' : 'left';
-		}
 
 		let str = `<h3>${textReplacements[p[0]]}</h3>
 			<p>${textReplacements[p[1]]}<br>${sunTimes[p[1]].toLocaleTimeString()}</p>
@@ -264,16 +258,9 @@ var SunClock = (function() {
 		showInfo(str, dir);
 	}
 
-	function showSunInfo() {
-		let dir;
+	function showSunInfo(e) {
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
 		sunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
-
-		// get info direction
-		if (direction === 1) {  
-			dir = (hours >= 12) ? 'right' : 'left';
-		} else {
-			dir = (hours >= 12) ? 'left' : 'right';
-		}
 
 		let str = `<h3>Sun</h3>
 			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
@@ -309,21 +296,13 @@ var SunClock = (function() {
 		return phaseName;	
 	}
 
-	function showMoonInfo() {
-		let dir;
+	function showMoonInfo(e) {
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
 		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
 		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
 		moonPhase = SunCalc.getMoonIllumination(now).phase;
 		moonPhaseName = getMoonPhaseName(moonPhase);
-		if (debug) { console.log(moonTimes, moonPosition); };
-
-		let angleFraction = parseFloat(moonHand.getAttribute('transform').substring(7)) / 360;	
-		//console.log(angleFraction);	
-		if (direction === 1) {  
-			dir = ((angleFraction <= -0.5) || (angleFraction >= 0.5)) ? 'left' : 'right';
-		} else {
-			dir = ((angleFraction <= -0.5) || (angleFraction >= 0.5)) ? 'right' : 'left';
-		}
+		//if (debug) { console.log(moonTimes, moonPosition); };
 
 		let str = `<h3>Moon</h3>
 			<p>${moonPhaseName} (${moonPhase.toFixed(2)})</p>`;
