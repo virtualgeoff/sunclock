@@ -130,6 +130,12 @@ var SunClock = (function() {
 		return (angle / (2 * Math.PI) * 360);
 	}
 
+	function convertAzimuth(angle) {
+		// SunCalc uses “sun azimuth in radians (direction along the horizon, measured from south to west), e.g. 0 is south and Math.PI * 3/4 is northwest”
+		// We want degrees clockwise from North. See also: https://en.wikipedia.org/wiki/Azimuth
+		return ((360 + 180 + toDegrees(angle)) % 360);
+	}
+
 	function getPointFromTime(date) {
 		// get point on clock perimeter from time
 		var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
@@ -271,7 +277,7 @@ var SunClock = (function() {
 
 		let str = `<h3>Sun</h3>
 			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${toDegrees(sunPosition.azimuth).toFixed(2)}°</p>			
+			Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>			
 			<p>Altitude at:<br>
 			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
 			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
@@ -334,7 +340,7 @@ var SunClock = (function() {
 		}
 		str += `
 			<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${toDegrees(moonPosition.azimuth).toFixed(2)}°</p>
+			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>
 			<p class="done"><a href="#">ok</a></p>`;			
 	
 		showInfo(str, dir);
