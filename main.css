@@ -1,0 +1,79 @@
+
+html {height:-webkit-fill-available;}
+body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:Helvetica, Arial, sans-serif; background:#fff;}
+h1 {font-size:1.3em; margin:0 1em 0.5em 1em; text-align:center;}
+h2 {font-size:1.2em; margin:1em 0;}
+h3 {font-size:1.0em; margin:3em 0 1em 0}
+h4 {font-size:0.9em; margin:3em 0 1em 0}
+p {margin:0 0 1em 0;}
+p.to {margin:-0.5em 0 0.5em 0; font-style:italic;}
+big {font-size:1.2em;}
+sup {}
+
+.center {text-align:center;}
+.hide {display:none;}
+
+table {margin:0 0 1em 0; border-collapse:collapse;}
+td {padding:0.3em 0.6em; border:1px solid #eee;}
+td:nth-child(2) {text-align:right;}
+
+/* links */
+a:link {color:#00e;}
+a:visited {color:50e;}
+a:hover {color:#f50;}
+
+a.menu, a.close {text-decoration:none; font-weight:bold; color:#003;}
+a.menu:visited, a.close:visited {color:#003;}
+a.menu:hover,   a.close:hover   {color:#f50;}
+.done a:visited {color:#00e;}
+
+/* positioning */
+.menu {position:absolute; width:2em; margin:1em;}
+#menu1 {left:0; top:0;}
+#menu2 {right:0; top:0; text-align:right;}
+#clock {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
+#datetimes {min-height:calc(100vh - 100vmin);}
+#times {margin:1em auto;}
+#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
+#info {}
+#info.right {}
+#info h3 {margin:0.5em 0;}
+#info .done {display:none;}
+
+/* overlays */
+#about, #settings {min-height:100vh;}
+#about > div, #settings > div {position:relative; padding:0.05em 1em 1em 1em;}		
+.overlay {display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; margin:0; padding:0; background:rgba(221,221,221,0.75); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);}
+.overlay > div {position:relative; width:calc(100vw - 2em); height:100vh; margin:0; padding:0 1em 1em 1em; background:rgba(255,255,255,0.7); overflow-y: scroll;}
+.close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
+
+/* settings */
+#settings p {line-height:1.7em;}
+#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
+#locationForm {display:none; margin:-0.5em 0 1em 2em;}
+#locationForm label {display:inline-block; width:6em; font-size:0.9em;}
+#locationForm input {width:8em;}
+#locationForm input[type="submit"] {width:auto; font-size:1em;}
+
+
+@media (orientation:portrait) {
+	#info {position:absolute; left:calc(50vw - 6em); top:25vmin; width:10em; margin:0; padding:1em; text-align:center; background:rgba(255,255,255,0.85); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
+	#info.right {}
+	#info .done {display:block;}
+}
+
+@media (orientation:landscape) {
+	#clock {width:90vmin; height:90vmin; margin:0 auto;}
+	#info {position:absolute; left:1em; top:4em; width:calc((100vw - 90vmin)/2);}
+	#info.right {left:auto; right:1em; text-align:right;}
+}
+
+@media (hover:none) {		
+	#info .done {display:block;}
+}
+
+@media (min-width:28rem) {
+	.overlay {background:rgba(221,221,221,0.9);}
+	.overlay > div {width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
+	#settings.overlay > div {width:18em;}
+}
