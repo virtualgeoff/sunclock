@@ -39,21 +39,16 @@
 	</a>
 
 	<svg id="clock" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
-		<linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
-			<stop offset="0%"  stop-color="#dceaff" />
-			<stop offset="37%" stop-color="#dceaff" />
-			<stop offset="49%" stop-color="#ffe988" />
-			<stop offset="50%" stop-color="#ff9900" />
-			<stop offset="51%" stop-color="#88a6d4" />
-			<stop offset="54%" stop-color="#4574bc" />
-			<stop offset="59%" stop-color="#213c66" />
-			<stop offset="64%" stop-color="#192029" />
-			<stop offset="100%" stop-color="#192029" />
-		</linearGradient>
+		<!-- technique from: https://css-tricks.com/my-struggle-to-use-and-animate-a-conic-gradient-in-svg/ -->
+		<clipPath id="clip">
+			<circle cx="150" cy="150" r="125" />
+		</clipPath>
+		<foreignObject x="0" y="0" width="300" height="300" clip-path="url(#clip)">
+			<div xmlns="http://www.w3.org/1999/xhtml" class="skyBackground"></div>
+		</foreignObject>
 
 		<g transform="translate(150,150)">
-			<!-- circle id="clockFace" cx="0" cy="0" r="125" fill="#dceaff" stroke="#000" stroke-width="1"/ -->
-			<circle id="clockFace" cx="0" cy="0" r="125" fill="url(#Gradient2)" stroke="#000" stroke-width="1" />
+			<circle id="clockFace" cx="0" cy="0" r="125" fill="none" stroke="#000" stroke-width="1" />
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
 			<path id="midnight" d="M 0,0 L 0,0" stroke="#669" stroke-width="1" />

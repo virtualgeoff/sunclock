@@ -32,6 +32,14 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 #menu1 {left:0; top:0;}
 #menu2 {right:0; top:0; text-align:right;}
 #clock {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
+
+.skyBackground {
+	width:300px; height:300px; border-radius:150px;
+	background-image: conic-gradient(from 180deg,
+		#192029 72deg, #213c66 78deg, #4574bc 84deg, #88a6d4 90deg, #ff9900 90deg, #ffe988 95deg, #dceaff 110deg, 
+		#dceaff 250deg, #ffe988 265deg, #ff9900 270deg, #88a6d4 270deg, #4574bc 276deg, #213c66 282deg, #192029 288deg);
+}
+
 #datetimes {min-height:calc(100vh - 100vmin);}
 #times {margin:1em auto;}
 #location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
@@ -68,7 +76,7 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 	#info.right {left:auto; right:1em; text-align:right;}
 }
 
-@media (hover:none) {		
+@media (hover:none) {
 	#info .done {display:block;}
 }
 
