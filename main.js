@@ -326,6 +326,7 @@ var SunClock = (function() {
 	}
 
 	function showInfo(str, dir) {
+		$('#info').classList.remove('left','right'); // remove both before adding (hideInfo may not be called on touch devices before next showInfo)
 		$('#info').classList.add(dir);
 		$('#info').classList.remove('hide');
 		$('#info').innerHTML = str;
