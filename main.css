@@ -82,6 +82,6 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 
 @media (min-width:28rem) {
 	.overlay {background:rgba(221,221,221,0.9);}
-	.overlay > div {width:40em; max-width:80vmin; height:auto; max-height:90vh; margin:5vh auto; border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
+	.overlay > div {width:40em; max-width:80vmin; height:auto; max-height:85vh; margin:5vh auto; border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
 	#settings.overlay > div {width:18em;}
 }

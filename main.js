@@ -550,7 +550,6 @@ var SunClock = (function() {
 		// start clock
 		loadOptions();
 		tick();
-		getLocation();
 
 		// make overlays
 		$All('#about, #settings').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
@@ -573,6 +572,9 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
+		
+		// get location last
+		getLocation();		
 	}
 
 	window.addEventListener('load', init);
