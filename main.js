@@ -21,7 +21,7 @@ var SunClock = (function() {
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, dateText,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
-		moonTimes, moonPosition, moonHand, moonPhase, moonPhaseName, moonIcon, 
+		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, 
 		radius,
 		direction = 1, // 1 = clockwise, -1 = anticlockwise
 		showMoon = true, 
@@ -76,16 +76,6 @@ var SunClock = (function() {
 			'astronomicalEveningTwilight' : 'Astronomical Evening Twilight',
 			'night' : 'Astronomical Dusk',
 			'lateEvening' : 'Late Evening'
-		},
-		moonPhaseIcons = {
-			'New Moon':        '🌑',
-			'Waxing Crescent': '🌒',
-			'First Quarter':   '🌓',
-			'Waxing Gibbous':  '🌔',
-			'Full Moon':       '🌕',
-			'Waning Gibbous':  '🌖',
-			'Last Quarter':    '🌗',
-			'Waning Cresent':  '🌘'
 		};
 
 	function getLocation() {
@@ -273,27 +263,38 @@ var SunClock = (function() {
 		showInfo(str, dir);
 	}
 
-	function getMoonPhaseName(phase) {
-		// there's probably a really elegant way to do this, but...
+	function getMoon(phase) {
+		const moons = [
+			['New Moon',        '🌑'],
+			['Waxing Crescent', '🌒'],
+			['First Quarter',   '🌓'],
+			['Waxing Gibbous',  '🌔'],
+			['Full Moon',       '🌕'],
+			['Waning Gibbous',  '🌖'],
+			['Last Quarter',    '🌗'],
+			['Waning Crescent', '🌘']
+		];
+
 		let d = 0.0167; // 1.67 % ~= 1/2 day per month ?
-		let phaseName = 'New Moon';
+		let i = 0;
 		
+		// there's probably a really elegant way to do this, but...
 		if ((phase > 0.0 + d) && (phase < 0.25 - d)) {
-			phaseName = 'Waxing Crescent';
+			i = 1;
 		} else if ((phase >= 0.25 - d) && (phase <= 0.25 + d)) {
-			phaseName = 'First Quarter';
+			i = 2;
 		} else if ((phase > 0.25 + d) && (phase < 0.50 - d)) {
-			phaseName = 'Waxing Gibbous';
+			i = 3;
 		} else if ((phase >= 0.50 - d) && (phase <= 0.50 + d)) {
-			phaseName = 'Full Moon';
+			i = 4;
 		} else if ((phase > 0.50 + d) && (phase < 0.75 - d)) {
-			phaseName = 'Waning Gibbous';
+			i = 5;
 		} else if ((phase >= 0.75 - d) && (phase <= 0.75 + d)) {
-			phaseName = 'Last Quarter';
+			i = 6;
 		} else if ((phase > 0.75 + d) && (phase < 1.0 - d)) {
-			phaseName = 'Waning Crescent';
+			i = 7;
 		}
-		return phaseName;	
+		return {'name': moons[i][0], 'icon': moons[i][1]};	
 	}
 
 	function showMoonInfo(e) {
@@ -301,11 +302,10 @@ var SunClock = (function() {
 		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
 		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
 		moonPhase = SunCalc.getMoonIllumination(now).phase;
-		moonPhaseName = getMoonPhaseName(moonPhase);
 		//if (debug) { console.log(moonTimes, moonPosition); };
 
 		let str = `<h3>Moon</h3>
-			<p>${moonPhaseName} (${moonPhase.toFixed(2)})</p>`;
+			<p>${getMoon(moonPhase).name} (${moonPhase.toFixed(2)})</p>`;
 
 		if ((moonTimes.rise) || (moonTimes.set)) {
 			str += '<p>';
@@ -519,8 +519,8 @@ var SunClock = (function() {
 		// TODO: does not need to be recalculated each animation frame
 		if (showMoon) {
 			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
-			moonIcon.innerHTML = moonPhaseIcons[getMoonPhaseName(moonPhase)];
-			moonHand.setAttribute('transform', (`rotate(${ (hours  * direction * 15) + (moonPhase * -direction * 360) })`));
+			moonIcon.innerHTML = getMoon(moonPhase).icon;
+			moonHand.setAttribute('transform', (`rotate(${ (hours * direction * 15) + (moonPhase * -direction * 360) })`));
 		}
 
 		then = now;
