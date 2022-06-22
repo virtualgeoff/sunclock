@@ -294,7 +294,7 @@ var SunClock = (function() {
 		} else if ((phase > 0.75 + d) && (phase < 1.0 - d)) {
 			i = 7;
 		}
-		return {'name': moons[i][0], 'icon': moons[i][1]};	
+		return {'index':i, 'name':moons[i][0], 'icon':moons[i][1]};	
 	}
 
 	function showMoonInfo(e) {
@@ -519,7 +519,9 @@ var SunClock = (function() {
 		// TODO: does not need to be recalculated each animation frame
 		if (showMoon) {
 			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
-			moonIcon.innerHTML = getMoon(moonPhase).icon;
+			//moonIcon.innerHTML = getMoon(moonPhase).icon;
+			moonIcon.setAttribute('xlink:href', (`./resources/moonicons/${getMoon(moonPhase).index}.png`));
+			moonIcon.setAttribute('transform', (`translate(0 80) rotate(${90 + direction*90})`));
 			moonHand.setAttribute('transform', (`rotate(${ (hours * direction * 15) + (moonPhase * -direction * 360) })`));
 		}
 
