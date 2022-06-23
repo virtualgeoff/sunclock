@@ -27,8 +27,8 @@ var SunClock = (function() {
 		geoLocation;
 
 	const debug = true,
-		testFlag = false,
-		testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
+		//testFlag = false,
+		//testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
 		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
 		periods = [
@@ -78,10 +78,8 @@ var SunClock = (function() {
 		};
 
 	function getLocation() {
-		if (testFlag) {
-			now = testDate;
-			showLocation({coords: geoLocation});
-		} else if (getItem('manualLocation') === true) {
+		// get location from local Storage or Geolocation API
+		if (getItem('manualLocation') === true) {
 			showLocation({coords: geoLocation});
 		} else if (navigator.geolocation) {
 			// see: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
@@ -92,6 +90,7 @@ var SunClock = (function() {
 	}
 
 	function showLocation(position) {
+		// show location then get times
 		geoLocation = position.coords;
 		$('#location').innerHTML = `Location:
 			${Math.abs(geoLocation.latitude.toFixed(3))}° ${(geoLocation.latitude >=0) ? 'N' : 'S'},
@@ -106,6 +105,7 @@ var SunClock = (function() {
 			drawNumbers('#minuteNumbers', 60, -1.7, true);
 		}
 
+		// get the sun times for this location
 		getSunTimes();
 	}
 
@@ -120,8 +120,7 @@ var SunClock = (function() {
 	}
 
 	function convertAzimuth(angle) {
-		// SunCalc uses “sun azimuth in radians (direction along the horizon, measured from south to west), e.g. 0 is south and Math.PI * 3/4 is northwest”
-		// We want degrees clockwise from North. See also: https://en.wikipedia.org/wiki/Azimuth
+		// convert azimuth to degrees clockwise from North. SunCalc returns radians clockwise from South
 		return ((360 + 180 + toDegrees(angle)) % 360);
 	}
 
@@ -156,17 +155,8 @@ var SunClock = (function() {
 			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}</td><td>${event}</td></tr>`;
 		}
 
+		// draw time period arcs on clock face
 		drawTimePeriods();
-
-		// draw solar noon and midnight lines
-		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
-		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
-
-		// add hover event to hour hand
-		addHoverEvent(hourHand, showSunInfo);
-
-		// add hover event to moon hand
-		addHoverEvent(moonHand, showMoonInfo);
 	}
 
 	function drawTimePeriods() {
@@ -222,10 +212,20 @@ var SunClock = (function() {
 			// add hover event to the arc
 			addHoverEvent(path, showPeriodInfo, event, i);
 		}
+
+		// draw solar noon and midnight lines
+		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
+		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
+
+		// add hover event to hour hand
+		addHoverEvent(hourHand, showSunInfo);
+
+		// add hover event to moon hand
+		addHoverEvent(moonHand, showMoonInfo);
 	}
 
 	function addHoverEvent(object, func, a, b) {
-		// add hover or click event to object
+		// add hover or click event to a dom object
 		if (supportsHover) {
 			object.onmouseover = (e) => func(e, a, b);
 			object.onmouseout = hideInfo;
@@ -235,6 +235,7 @@ var SunClock = (function() {
 	}
 
 	function showPeriodInfo(e, event, i) {
+		// show info for time periods
 		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		let p = periodsTemp[i];
 
@@ -248,6 +249,7 @@ var SunClock = (function() {
 	}
 
 	function showSunInfo(e) {
+		// show info for Sun
 		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		sunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
 
@@ -314,6 +316,7 @@ var SunClock = (function() {
 	}
 
 	function showMoonInfo(e) {
+		// show info for moon
 		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
 		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
@@ -342,6 +345,7 @@ var SunClock = (function() {
 	}
 
 	function showInfo(str, dir) {
+		// show info panel/overlay
 		$('#info').classList.remove('left','right'); // remove both before adding (hideInfo may not be called on touch devices before next showInfo)
 		$('#info').classList.add(dir);
 		$('#info').classList.remove('hide');
@@ -353,12 +357,14 @@ var SunClock = (function() {
 	}
 
 	function hideInfo() {
+		// hide info panel/overlay
 		$('#info').classList.add('hide');
 		$('#info').classList.remove('left','right');
 		$('#info').innerHTML = '';
 	}
 
 	function drawMarks(parent, n, length) {
+		// draw the number marks on the clock face
 		var m;
 
 		for (let i=0; i<=(n-1); i++) {
@@ -373,6 +379,7 @@ var SunClock = (function() {
 	}
 
 	function drawNumbers(parent, n, offset, startAtTop) {
+		// draw the numbers on the clock face
 		var m, angle,
 			p = $(parent),
 			h = parseInt(p.getAttribute('font-size')),
@@ -401,11 +408,13 @@ var SunClock = (function() {
 	}
 
 	function setItem(itemName, value) {
+		// save item to browser local storage
 		// TODO: test if localStorage available and warn user?
 		localStorage.setItem(itemName, value);
 	}
 
 	function getItem(itemName) {
+		// get item from browser local storage
 		// TODO: test if localStorage available and warn user?
 		return JSON.parse(localStorage.getItem(itemName));
 	}
