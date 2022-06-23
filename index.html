@@ -62,9 +62,10 @@
 
 			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" />
-				<!-- circle cx="0" cy="80" r="6" fill="#fff" stroke="#f70" stroke-width="0" / -->
-				<!-- text id="moonIcon" x="-6" y="85" font-size="12px"></text -->
-				<image id="moonIcon" transform="translate(0 80) rotate(180)" xlink:href="./resources/moonicons/0.png" width="12" height="12" x="-6" y="0" />
+				<g id="moonIcon" transform="translate(0 80) rotate(180)">
+					<circle cx="0" cy="0" r="6" fill="#000" stroke="#000" stroke-width="0" />
+					<path id="moonPath" fill="#ccc" stroke="#ccc" stroke-width="0" d="M 0,6 A 3 6 0 1 0 0,-6 A 6 6 0 1 1 0,6 z" />
+				</g>
 			</g>
 			<g id="hourHand" cursor="crosshair" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="100" fill="none" stroke="#f70" stroke-width="4" stroke-linecap="round" />

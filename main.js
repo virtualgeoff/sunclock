@@ -17,14 +17,13 @@ const supportsHover = window.matchMedia('(hover: hover)').matches;
 var SunClock = (function() {
 	'use strict';
 
-	let now, then,
+	let now, then, timerStartTime,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, dateText,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
-		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, 
+		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
 		direction = 1, // 1 = clockwise, -1 = anticlockwise
-		showMoon = true, 
 		geoLocation;
 
 	const debug = true,
@@ -236,7 +235,7 @@ var SunClock = (function() {
 	}
 
 	function showPeriodInfo(e, event, i) {
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		let p = periodsTemp[i];
 
 		let str = `<h3>${textReplacements[p[0]]}</h3>
@@ -249,21 +248,22 @@ var SunClock = (function() {
 	}
 
 	function showSunInfo(e) {
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		sunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
 
 		let str = `<h3>Sun</h3>
 			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>			
+			Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>
 			<p>Altitude at:<br>
 			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
 			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
 			<p class="done"><a href="#">ok</a></p>`;
-	
+
 		showInfo(str, dir);
 	}
 
-	function getMoon(phase) {
+	function getMoonPhaseName(phase) {
+		// get name of moon phase
 		const moons = [
 			['New Moon',        '🌑'],
 			['Waxing Crescent', '🌒'],
@@ -275,9 +275,9 @@ var SunClock = (function() {
 			['Waning Crescent', '🌘']
 		];
 
-		let d = 0.0167; // 1.67 % ~= 1/2 day per month ?
+		const d = 0.0167; // 1.67 % ~= 1/2 day per month ?
 		let i = 0;
-		
+
 		// there's probably a really elegant way to do this, but...
 		if ((phase > 0.0 + d) && (phase < 0.25 - d)) {
 			i = 1;
@@ -294,24 +294,40 @@ var SunClock = (function() {
 		} else if ((phase > 0.75 + d) && (phase < 1.0 - d)) {
 			i = 7;
 		}
-		return {'index':i, 'name':moons[i][0], 'icon':moons[i][1]};	
+		return {'index':i, 'name':moons[i][0], 'icon':moons[i][1]};
+	}
+
+	function drawMoonIcon(phase) {
+		// draw the moon icon (instead of using unicode characters)
+		// get x radius and sweep direction for each half of the path
+		let mr = 6; // moon radius
+		let cosX = Math.cos( moonPhase * 2 * Math.PI );
+		let rx1 = (moonPhase < 0.50) ? mr * cosX : mr;
+		let rx2 = (moonPhase < 0.50) ? mr : mr * -cosX;
+		let sweep1 = (moonPhase < 0.25) ? 0 : 1;
+		let sweep2 = (moonPhase < 0.75) ? 1 : 0;
+
+		// draw a new path (2 elliptical arcs)
+		moonPath.setAttribute('d', `M 0,${mr}
+			A ${rx1} ${mr} 0 1 ${sweep1} 0,${-mr}
+			A ${rx2} ${mr} 0 1 ${sweep2} 0,${mr} z`);
 	}
 
 	function showMoonInfo(e) {
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right'; 
+		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
 		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
 		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
 		moonPhase = SunCalc.getMoonIllumination(now).phase;
 		//if (debug) { console.log(moonTimes, moonPosition); };
 
 		let str = `<h3>Moon</h3>
-			<p>${getMoon(moonPhase).name} (${moonPhase.toFixed(2)})</p>`;
+			<p>${getMoonPhaseName(moonPhase).name} (${moonPhase.toFixed(2)})</p>`;
 
 		if ((moonTimes.rise) || (moonTimes.set)) {
 			str += '<p>';
 			if (moonTimes.rise) { str += `Rises: ${moonTimes.rise.toLocaleTimeString()}<br>`; }
 			if (moonTimes.set) {  str += `Sets:  ${moonTimes.set.toLocaleTimeString()}`; }
-			str += '</p>';			
+			str += '</p>';
 		} else if (moonTimes.alwaysUp) {
 			str += '<p>Moon is up all day</p>';
 		} else if (moonTimes.alwaysDown) {
@@ -320,8 +336,8 @@ var SunClock = (function() {
 		str += `
 			<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
 			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>
-			<p class="done"><a href="#">ok</a></p>`;			
-	
+			<p class="done"><a href="#">ok</a></p>`;
+
 		showInfo(str, dir);
 	}
 
@@ -333,7 +349,7 @@ var SunClock = (function() {
 
 		if (!supportsHover) {
 			$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(); };
-		}		
+		}
 	}
 
 	function hideInfo() {
@@ -405,7 +421,6 @@ var SunClock = (function() {
 			break;
 		  case 'showMoon':
 			moonHand.style.display = (checkbox.checked) ? 'block' : 'none';
-			showMoon = (checkbox.checked) ? 'true' : 'false';
 			break;
 		  case 'showHourNumbers':
 			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
@@ -457,7 +472,6 @@ var SunClock = (function() {
 			//$('input[name="antiClockwise"]').indeterminate = true;
 		}
 		if (getItem('showMoon') === false) {
-			showMoon = false;
 			$('input[name="showMoon"]').checked = false;
 			moonHand.style.display = 'none';
 		}
@@ -500,29 +514,35 @@ var SunClock = (function() {
 		}
 	}
 
-	function tick() {
+	function tick(timestamp) {
+		// animation loop
 		now = new Date();
+
+		// get moonPhase on first tick, then every minute — does not need to be recalculated each frame
+		// 29.53 days per 360° phase change = ~12° per day / 0.5° per hour / 0.00833° per minute
+		if (timerStartTime === undefined) {
+			timerStartTime = timestamp || 0;
+			console.log('timerStartTime: ' + timerStartTime);
+			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
+			drawMoonIcon(moonPhase);
+		}
+		if ((timestamp - timerStartTime) >= 60000) { timerStartTime = undefined; }
+
 		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
 		minutes = now.getMinutes() + seconds/60;
 		hours   = now.getHours()   + minutes/60;
-		
-		// refresh the sunrise/sunset times at midnight
-		if (then && (now.getDate() !== then.getDate())) {
-			getSunTimes();
-		}
 
+		// move hands, update text
 		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
 		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
+		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
+		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
 		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${now.toLocaleTimeString()}`;
 
-		// TODO: does not need to be recalculated each animation frame
-		if (showMoon) {
-			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
-			//moonIcon.innerHTML = getMoon(moonPhase).icon;
-			moonIcon.setAttribute('xlink:href', (`./resources/moonicons/${getMoon(moonPhase).index}.png`));
-			moonIcon.setAttribute('transform', (`translate(0 80) rotate(${90 + direction*90})`));
-			moonHand.setAttribute('transform', (`rotate(${ (hours * direction * 15) + (moonPhase * -direction * 360) })`));
+		// refresh the sun times at midnight
+		if (then && (now.getDate() !== then.getDate())) {
+			getSunTimes();
 		}
 
 		then = now;
@@ -534,10 +554,10 @@ var SunClock = (function() {
 		hourHand   = $('#hourHand');
 		minuteHand = $('#minuteHand');
 		secondHand = $('#secondHand');
-		dateText   = $('#date');
-
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
+		moonPath   = $('#moonPath');
+		dateText   = $('#date');
 
 		// draw clock
 		radius = parseInt($('#clockFace').getAttribute('r'));
@@ -572,9 +592,9 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
-		
+
 		// get location last
-		getLocation();		
+		getLocation();
 	}
 
 	window.addEventListener('load', init);
