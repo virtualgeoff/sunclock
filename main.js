@@ -523,6 +523,16 @@ var SunClock = (function() {
 		}
 	}
 
+	function decodeURL(anchor) {
+		let input = anchor.dataset.address.replace(/\s+/g, ',').split(',');
+		let output = '';
+
+		for (let i=0; i<input.length; i++) {
+			output += String.fromCodePoint(parseInt(input[i],16));
+		}
+		anchor.href = output;
+	}
+
 	function tick(timestamp) {
 		// animation loop
 		now = new Date();
@@ -601,6 +611,10 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
+		
+		// decode email URL
+		// if email addresses are present in the HTML Cloudflare will obfuscate them itself and add its own decoder
+		document.querySelectorAll('a[data-address]').forEach( (a) => { decodeURL(a) });
 
 		// get location last
 		getLocation();
