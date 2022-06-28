@@ -47,18 +47,18 @@
 			<div xmlns="http://www.w3.org/1999/xhtml" class="skyBackground"></div>
 		</foreignObject>
 
-		<g transform="translate(150,150)">
-			<circle id="clockFace" cx="0" cy="0" r="125" fill="none" stroke="#000" stroke-width="1" />
+		<g transform="translate(150,150)" font-family="Geneva, Helvetica Neue, Helvetica, Arial" text-anchor="middle">
+			<circle id="clockFace" cx="0" cy="0" r="125" fill="none" stroke="#000" stroke-width="0.5" />
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
-			<path id="midnight" d="M 0,0 L 0,0" stroke="#669" stroke-width="1" />
-			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="1" />
+			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
+			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="0.5" />
 
 			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
 			<g id="quarterMarks"  fill="none" stroke="#000" stroke-width="4"></g>
 			<g id="minuteMarks"   fill="none" stroke="#090" stroke-width="1"></g>
-			<g id="hourNumbers"   fill="#000" font-size="9px" font-family="Verdana" text-anchor="middle"></g>
-			<g id="minuteNumbers" fill="#090" font-size="5px" font-family="Verdana" text-anchor="middle"></g>
+			<g id="hourNumbers"   fill="#000" font-size="9px"></g>
+			<g id="minuteNumbers" fill="#090" font-size="5px"></g>
 
 			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" />

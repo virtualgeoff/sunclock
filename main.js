@@ -579,7 +579,7 @@ var SunClock = (function() {
 		dateText   = $('#date');
 
 		// draw clock
-		radius = parseInt($('#clockFace').getAttribute('r'));
+		radius = parseFloat($('#clockFace').getAttribute('r')) - parseFloat($('#clockFace').getAttribute('stroke-width'))/2;
 		drawMarks('#hourMarks', 24, 3);
 		drawMarks('#quarterMarks', 4, 4);
 		drawMarks('#minuteMarks', 60, -2);
