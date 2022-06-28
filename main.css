@@ -58,10 +58,12 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 /* settings */
 #settings p {line-height:1.7em;}
 #settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
-#locationForm {display:none; margin:-0.5em 0 1em 2em;}
-#locationForm label {display:inline-block; width:6em; font-size:0.9em;}
-#locationForm input {width:8em;}
-#locationForm input[type="submit"] {width:auto; font-size:1em;}
+#setDirection {display:none; margin:-1em 0 1em 2em;}
+#setDirection label {font-size:0.9em;}
+#setLocation {display:none; margin:-0.5em 0 1em 2em;}
+#setLocation label {display:inline-block; width:6em; font-size:0.9em;}
+#setLocation input {width:8em;}
+#setLocation input[type="submit"] {width:auto; font-size:1em;}
 
 
 @media (orientation:portrait) {

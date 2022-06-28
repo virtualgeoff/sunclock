@@ -24,7 +24,7 @@ var SunClock = (function() {
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
 		direction = 1, // 1 = clockwise, -1 = anticlockwise
-		geoLocation;
+		location;      // {"latitude":0,"longitude":0}
 
 	const debug = true,
 		//testFlag = false,
@@ -79,8 +79,9 @@ var SunClock = (function() {
 
 	function getLocation() {
 		// get location from local Storage or Geolocation API
-		if (getItem('manualLocation') === true) {
-			showLocation({coords: geoLocation});
+		if (getItem('setLocationManually') === true) {
+			//location = getItem('location');
+			showLocation({coords: location});
 		} else if (navigator.geolocation) {
 			// see: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
 			navigator.geolocation.getCurrentPosition(showLocation, showLocationError, geoOptions);
@@ -91,22 +92,27 @@ var SunClock = (function() {
 
 	function showLocation(position) {
 		// show location then get times
-		geoLocation = position.coords;
-		$('#location').innerHTML = `Location:
-			${Math.abs(geoLocation.latitude.toFixed(3))}° ${(geoLocation.latitude >=0) ? 'N' : 'S'},
-			${Math.abs(geoLocation.longitude.toFixed(3))}° ${(geoLocation.longitude >=0) ? 'E' : 'W'}`;
-			//<br><small>(Accuracy: ${geoLocation.accuracy} m)</small>`;
+		location = position.coords;
 
-		// if antiClockwise option not set, choose direction based on latitude
-		if (getItem('antiClockwise') === null) {
-			direction = (geoLocation.latitude >= 0) ? 1 : -1;
-			$('input[name="antiClockwise"]').checked = (geoLocation.latitude >= 0) ? false : true;
-			drawNumbers('#hourNumbers', 24, 1, false);
-			drawNumbers('#minuteNumbers', 60, -1.7, true);
+		if (location) {
+			$('#location').innerHTML = `Location:
+				${Math.abs(location.latitude.toFixed(3))}°${(location.latitude >=0) ? 'N' : 'S'},
+				${Math.abs(location.longitude.toFixed(3))}°${(location.longitude >=0) ? 'E' : 'W'}`;
+				//<br><small>(Accuracy: ${location.accuracy} m)</small>`;
+
+			// if setDirectionManually option is not set (or false), choose direction based on latitude
+			if (getItem('setDirectionManually') !== true) {
+				direction = (location.latitude >= 0) ? 1 : -1;
+				setItem('direction', direction); // save direction for next time - to prevent jump when geolocation loads
+				updateDirection();
+			}
+
+			// get times for this location
+			getSunTimes();
+		} else {
+			clearTimePeriods();
+			$('#location').innerHTML = 'Location not set';
 		}
-
-		// get the sun times for this location
-		getSunTimes();
 	}
 
 	function showLocationError(err) {
@@ -136,9 +142,9 @@ var SunClock = (function() {
 
 		// get times from suncalc.js
 		sunTimes = null;
-		sunTimes = SunCalc.getTimes(now, geoLocation.latitude, geoLocation.longitude, 0);
-		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, geoLocation.latitude, geoLocation.longitude);
-		nadirPosition = SunCalc.getPosition(sunTimes.nadir, geoLocation.latitude, geoLocation.longitude);
+		sunTimes = SunCalc.getTimes(now, location.latitude, location.longitude, 0);
+		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, location.latitude, location.longitude);
+		nadirPosition = SunCalc.getPosition(sunTimes.nadir, location.latitude, location.longitude);
 		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun does not set
 		sunAlwaysDown = (toDegrees(noonPosition.altitude)  < -0.833) ? true : false; // sun does not rise
 
@@ -159,15 +165,20 @@ var SunClock = (function() {
 		drawTimePeriods();
 	}
 
-	function drawTimePeriods() {
-		// draw time periods on clock face
-		let p, t1, t2, point1, point2, path;
-
+	function clearTimePeriods() {
 		// clear any previous arcs (i.e. if changing direction or setting location manually)
 		let arcs = $('#arcs');
 		while (arcs.firstChild) {
 			arcs.removeChild(arcs.firstChild);
 		}
+	}
+
+	function drawTimePeriods() {
+		// draw time periods on clock face
+		let p, t1, t2, point1, point2, path;
+
+		// clear any previous arc
+		clearTimePeriods();
 
 		// make a deep copy of periods (so can modify 'from' and 'to', but keep original for next time);
 		periodsTemp = JSON.parse(JSON.stringify(periods));
@@ -251,7 +262,7 @@ var SunClock = (function() {
 	function showSunInfo(e) {
 		// show info for Sun
 		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
-		sunPosition = SunCalc.getPosition(now, geoLocation.latitude, geoLocation.longitude);
+		sunPosition = SunCalc.getPosition(now, location.latitude, location.longitude);
 
 		let str = `<h3>Sun</h3>
 			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
@@ -303,11 +314,11 @@ var SunClock = (function() {
 		// draw the moon icon (instead of using unicode characters)
 		// get x radius and sweep direction for each half of the path
 		let mr = 6; // moon radius
-		let cosX = Math.cos( moonPhase * 2 * Math.PI );
-		let rx1 = (moonPhase < 0.50) ? mr * cosX : mr;
-		let rx2 = (moonPhase < 0.50) ? mr : mr * -cosX;
-		let sweep1 = (moonPhase < 0.25) ? 0 : 1;
-		let sweep2 = (moonPhase < 0.75) ? 1 : 0;
+		let cosX = Math.cos( phase * 2 * Math.PI );
+		let rx1 = (phase < 0.50) ? mr * cosX : mr;
+		let rx2 = (phase < 0.50) ? mr : mr * -cosX;
+		let sweep1 = (phase < 0.25) ? 0 : 1;
+		let sweep2 = (phase < 0.75) ? 1 : 0;
 
 		// draw a new path (2 elliptical arcs)
 		moonPath.setAttribute('d', `M 0,${mr}
@@ -318,8 +329,8 @@ var SunClock = (function() {
 	function showMoonInfo(e) {
 		// show info for moon
 		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
-		moonTimes = SunCalc.getMoonTimes(now, geoLocation.latitude, geoLocation.longitude);
-		moonPosition = SunCalc.getMoonPosition(now, geoLocation.latitude, geoLocation.longitude);
+		moonTimes = SunCalc.getMoonTimes(now, location.latitude, location.longitude);
+		moonPosition = SunCalc.getMoonPosition(now, location.latitude, location.longitude);
 		moonPhase = SunCalc.getMoonIllumination(now).phase;
 		//if (debug) { console.log(moonTimes, moonPosition); };
 
@@ -420,14 +431,8 @@ var SunClock = (function() {
 	}
 
 	function setOption(checkbox) {
-		// handle options checkboxes
+		// handle options checkboxes (and radio buttons)
 		switch (checkbox.name) {
-		  case 'antiClockwise':
-			direction = (checkbox.checked) ? -1 : 1;
-			drawNumbers('#hourNumbers', 24, 1, false);
-			drawNumbers('#minuteNumbers', 60, -1.7, true);
-			drawTimePeriods();
-			break;
 		  case 'showMoon':
 			moonHand.style.display = (checkbox.checked) ? 'block' : 'none';
 			break;
@@ -450,36 +455,77 @@ var SunClock = (function() {
 		  case 'showSecondHand':
 			secondHand.style.display = (checkbox.checked) ? 'block' : 'none';
 			break;
-		  case 'manualLocation':
-			$('#locationForm').style.display = (checkbox.checked) ? 'block' : 'none';
-			setItem(event.target.name, checkbox.checked); // need to save *before* getLocation
-			if (!checkbox.checked) { getLocation(); } // if it was checked and is now unchecked, need to get location again
+
+		  case 'setDirectionManually':
+			$('#setDirection').style.display = (checkbox.checked) ? 'block' : 'none';
+			if (checkbox.checked) {
+				// was unchecked, now checked - set radio buttons to current direction, and save direction
+				$('#direction_cw').checked  = (direction > 0) ? true : false;
+				$('#direction_ccw').checked = (direction > 0) ? false : true;
+				setItem('direction', direction);
+			} else {
+				// was checked, now unchecked - update direction
+				if (location && location.latitude) {
+					direction = (location.latitude >= 0) ? 1 : -1;
+				} else {
+					direction = 1;
+				}
+				setItem('direction', direction);
+				updateDirection();
+			}
 			break;
+		  case 'setDirection':
+			direction = (checkbox.value === 'clockwise') ? 1 : -1;
+			setItem('direction', direction);
+			updateDirection();
+			break;
+
+		  case 'setLocationManually':
+			$('#setLocation').style.display = (checkbox.checked) ? 'block' : 'none';
+			if (checkbox.checked) {
+				// was unchecked, now checked - show location
+				location = getItem('location');
+				if (location) {
+					// in case text fields have been modified or cleared:
+					$('input[name=latitude]').value  = location.latitude;
+					$('input[name=longitude]').value = location.longitude;
+				}
+				showLocation({coords: location});
+			} else {
+				// was checked, now unchecked - need to get location again
+				setItem(event.target.name, checkbox.checked); // need to save *before* getLocation
+				getLocation();
+			}
+			break;
+
 		  default:
 			alert('wot?');
 		}
 		setItem(checkbox.name, checkbox.checked);
 	}
 
+	function updateDirection() {
+		// update direction after setOption or loadOptions
+		// n.b. clock hands will update automatically on next animationFrame
+		drawNumbers('#hourNumbers', 24, 1, false);
+		drawNumbers('#minuteNumbers', 60, -1.7, true);
+		if (sunTimes) { drawTimePeriods(); }
+	}
+
 	function updateLocation(form) {
-		// handle location form submit
-		console.log(`updating geolocation to ${form.latitude.value}, ${form.longitude.value}`);
-		geoLocation = {latitude:parseFloat(form.latitude.value), longitude:parseFloat(form.longitude.value)};
-		setItem('location', JSON.stringify(geoLocation));
-		showLocation({coords: geoLocation});
+		// handle location submit
+		console.log(`updating location to ${form.latitude.value}, ${form.longitude.value}`);
+		location = {latitude:parseFloat(form.latitude.value), longitude:parseFloat(form.longitude.value)};
+		// TODO: check values are valid, or use default values
+		// parseFloat returns a number or NaN
+		setItem('location', JSON.stringify(location));
+		showLocation({coords: location});
+		$('#settings').style.display = 'none'; // close settings
 		return false;
 	}
 
 	function loadOptions() {
-		// load options from localStorage, and set checkboxes, etc.
-		if (getItem('antiClockwise') !== null) {
-			direction = (getItem('antiClockwise')) ? -1 : 1;
-			$('input[name="antiClockwise"]').checked = (getItem('antiClockwise'));
-			drawNumbers('#hourNumbers', 24, 1, false);
-			drawNumbers('#minuteNumbers', 60, -1.7, true);
-		} else {
-			//$('input[name="antiClockwise"]').indeterminate = true;
-		}
+		// load options from localStorage, and set checkboxes, etc. on page load
 		if (getItem('showMoon') === false) {
 			$('input[name="showMoon"]').checked = false;
 			moonHand.style.display = 'none';
@@ -509,17 +555,27 @@ var SunClock = (function() {
 			$('input[name="showSecondHand"]').checked = false;
 			secondHand.style.display = 'none';
 		}
-		if (getItem('manualLocation') === true) {
-			$('input[name="manualLocation"]').checked = true;
-			$('#locationForm').style.display = 'block';
-			if (getItem('location') !== null) { geoLocation = getItem('location'); }
-			$('input[name="latitude"]').value  = geoLocation.latitude || 0;
-			$('input[name="longitude"]').value = geoLocation.longitude || 0;
+
+		// direction
+		if (getItem('setDirectionManually') === true) {
+			$('input[name="setDirectionManually"]').checked = true;
+			$('#setDirection').style.display = 'block';
+		}
+		if (getItem('direction') !== null) {
+			direction = getItem('direction');
+			$('#direction_cw').checked  = (direction > 0) ? true : false;
+			$('#direction_ccw').checked = (direction > 0) ? false : true;
+		}
+
+		// location
+		if (getItem('setLocationManually') === true) {
+			$('input[name="setLocationManually"]').checked = true;
+			$('#setLocation').style.display = 'block';
 		}
 		if (getItem('location') !== null) {
-			// fill in anyway, even if currently hidden
-			$('input[name="latitude"]').value  = getItem('location').latitude || 0;
-			$('input[name="longitude"]').value = getItem('location').longitude || 0;
+			location = getItem('location');
+			$('input[name="latitude"]').value  = getItem('location').latitude;
+			$('input[name="longitude"]').value = getItem('location').longitude;
 		}
 	}
 
@@ -541,7 +597,7 @@ var SunClock = (function() {
 		// 29.53 days per 360° phase change = ~12° per day / 0.5° per hour / 0.00833° per minute
 		if (timerStartTime === undefined) {
 			timerStartTime = timestamp || 0;
-			console.log('timerStartTime: ' + timerStartTime);
+			//console.log('timerStartTime: ' + timerStartTime);
 			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
 			drawMoonIcon(moonPhase);
 		}
@@ -611,12 +667,12 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
-		
+
 		// decode email URL
 		// if email addresses are present in the HTML Cloudflare will obfuscate them itself and add its own decoder
-		document.querySelectorAll('a[data-address]').forEach( (a) => { decodeURL(a) });
+		document.querySelectorAll('a[data-address]').forEach( (a) => { decodeURL(a); });
 
-		// get location last
+		// get location last (so geolocation prompt doesn't block)
 		getLocation();
 	}
 

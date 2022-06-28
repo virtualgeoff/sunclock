@@ -121,9 +121,10 @@
 		<div>
 			<h2>Settings</h2>
 
-			<form id="settingsForm">
-				<p><label><input type="checkbox"  name="antiClockwise" onchange="SunClock.setOption(this)"> turn anti-clockwise</label><br></p>
-				<p><label><input type="checkbox" name="showMoon"       onchange="SunClock.setOption(this)" checked> show Moon</label></p>
+			<form id="settingsForm" onsubmit="return SunClock.updateLocation(this);">
+				<p>
+					<label><input type="checkbox" name="showMoon" onchange="SunClock.setOption(this)" checked> show moon</label>
+				</p>
 				<p>
 					<label><input type="checkbox" name="showHourNumbers" onchange="SunClock.setOption(this)" checked> show hour numbers</label><br>
 					<label><input type="checkbox" name="showHourMarks"   onchange="SunClock.setOption(this)" checked> show hour marks</label><br>
@@ -133,12 +134,20 @@
 					<label><input type="checkbox" name="showMinuteMarks"   onchange="SunClock.setOption(this)" checked> show minute marks</label><br>
 					<label><input type="checkbox" name="showMinuteNumbers" onchange="SunClock.setOption(this)" checked> show minute numbers</label><br>
 				</p>
-				<p><label><input type="checkbox" name="showSecondHand" onchange="SunClock.setOption(this)" checked> show seconds hand</label></p>
-				<p><label><input type="checkbox" name="manualLocation" onchange="SunClock.setOption(this)"> set location manually</label></p>
-			</form>
-
-			<form id="locationForm" onsubmit="return SunClock.updateLocation(this);">
 				<p>
+					<label><input type="checkbox" name="showSecondHand" onchange="SunClock.setOption(this)" checked> show seconds hand</label>
+				</p>
+				<p>
+					<label><input type="checkbox" name="setDirectionManually" onchange="SunClock.setOption(this)"> set direction manually</label>
+				</p>
+				<p id="setDirection">
+					<label><input type="radio" name="setDirection" id="direction_cw"  value="clockwise"     onchange="SunClock.setOption(this)"> clockwise</label> &nbsp;
+					<label><input type="radio" name="setDirection" id="direction_ccw" value="anticlockwise" onchange="SunClock.setOption(this)"> anti-clockwise</label>				
+				</p>
+				<p>
+					<label><input type="checkbox" name="setLocationManually" onchange="SunClock.setOption(this)"> set location manually</label>
+				</p>
+				<p id="setLocation">
 					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" size="10" required> <!-- small>(0 to ±90)</small --><br>
 					<label for="longitude">Longitude</label> <input name="longitude" type="number" min="-180" max="180" step="0.001" size="10" required> <!-- small>(0 to ±180)</small --><br>
 					<label></label> <input type="submit" value="Update">
