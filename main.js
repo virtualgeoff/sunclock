@@ -613,7 +613,7 @@ var SunClock = (function() {
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
 		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
-		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${now.toLocaleTimeString()}`;
+		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, <span>${now.toLocaleTimeString()}</span>`;
 
 		// refresh the sun times at midnight
 		if (then && (now.getDate() !== then.getDate())) {
@@ -632,7 +632,7 @@ var SunClock = (function() {
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
 		moonPath   = $('#moonPath');
-		dateText   = $('#date');
+		dateText   = $('#dateText');
 
 		// draw clock
 		radius = parseFloat($('#clockFace').getAttribute('r')) - parseFloat($('#clockFace').getAttribute('stroke-width'))/2;

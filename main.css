@@ -9,6 +9,7 @@ p {margin:0 0 1em 0;}
 p.to {margin:-0.5em 0 0.5em 0; font-style:italic;}
 big {font-size:1.2em;}
 sup {}
+h1 span {white-space:nowrap;}
 
 .center {text-align:center;}
 .hide {display:none;}
@@ -40,7 +41,7 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 		#dceaff 250deg, #ffe988 265deg, #ff9900 270deg, #88a6d4 270deg, #4574bc 276deg, #213c66 282deg, #192029 288deg);
 }
 
-#datetimes {min-height:calc(100vh - 100vmin);}
+#dateTimes {min-height:calc(100vh - 100vmin);}
 #times {margin:1em auto;}
 #location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
 #info {}
