@@ -389,9 +389,9 @@ var SunClock = (function() {
 		}
 	}
 
-	function drawNumbers(parent, n, offset, startAtTop) {
+	function drawNumbers(parent, n, m, offset, startAtTop) {
 		// draw the numbers on the clock face
-		var m, angle,
+		var g, angle,
 			p = $(parent),
 			h = parseInt(p.getAttribute('font-size')),
 			angleOffset = startAtTop ? 180 : 0;
@@ -402,19 +402,19 @@ var SunClock = (function() {
 		}
 
 		// create new numbers
-		for (let i=0; i<=(n-1); i++) {
-			m = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-			m.setAttribute('x', 0);
-			m.setAttribute('y', 0);
+		for (let i=0; i<=(n-1); i+=m) {
+			g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+			g.setAttribute('x', 0);
+			g.setAttribute('y', 0);
 			angle = ((i * direction * (360/n) + angleOffset + 360) % 360); // 0 <= angle < 360
-			m.setAttribute('transform', `rotate(${angle}) translate(0,${radius + h * offset})`);
+			g.setAttribute('transform', `rotate(${angle}) translate(0,${radius + h * offset})`);
 
 			if ((angle >= 90) && (angle <= 270)) {
-				m.innerHTML = `<text x="0" y="0" transform="rotate(180)">${i}</text>`;
+				g.innerHTML = `<text x="0" y="0" transform="rotate(180)">${i}</text>`;
 			} else {
-				m.innerHTML = `<text x="0" y="${(h*0.75)}" transform="rotate(0)">${i}</text>`;
+				g.innerHTML = `<text x="0" y="${(h*0.75)}" transform="rotate(0)">${i}</text>`;
 			}
-			p.appendChild(m);
+			p.appendChild(g);
 		}
 	}
 
@@ -507,8 +507,8 @@ var SunClock = (function() {
 	function updateDirection() {
 		// update direction after setOption or loadOptions
 		// n.b. clock hands will update automatically on next animationFrame
-		drawNumbers('#hourNumbers', 24, 1, false);
-		drawNumbers('#minuteNumbers', 60, -1.7, true);
+		drawNumbers('#hourNumbers', 24, 1, 1, false);
+		drawNumbers('#minuteNumbers', 60, 5, -1.7, true);
 		if (sunTimes) { drawTimePeriods(); }
 	}
 
@@ -634,16 +634,17 @@ var SunClock = (function() {
 		moonPath   = $('#moonPath');
 		dateText   = $('#dateText');
 
+		loadOptions();
+
 		// draw clock
 		radius = parseFloat($('#clockFace').getAttribute('r')) - parseFloat($('#clockFace').getAttribute('stroke-width'))/2;
 		drawMarks('#hourMarks', 24, 3);
 		drawMarks('#quarterMarks', 4, 4);
 		drawMarks('#minuteMarks', 60, -2);
-		drawNumbers('#hourNumbers', 24, 1, false);
-		drawNumbers('#minuteNumbers', 60, -1.7, true);
+		drawNumbers('#hourNumbers', 24, 1, 1, false);
+		drawNumbers('#minuteNumbers', 60, 5, -1.7, true);
 
 		// start clock
-		loadOptions();
 		tick();
 
 		// make overlays
