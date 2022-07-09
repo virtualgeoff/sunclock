@@ -29,9 +29,10 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 .done a:visited {color:#00e;}
 
 /* positioning */
-.menu {position:absolute; width:2em; margin:1em;}
-#menu1 {left:0; top:0;}
-#menu2 {right:0; top:0; text-align:right;}
+.menu {position:absolute; margin:0;}
+.menu svg {width:1.625em; height:1.625em;}
+#menu1 {left:16px; top:16px;}
+#menu2 {right:16px; top:16px; text-align:right;}
 #clock {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
 
 .skyBackground {
