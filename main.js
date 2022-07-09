@@ -335,7 +335,7 @@ var SunClock = (function() {
 		//if (debug) { console.log(moonTimes, moonPosition); };
 
 		let str = `<h3>Moon</h3>
-			<p>${getMoonPhaseName(moonPhase).name} (${moonPhase.toFixed(2)})</p>`;
+			<p>${getMoonPhaseName(moonPhase).name}<br>(${(moonPhase * 29.53).toFixed(1)} days old)</p>`;
 
 		if ((moonTimes.rise) || (moonTimes.set)) {
 			str += '<p>';
