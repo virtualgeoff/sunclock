@@ -337,11 +337,17 @@ var SunClock = (function() {
 		let str = `<h3>Moon</h3>
 			<p>${getMoonPhaseName(moonPhase).name}<br>(${(moonPhase * 29.53).toFixed(1)} days old)</p>`;
 
-		if ((moonTimes.rise) || (moonTimes.set)) {
-			str += '<p>';
-			if (moonTimes.rise) { str += `Rises: ${moonTimes.rise.toLocaleTimeString()}<br>`; }
-			if (moonTimes.set) {  str += `Sets:  ${moonTimes.set.toLocaleTimeString()}`; }
-			str += '</p>';
+		if ((moonTimes.rise) && (moonTimes.set)) {
+			// sort by time
+			if (moonTimes.rise <= moonTimes.set) { 
+				str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}<br>Sets: ${moonTimes.set.toLocaleTimeString()}</p>`;
+			} else {
+				str += `<p>Sets: ${moonTimes.set.toLocaleTimeString()}<br>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;			
+			}
+		} else if (moonTimes.rise) {
+			str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;
+		} else if (moonTimes.set) {
+			str += `<p>Sets:  ${moonTimes.set.toLocaleTimeString()}</p>`;
 		} else if (moonTimes.alwaysUp) {
 			str += '<p>Moon is up all day</p>';
 		} else if (moonTimes.alwaysDown) {
