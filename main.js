@@ -339,10 +339,10 @@ var SunClock = (function() {
 
 		if ((moonTimes.rise) && (moonTimes.set)) {
 			// sort by time
-			if (moonTimes.rise <= moonTimes.set) { 
+			if (moonTimes.rise <= moonTimes.set) {
 				str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}<br>Sets: ${moonTimes.set.toLocaleTimeString()}</p>`;
 			} else {
-				str += `<p>Sets: ${moonTimes.set.toLocaleTimeString()}<br>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;			
+				str += `<p>Sets: ${moonTimes.set.toLocaleTimeString()}<br>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;
 			}
 		} else if (moonTimes.rise) {
 			str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;

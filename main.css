@@ -20,7 +20,7 @@ td:nth-child(2) {text-align:right;}
 
 /* links */
 a:link {color:#00e;}
-a:visited {color:50e;}
+a:visited {color:#50e;}
 a:hover {color:#f00;}
 
 a.menu, a.close {text-decoration:none; font-weight:bold; color:#003;}
@@ -59,10 +59,10 @@ a.menu:hover,   a.close:hover   {color:#f00;}
 
 /* settings */
 #settings p {line-height:1.7em;}
-#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2em;}
-#setDirection {display:none; margin:-1em 0 1em 2em;}
+#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2.2em;}
+#setDirection {display:none; margin:-1em 0 1em 1.5em;}
 #setDirection label {font-size:0.9em;}
-#setLocation {display:none; margin:-0.5em 0 1em 2em;}
+#setLocation {display:none; margin:-0.5em 0 1em 1.5em;}
 #setLocation label {display:inline-block; width:6em; font-size:0.9em;}
 #setLocation input {width:8em;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
