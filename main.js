@@ -13,6 +13,8 @@
 const $ = document.querySelector.bind(document);
 const $All = document.querySelectorAll.bind(document);
 const supportsHover = window.matchMedia('(hover: hover)').matches;
+var isPortrait = window.matchMedia('(orientation:portrait)').matches;
+var isLandscape = window.matchMedia('(orientation:landscape)').matches;
 
 var SunClock = (function() {
 	'use strict';
@@ -27,7 +29,6 @@ var SunClock = (function() {
 		location;      // {"latitude":0,"longitude":0}
 
 	const debug = true,
-		//testFlag = false,
 		//testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
 		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
@@ -80,7 +81,6 @@ var SunClock = (function() {
 	function getLocation() {
 		// get location from local Storage or Geolocation API
 		if (getItem('setLocationManually') === true) {
-			//location = getItem('location');
 			showLocation({coords: location});
 		} else if (navigator.geolocation) {
 			// see: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
@@ -229,7 +229,7 @@ var SunClock = (function() {
 			$('#arcs').appendChild(path);
 
 			// add hover event to the arc
-			addHoverEvent(path, showPeriodInfo, event, i);
+			addHoverEvent(path, getPeriodInfo, i);
 		}
 
 		// draw solar noon and midnight lines
@@ -237,26 +237,23 @@ var SunClock = (function() {
 		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 
 		// add hover event to hour hand
-		addHoverEvent(hourHand, showSunInfo);
-		addHoverEvent($('#centerCircle'), showSunInfo);
+		addHoverEvent(hourHand, getSunInfo);
+		addHoverEvent($('#centerCircle'), getSunInfo);
 
 		// add hover event to moon hand
-		addHoverEvent(moonHand, showMoonInfo);
+		addHoverEvent(moonHand, getMoonInfo);
 	}
 
-	function addHoverEvent(object, func, a, b) {
-		// add hover or click event to a dom object
-		if (supportsHover) {
-			object.onmouseover = (e) => func(e, a, b);
-			object.onmouseout = hideInfo;
-		} else {
-			object.onclick = (e) => func(e, a, b);
-		}
+	function addHoverEvent(object, func, a) {
+		// add hover AND click events to a dom object
+		// showInfo will sort out event types
+		object.onmouseover = (e) => showInfo(e, func, a);
+		object.onmouseout = (e) => hideInfo(e);
+		object.onclick = (e) => showInfo(e, func, a);
 	}
 
-	function showPeriodInfo(e, event, i) {
-		// show info for time periods
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
+	function getPeriodInfo(i) {
+		// get info for time periods
 		let p = periodsTemp[i];
 
 		let str = `<h3>${textReplacements[p[0]]}</h3>
@@ -265,12 +262,11 @@ var SunClock = (function() {
 			<p>${textReplacements[p[2]]}<br>${formatTime(sunTimes[p[2]])}</p>
 			<p class="done"><a href="#">ok</a></p>`;
 
-		showInfo(str, dir);
+		return str;
 	}
 
-	function showSunInfo(e) {
-		// show info for Sun
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
+	function getSunInfo() {
+		// get info for Sun
 		sunPosition = SunCalc.getPosition(now, location.latitude, location.longitude);
 
 		let str = `<h3>Sun</h3>
@@ -281,7 +277,7 @@ var SunClock = (function() {
 			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
 			<p class="done"><a href="#">ok</a></p>`;
 
-		showInfo(str, dir);
+		return str;
 	}
 
 	function getMoonPhaseName(phase) {
@@ -335,9 +331,8 @@ var SunClock = (function() {
 			A ${rx2} ${mr} 0 1 ${sweep2} 0,${mr} z`);
 	}
 
-	function showMoonInfo(e) {
-		// show info for moon
-		let dir = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
+	function getMoonInfo() {
+		// get info for moon
 		moonTimes = SunCalc.getMoonTimes(now, location.latitude, location.longitude);
 		moonPosition = SunCalc.getMoonPosition(now, location.latitude, location.longitude);
 		moonPhase = SunCalc.getMoonIllumination(now).phase;
@@ -367,22 +362,39 @@ var SunClock = (function() {
 			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>
 			<p class="done"><a href="#">ok</a></p>`;
 
-		showInfo(str, dir);
+		return str;
 	}
 
-	function showInfo(str, dir) {
-		// show info panel/overlay
-		$('#info').classList.remove('left','right'); // remove both before adding (hideInfo may not be called on touch devices before next showInfo)
-		$('#info').classList.add(dir);
+	function showInfo(e, func, a) {
+		// only show info if event type matches orientation etc.
+		if (supportsHover && isLandscape) {
+			// use hover / ignore click
+			if (e.type === 'click') { return; }
+		} else {
+			// use click / ignore hover
+			if (e.type === 'mouseover') { return; }
+		}
+
+		// get the right info to show, and the side to show it
+		let str = func(a);
+		let side = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
+
+		$('#info').classList.remove('left','right'); // remove both before adding (hideInfo may not be called before next showInfo)
+		$('#info').classList.add(side);
 		$('#info').classList.remove('hide');
 		$('#info').innerHTML = str;
-
-		if (!supportsHover) {
-			$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(); };
-		}
+		$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(e); };
 	}
 
-	function hideInfo() {
+	function hideInfo(e) {
+		if (supportsHover && isLandscape) {
+			// use hover / ignore click
+			if (e.type === 'click') { return; }
+		} else {
+			// use click / ignore hover
+			if (e.type === 'mouseout') { return; }
+		}
+
 		// hide info panel/overlay
 		$('#info').classList.add('hide');
 		$('#info').classList.remove('left','right');
@@ -693,6 +705,12 @@ var SunClock = (function() {
 	}
 
 	window.addEventListener('load', init);
+
+	window.addEventListener('resize', () => {
+		// n.b. Screen.orientation does not work in Safari
+		isPortrait  = window.matchMedia('(orientation:portrait)').matches;
+		isLandscape = window.matchMedia('(orientation:landscape)').matches;
+	});
 
 	return {
 		setOption: setOption,
