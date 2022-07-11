@@ -64,7 +64,7 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 #setDirection label {font-size:0.9em;}
 #setLocation {display:none; margin:-0.5em 0 1em 1.5em;}
 #setLocation label {display:inline-block; width:6em; font-size:0.9em;}
-#setLocation input {width:8em;}
+#setLocation input {width:8em; font-size:0.75em;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
 
 
