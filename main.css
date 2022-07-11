@@ -16,7 +16,7 @@ h1 span {white-space:nowrap;}
 .hide {display:none;}
 
 table {margin:0 0 1em 0; border-collapse:collapse;}
-td {padding:0.3em 0.6em; border:1px solid #d9d9d9;}
+td {padding:0.1em 0.3em;}
 td:nth-child(2) {text-align:right;}
 
 /* links */
