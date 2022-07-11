@@ -136,6 +136,14 @@ var SunClock = (function() {
 		return `${Math.sin(angle) * radius * -direction}, ${Math.cos(angle) * radius}`; // return as string for svg path attribute
 	}
 
+	function formatTime(time) {
+		// keep in one place
+		if (time == 'Invalid Date') return time;
+		//return time.toLocaleTimeString(); // hh:mm:ss
+		//return time.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - truncated
+		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - rounded to nearest minute
+	}
+
 	function getSunTimes() {
 		let event;
 		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
@@ -156,9 +164,9 @@ var SunClock = (function() {
 		// write subset of times below date
 		$('#times tbody').innerHTML = '';
 		for (let i=0; i<subset.length; i++) {
-			event = sunTimes[subset[i]].toLocaleTimeString();
+			event = formatTime(sunTimes[subset[i]]);
 			if (event == 'Invalid Date') { event = 'Does not occur'; }
-			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}</td><td>${event}</td></tr>`;
+			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}: </td><td>${event}</td></tr>`;
 		}
 
 		// draw time period arcs on clock face
@@ -252,9 +260,9 @@ var SunClock = (function() {
 		let p = periodsTemp[i];
 
 		let str = `<h3>${textReplacements[p[0]]}</h3>
-			<p>${textReplacements[p[1]]}<br>${sunTimes[p[1]].toLocaleTimeString()}</p>
+			<p>${textReplacements[p[1]]}<br>${formatTime(sunTimes[p[1]])}</p>
 			<p class="to">— to —</p>
-			<p>${textReplacements[p[2]]}<br>${sunTimes[p[2]].toLocaleTimeString()}</p>
+			<p>${textReplacements[p[2]]}<br>${formatTime(sunTimes[p[2]])}</p>
 			<p class="done"><a href="#">ok</a></p>`;
 
 		showInfo(str, dir);
@@ -341,14 +349,14 @@ var SunClock = (function() {
 		if ((moonTimes.rise) && (moonTimes.set)) {
 			// sort by time
 			if (moonTimes.rise <= moonTimes.set) {
-				str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}<br>Sets: ${moonTimes.set.toLocaleTimeString()}</p>`;
+				str += `<p>Rises: ${formatTime(moonTimes.rise)}<br>Sets: ${formatTime(moonTimes.set)}</p>`;
 			} else {
-				str += `<p>Sets: ${moonTimes.set.toLocaleTimeString()}<br>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;
+				str += `<p>Sets: ${formatTime(moonTimes.set)}<br>Rises: ${formatTime(moonTimes.rise)}</p>`;
 			}
 		} else if (moonTimes.rise) {
-			str += `<p>Rises: ${moonTimes.rise.toLocaleTimeString()}</p>`;
+			str += `<p>Rises: ${formatTime(moonTimes.rise)}</p>`;
 		} else if (moonTimes.set) {
-			str += `<p>Sets:  ${moonTimes.set.toLocaleTimeString()}</p>`;
+			str += `<p>Sets:  ${formatTime(moonTimes.set)}</p>`;
 		} else if (moonTimes.alwaysUp) {
 			str += '<p>Moon is up all day</p>';
 		} else if (moonTimes.alwaysDown) {
