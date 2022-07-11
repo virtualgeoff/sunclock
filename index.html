@@ -54,8 +54,8 @@
 			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
 			<path id="noon"     d="M 0,0 L 0,0" stroke="#eff" stroke-width="0.5" />
 
-			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
 			<g id="quarterMarks"  fill="none" stroke="#000" stroke-width="4"></g>
+			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
 			<g id="minuteMarks"   fill="none" stroke="#090" stroke-width="1"></g>
 			<g id="hourNumbers"   fill="#000" font-size="9px"></g>
 			<g id="minuteNumbers" fill="#090" font-size="5px"></g>
@@ -63,6 +63,7 @@
 			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" />
 				<g id="moonIcon" transform="translate(0 80) rotate(180)">
+					<circle cx="0" cy="0" r="12" fill="transparent" />
 					<circle cx="0" cy="0" r="6" fill="#000" stroke="#000" stroke-width="0" />
 					<path id="moonPath" fill="#ccc" stroke="#ccc" stroke-width="0" d="M 0,6 A 3 6 0 1 0 0,-6 A 6 6 0 1 1 0,6 z" />
 				</g>
@@ -79,6 +80,8 @@
 				<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round" />
 				<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0" />
 			</g>
+
+			<circle id="centerCircle" cursor="crosshair" cx="0" cy="0" r="15" fill="transparent" />
 		</g>
 	</svg>
 
@@ -102,6 +105,9 @@
 
 			<p>In the Northern Hemisphere the Sun moves across the sky in a clockwise direction; in the Southern Hemisphere, it moves anti-clockwise. Sun Clock matches this by setting its direction of rotation based on your latitude<a href="#note"><sup>[1]</sup></a>. You can change it in the settings if you wish.</p>
 			<p id="note"><small>1. Ideally you want the clock to turn in the same direction as the sun, regardless of which hemisphere you are in. If you are facing North when at your computer set it to anti-clockwise.</small></p>
+
+			<h3>Tips</h3>
+			<p>Tap on or hover over the segments to get their start and end times. You can also tap/hover on the moon, the hour hand, and the centre dot.</p>
 
 			<h3>Privacy</h3>
 			<p>We collect aggregate user stats only. Your location and settings are stored in your web browser and are not sent to the server. No cookies are saved or sent.</p>

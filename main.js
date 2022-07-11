@@ -230,6 +230,7 @@ var SunClock = (function() {
 
 		// add hover event to hour hand
 		addHoverEvent(hourHand, showSunInfo);
+		addHoverEvent($('#centerCircle'), showSunInfo);
 
 		// add hover event to moon hand
 		addHoverEvent(moonHand, showMoonInfo);
