@@ -9,7 +9,7 @@ h4 {font-size:0.9em; margin:2em 0 1em 0}
 p {margin:0 0 1em 0;}
 p.to {margin:-0.5em 0 0.5em 0; font-style:italic;}
 big {font-size:1.2em;}
-sup {}
+sup {font-size:0.75em; margin:0 0.2em;}
 .center {text-align:center;}
 .nobr {white-space:nowrap;}
 .hide {display:none;}
