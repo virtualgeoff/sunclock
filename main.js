@@ -21,7 +21,7 @@ var SunClock = (function() {
 
 	let now, then, timerStartTime,
 		hours, minutes, seconds,
-		hourHand, minuteHand, secondHand, dateText,
+		hourHand, minuteHand, secondHand, timeText, dateText,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
@@ -162,11 +162,11 @@ var SunClock = (function() {
 		}
 
 		// write subset of times below date
-		$('#times tbody').innerHTML = '';
+		$('#times').innerHTML = '';
 		for (let i=0; i<subset.length; i++) {
 			event = formatTime(sunTimes[subset[i]]);
 			if (event == 'Invalid Date') { event = 'Does not occur'; }
-			$('#times tbody').innerHTML += `<tr><td>${textReplacements[subset[i]]}: </td><td>${event}</td></tr>`;
+			$('#times').innerHTML += `${textReplacements[subset[i]]}: <span class="nobr">${event}</span><br>`;
 		}
 
 		// draw time period arcs on clock face
@@ -245,11 +245,13 @@ var SunClock = (function() {
 	}
 
 	function addHoverEvent(object, func, a) {
-		// add hover AND click events to a dom object
-		// showInfo will sort out event types
-		object.onmouseover = (e) => showInfo(e, func, a);
-		object.onmouseout = (e) => hideInfo(e);
-		object.onclick = (e) => showInfo(e, func, a);
+		// add hover or click events to a dom object
+		if (supportsHover) {
+			object.onmouseover = () => showInfo(func, a);
+			object.onmouseout = () => hideInfo();
+		} else {
+			object.onclick = () => showInfo(func, a);
+		}
 	}
 
 	function getPeriodInfo(i) {
@@ -257,10 +259,9 @@ var SunClock = (function() {
 		let p = periodsTemp[i];
 
 		let str = `<h3>${textReplacements[p[0]]}</h3>
-			<p>${textReplacements[p[1]]}<br>${formatTime(sunTimes[p[1]])}</p>
+			<p>${textReplacements[p[1]]}<br><span class="nobr">${formatTime(sunTimes[p[1]])}</span></p>
 			<p class="to">— to —</p>
-			<p>${textReplacements[p[2]]}<br>${formatTime(sunTimes[p[2]])}</p>
-			<p class="done"><a href="#">ok</a></p>`;
+			<p>${textReplacements[p[2]]}<br><span class="nobr">${formatTime(sunTimes[p[2]])}</span></p>`;
 
 		return str;
 	}
@@ -274,8 +275,7 @@ var SunClock = (function() {
 			Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>
 			<p>Altitude at:<br>
 			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
-			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>
-			<p class="done"><a href="#">ok</a></p>`;
+			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>`;
 
 		return str;
 	}
@@ -344,14 +344,14 @@ var SunClock = (function() {
 		if ((moonTimes.rise) && (moonTimes.set)) {
 			// sort by time
 			if (moonTimes.rise <= moonTimes.set) {
-				str += `<p>Rises: ${formatTime(moonTimes.rise)}<br>Sets: ${formatTime(moonTimes.set)}</p>`;
+				str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span><br>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
 			} else {
-				str += `<p>Sets: ${formatTime(moonTimes.set)}<br>Rises: ${formatTime(moonTimes.rise)}</p>`;
+				str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span><br>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
 			}
 		} else if (moonTimes.rise) {
-			str += `<p>Rises: ${formatTime(moonTimes.rise)}</p>`;
+			str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
 		} else if (moonTimes.set) {
-			str += `<p>Sets:  ${formatTime(moonTimes.set)}</p>`;
+			str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
 		} else if (moonTimes.alwaysUp) {
 			str += '<p>Moon is up all day</p>';
 		} else if (moonTimes.alwaysDown) {
@@ -359,46 +359,26 @@ var SunClock = (function() {
 		}
 		str += `
 			<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>
-			<p class="done"><a href="#">ok</a></p>`;
+			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>`;
 
 		return str;
 	}
 
-	function showInfo(e, func, a) {
-		// only show info if event type matches orientation etc.
-		if (supportsHover && isLandscape) {
-			// use hover / ignore click
-			if (e.type === 'click') { return; }
-		} else {
-			// use click / ignore hover
-			if (e.type === 'mouseover') { return; }
-		}
-
-		// get the right info to show, and the side to show it
+	function showInfo(func, a) {
+		// get the info and show it
 		let str = func(a);
-		let side = (e.clientX <= window.innerWidth/2) ? 'left' : 'right';
+		str += `<p class="done"><a href="#">ok</a></p>`;
 
-		$('#info').classList.remove('left','right'); // remove both before adding (hideInfo may not be called before next showInfo)
-		$('#info').classList.add(side);
-		$('#info').classList.remove('hide');
-		$('#info').innerHTML = str;
-		$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(e); };
+		if (isPortrait) { $('#info1').style.display = 'none'; }
+		$('#info2').style.display = 'block';
+		$('#info2').innerHTML = str;
+		$('p.done').onclick = (e) => { e.preventDefault(); hideInfo(); };
 	}
 
-	function hideInfo(e) {
-		if (supportsHover && isLandscape) {
-			// use hover / ignore click
-			if (e.type === 'click') { return; }
-		} else {
-			// use click / ignore hover
-			if (e.type === 'mouseout') { return; }
-		}
-
-		// hide info panel/overlay
-		$('#info').classList.add('hide');
-		$('#info').classList.remove('left','right');
-		$('#info').innerHTML = '';
+	function hideInfo() {
+		if (isPortrait) { $('#info1').style.display = 'block'; }
+		$('#info2').style.display = 'none';
+		$('#info2').innerHTML = '';
 	}
 
 	function drawMarks(parent, n, length) {
@@ -640,7 +620,8 @@ var SunClock = (function() {
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
 		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
-		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, <span>${now.toLocaleTimeString()}</span>`;
+		timeText.innerHTML = `${now.toLocaleTimeString()}`;
+		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
 		// refresh the sun times at midnight
 		if (then && (now.getDate() !== then.getDate())) {
@@ -659,6 +640,7 @@ var SunClock = (function() {
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
 		moonPath   = $('#moonPath');
+		timeText   = $('h1');
 		dateText   = $('#dateText');
 
 		loadOptions();
@@ -675,14 +657,10 @@ var SunClock = (function() {
 		tick();
 
 		// make overlays
-		$All('#about, #settings').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
-
-		// note link
-		$('#note').classList.add('hide');
-		$('a[href="#note"]').onclick = (e) => { e.preventDefault(); $('#note').classList.toggle('hide'); };
+		$All('section').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
 
 		// handle navigation links
-		$All('a.menu').forEach(link => {
+		$All('nav a').forEach(link => {
 			link.addEventListener('click', function(e){
 				$(link.hash).style.display = 'block';
 				e.preventDefault();
@@ -695,6 +673,10 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
+
+		// note link
+		$('#note').classList.add('hide');
+		$('a[href="#note"]').onclick = (e) => { e.preventDefault(); $('#note').classList.toggle('hide'); };
 
 		// decode email URL
 		// if email addresses are present in the HTML Cloudflare will obfuscate them itself and add its own decoder

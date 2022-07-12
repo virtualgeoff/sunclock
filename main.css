@@ -1,19 +1,17 @@
 /* sunclock/main.css */
 
 html {}
-body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#000; background:#fff;}
-h1 {font-size:1.3em; margin:0 1em 0.5em 1em; text-align:center;}
-h2 {font-size:1.2em; margin:1em 0;}
-h3 {font-size:1.0em; margin:3em 0 1em 0}
-h4 {font-size:0.9em; margin:3em 0 1em 0}
+body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#000; background:#fff; overflow:hidden;}
+h1 {font-size:1.2em; margin:0; font-weight:normal; text-align:center;}
+h2 {font-size:1.2em; margin:0 0 1em 0;}
+h3 {font-size:1.0em; margin:2em 0 1em 0}
+h4 {font-size:0.9em; margin:2em 0 1em 0}
 p {margin:0 0 1em 0;}
 p.to {margin:-0.5em 0 0.5em 0; font-style:italic;}
 big {font-size:1.2em;}
 sup {}
-h1 span {white-space:nowrap;}
-
 .center {text-align:center;}
-.hide {display:none;}
+.nobr {white-space:nowrap;}
 
 table {margin:0 0 1em 0; border-collapse:collapse;}
 td {padding:0.1em 0.3em;}
@@ -24,36 +22,40 @@ a:link {color:#00e;}
 a:visited {color:#50e;}
 a:hover {color:#f00;}
 
-a.menu, a.close {text-decoration:none; font-weight:bold; color:#003;}
-a.menu:visited, a.close:visited {color:#003;}
-a.menu:hover,   a.close:hover   {color:#f00;}
+nav a:link,    a.close {text-decoration:none; font-weight:bold; color:#003;}
+nav a:visited, a.close:visited {color:#003;}
+nav a:hover,   a.close:hover   {color:#f00;}
 .done a:visited {color:#00e;}
 
-/* positioning */
-.menu {position:absolute; margin:0;}
-.menu svg {width:1.625em; height:1.625em;}
-#menu1 {left:16px; top:16px;}
-#menu2 {right:16px; top:16px; text-align:right;}
-#clock {display:block; width:100vmin; height:100vmin; margin:3vmin auto;}
+/* nav positions */
+nav, main, footer, section, article, div {box-sizing:border-box;}
+nav {position:absolute; margin:0;}
+nav svg {width:1.625em; height:1.625em;}
+#nav1 {left:16px; top:16px;}
+#nav2 {right:16px; top:16px; text-align:right;}
 
+/* main layout */
+main {width:100vmin; height:100vmin; margin:0 auto;}
+.info {width:100vw; height:calc(100vh - 100vmin); margin:0; padding:0 1em; text-align:center;}
+#info1 {display:block;}
+#info2 {display:none;}
+
+/* clock face */
+#clock {display:block; width:calc(100vmin - 2em); height:calc(100vmin - 2em); margin:0 auto;}
 .skyBackground {
 	width:300px; height:300px; border-radius:150px;
-	background-image: conic-gradient(from 180deg,
+	background-image:conic-gradient(from 180deg,
 		#192029 72deg, #213c66 78deg, #4574bc 84deg, #88a6d4 90deg, #ff9900 90deg, #ffe988 95deg, #dceaff 110deg,
 		#dceaff 250deg, #ffe988 265deg, #ff9900 270deg, #88a6d4 270deg, #4574bc 276deg, #213c66 282deg, #192029 288deg);
 }
 
-/*#dateTimes {min-height:calc(100vh - 100vmin);}*/
-#times {margin:1em auto;}
-#location {font-size:1.2em; margin:0 0 0.5em 0; text-align:center;}
-#info {}
-#info.right {}
-#info h3 {margin:0.5em 0;}
-#info .done {display:none;}
+/* info */
+.info h3 {margin:0.5em 0;}
+.info .done {display:none;}
 
 /* overlays */
-section {max-width:40em; margin:0 auto;} /* default for no-js */
-section > div {position:relative; margin:0; padding:0.05em 1em 1em 1em;}
+section {max-width:40em; margin:0 auto; box-sizing:border-box;} /* default for no-js */
+section > div {position:relative; margin:0; padding:1em;}
 section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-width:100vw; height:100vh; margin:0; padding:0; background:rgba(255,255,255,0.90); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); overflow:scroll;}
 section.overlay > div {overscroll-behavior:contain;}
 .close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
@@ -69,23 +71,17 @@ section.overlay > div {overscroll-behavior:contain;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
 
 
-@media (orientation:portrait) {
-	#info {position:absolute; left:calc(50vw - 6em); top:25vmin; width:10em; margin:0; padding:1em; text-align:center; background:rgba(255,255,255,0.85); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
-	#info.right {}
-	#info .done {display:block;}
-}
-
 @media (orientation:landscape) {
-	#clock {width:90vmin; height:90vmin; margin:0 auto;}
-	#info {position:absolute; left:1em; top:4em; width:calc((100vw - 90vmin)/2);}
-	#info.right {left:auto; right:1em; text-align:right;}
+	.info {display:block; position:absolute; left:0; top:4em; width:calc(50vw - 45vmin); height:calc(100vh - 4em);}
+	#info1 {padding-right:0; text-align:left;}
+	#info2 {display:none; left:auto; right:0em; padding-left:0; text-align:right;}
 }
 
 @media (min-width:30rem) {
 	body {background:#ccc;}
 	section.overlay {background:rgba(204,204,204,0.9);}
 	section.overlay > div {width:40em; max-width:80vmin; height:auto; max-height:85vh; margin:5vh auto; background:rgba(255,255,255,0.7); border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2); overflow-y: scroll;}
-	#settings.overlay > div {width:18em;}
+	#settings.overlay > div {width:20em;}
 }
 
 @media (hover:none) {
