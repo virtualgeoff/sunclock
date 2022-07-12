@@ -1,7 +1,7 @@
 /* sunclock/main.css */
 
 html {}
-body {min-height:100vh; min-height:-webkit-fill-available; margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#000; background:#fff; overflow:hidden;}
+body {margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#000; background:#fff; overflow:hidden;}
 h1 {font-size:1.2em; margin:0; font-weight:normal; text-align:center;}
 h2 {font-size:1.2em; margin:0 0 1em 0;}
 h3 {font-size:1.0em; margin:2em 0 1em 0}
@@ -35,13 +35,13 @@ nav svg {width:1.625em; height:1.625em;}
 #nav2 {right:16px; top:16px; text-align:right;}
 
 /* main layout */
-main {width:100vmin; height:100vmin; margin:0 auto;}
-.info {width:100vw; height:calc(100vh - 100vmin); margin:0; padding:0 1em; text-align:center;}
+main {width:100vmin; height:calc(100vmin + 2em); margin:0 auto;}
+.info {width:100vw; height:calc(100vh - 100vmin - 2em); margin:0; padding:0 1em; text-align:center; overflow:scroll;}
 #info1 {display:block;}
 #info2 {display:none;}
 
 /* clock face */
-#clock {display:block; width:calc(100vmin - 2em); height:calc(100vmin - 2em); margin:0 auto;}
+#clock {display:block; width:100vmin; height:100vmin; margin:0 auto;}
 .skyBackground {
 	width:300px; height:300px; border-radius:150px;
 	background-image:conic-gradient(from 180deg,
@@ -72,9 +72,11 @@ section.overlay > div {overscroll-behavior:contain;}
 
 
 @media (orientation:landscape) {
-	.info {display:block; position:absolute; left:0; top:4em; width:calc(50vw - 45vmin); height:calc(100vh - 4em);}
+	main {width:calc(100vmin - 2em); height:100vmin; margin:0 auto;}
+	.info {display:block; position:absolute; left:0; top:4em; width:calc(50vw - 50vmin + 1em); height:calc(100vh - 4em); overflow:visible;}
 	#info1 {padding-right:0; text-align:left;}
 	#info2 {display:none; left:auto; right:0em; padding-left:0; text-align:right;}
+	#clock {display:block; width:calc(100vmin - 2em); height:calc(100vmin - 2em); margin:0 auto;}
 }
 
 @media (min-width:30rem) {
