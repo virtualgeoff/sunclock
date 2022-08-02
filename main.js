@@ -79,7 +79,7 @@ var SunClock = (function() {
 		};
 
 	function getLocation() {
-		// get location from local Storage or Geolocation API
+		// get location from localStorage or Geolocation API
 		if (getItem('setLocationManually') === true) {
 			showLocation({coords: location});
 		} else if (navigator.geolocation) {
@@ -587,6 +587,7 @@ var SunClock = (function() {
 	}
 
 	function decodeURL(anchor) {
+		// decodes data in data-address attribute of an anchor tag — used to obfuscate mailto link
 		let input = anchor.dataset.address.replace(/\s+/g, ',').split(',');
 		let output = '';
 
@@ -680,7 +681,7 @@ var SunClock = (function() {
 
 		// decode email URL
 		// if email addresses are present in the HTML Cloudflare will obfuscate them itself and add its own decoder
-		document.querySelectorAll('a[data-address]').forEach( (a) => { decodeURL(a); });
+		$All('a[data-address]').forEach( (a) => { decodeURL(a); });
 
 		// get location last (so geolocation prompt doesn't block)
 		getLocation();
@@ -692,6 +693,11 @@ var SunClock = (function() {
 		// n.b. Screen.orientation does not work in Safari
 		isPortrait  = window.matchMedia('(orientation:portrait)').matches;
 		isLandscape = window.matchMedia('(orientation:landscape)').matches;
+
+		// on resizing (esp. orientation change), make sure #info1 is visible
+		// otherwise if you go from portrait to landscape (on touch devices) with #info2 visible then #info1 stays hidden
+		$('#info1').style.display = 'block';
+		$('#info2').style.display = 'none';
 	});
 
 	return {
