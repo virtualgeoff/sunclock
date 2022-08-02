@@ -459,7 +459,7 @@ var SunClock = (function() {
 			break;
 		  case 'showHourMarks':
 			$('#hourMarks').style.display = (checkbox.checked) ? 'block' : 'none';
-			$('#quarterMarks').style.display = (checkbox.checked) ? 'block' : 'none';
+			$('#hourMarks2').style.display = (checkbox.checked) ? 'block' : 'none';
 			break;
 		  case 'showMinuteHand':
 			minuteHand.style.display = (checkbox.checked) ? 'block' : 'none';
