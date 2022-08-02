@@ -43,26 +43,27 @@
 	</nav>
 
 	<svg id="clock" width="500" height="500" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+		<circle id="" cx="150" cy="150" r="136" fill="#ccc" stroke="#777" stroke-width="0.5" />
 		<!-- technique from: https://css-tricks.com/my-struggle-to-use-and-animate-a-conic-gradient-in-svg/ -->
 		<clipPath id="clip">
-			<circle cx="150" cy="150" r="125" />
+			<circle cx="150" cy="150" r="130" />
 		</clipPath>
 		<foreignObject x="0" y="0" width="300" height="300" clip-path="url(#clip)">
 			<div xmlns="http://www.w3.org/1999/xhtml" class="skyBackground"></div>
 		</foreignObject>
 
 		<g transform="translate(150,150)" font-family="Geneva, Helvetica Neue, Helvetica, Arial" text-anchor="middle">
-			<circle id="clockFace" cx="0" cy="0" r="125" fill="none" stroke="#000" stroke-width="0.5" />
+			<circle id="clockFace" cx="0" cy="0" r="130" fill="none" stroke="#000" stroke-width="0.5" />
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
 			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
 			<path id="noon"     d="M 0,0 L 0,0" stroke="#fff" stroke-width="0.5" />
 
-			<g id="quarterMarks"  fill="none" stroke="#000" stroke-width="4"></g>
-			<g id="hourMarks"     fill="none" stroke="#000" stroke-width="2"></g>
-			<g id="minuteMarks"   fill="none" stroke="#090" stroke-width="1"></g>
-			<g id="hourNumbers"   fill="#000" font-size="9px"></g>
-			<g id="minuteNumbers" fill="#090" font-size="5px"></g>
+			<g id="hourMarks"     fill="none" stroke="#777" stroke-width="1"></g>
+			<g id="hourMarks2"    fill="none" stroke="#777" stroke-width="1"></g>
+			<g id="minuteMarks"   fill="none" stroke="#777" stroke-width="0.5"></g>
+			<g id="hourNumbers"   fill="#000" font-size="12px" style="letter-spacing:-1;/* text-shadow: 0px 0px 10px #fff;*/"></g>
+			<g id="minuteNumbers" fill="#000" font-size="5px"></g>
 
 			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
 				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" />
@@ -77,11 +78,11 @@
 				<circle cx="0" cy="0" r="3.9" fill="#f70" stroke="#f70" stroke-width="0" />
 			</g>
 			<g id="minuteHand" transform="rotate(0)">
-				<line x1="0" y1="0" x2="0" y2="-110" fill="none" stroke="#090" stroke-width="2" stroke-linecap="round" />
+				<line x1="0" y1="0" x2="0" y2="-119" fill="none" stroke="#090" stroke-width="2" stroke-linecap="round" />
 				<circle cx="0" cy="0" r="4.0" fill="#090" stroke="#0a0" stroke-width="0" />
 			</g>
 			<g id="secondHand" transform="rotate(0)">
-				<line x1="0" y1="0" x2="0" y2="-121" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round" />
+				<line x1="0" y1="0" x2="0" y2="-129" fill="none" stroke="#f00" stroke-width="1" stroke-linecap="round" />
 				<circle cx="0" cy="0" r="4.1" fill="#f00" stroke="#f00" stroke-width="0" />
 			</g>
 

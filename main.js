@@ -381,11 +381,12 @@ var SunClock = (function() {
 		$('#info2').innerHTML = '';
 	}
 
-	function drawMarks(parent, n, length) {
+	function drawMarks(parent, n, q, length) {
 		// draw the number marks on the clock face
 		var m;
 
 		for (let i=0; i<=(n-1); i++) {
+			if ((q != 0) && (i%q === 0)) { continue; }
 			m = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 			m.setAttribute('x1', 0);
 			m.setAttribute('y1', 0);
@@ -396,7 +397,7 @@ var SunClock = (function() {
 		}
 	}
 
-	function drawNumbers(parent, n, m, offset, startAtTop) {
+	function drawNumbers2(parent, n, m, offset, startAtTop, vertical) {
 		// draw the numbers on the clock face
 		var g, angle,
 			p = $(parent),
@@ -416,13 +417,23 @@ var SunClock = (function() {
 			angle = ((i * direction * (360/n) + angleOffset + 360) % 360); // 0 <= angle < 360
 			g.setAttribute('transform', `rotate(${angle}) translate(0,${radius + h * offset})`);
 
-			if ((angle >= 90) && (angle <= 270)) {
-				g.innerHTML = `<text x="0" y="0" transform="rotate(180)">${i}</text>`;
+			if (vertical) {
+				g.innerHTML = `<circle cx="0" cy="0" r="${(h*0.833)}" fill="rgba(255,255,255,0.33)" stroke="none" />`;
+				g.innerHTML += `<text x="0" y="${(h*0.375)}" transform="rotate(${angle*-1})">${i?i:n}</text>`;
 			} else {
-				g.innerHTML = `<text x="0" y="${(h*0.75)}" transform="rotate(0)">${i}</text>`;
+				if ((angle >= 90) && (angle <= 270)) {
+					g.innerHTML = `<text x="0" y="0" transform="rotate(180)">${i?i:n}</text>`;
+				} else {
+					g.innerHTML = `<text x="0" y="${(h*0.75)}" transform="rotate(0)">${i?i:n}</text>`;
+				}
 			}
 			p.appendChild(g);
 		}
+	}
+
+	function drawNumbers() {
+		drawNumbers2('#hourNumbers',  24, 2, -1.5, false, true);
+		drawNumbers2('#minuteNumbers', 60, 5, 0.3, true, false);
 	}
 
 	function setItem(itemName, value) {
@@ -514,8 +525,7 @@ var SunClock = (function() {
 	function updateDirection() {
 		// update direction after setOption or loadOptions
 		// n.b. clock hands will update automatically on next animationFrame
-		drawNumbers('#hourNumbers', 24, 1, 1, false);
-		drawNumbers('#minuteNumbers', 60, 5, -1.7, true);
+		drawNumbers();
 		if (sunTimes) { drawTimePeriods(); }
 	}
 
@@ -648,11 +658,10 @@ var SunClock = (function() {
 
 		// draw clock
 		radius = parseFloat($('#clockFace').getAttribute('r')) - parseFloat($('#clockFace').getAttribute('stroke-width'))/2;
-		drawMarks('#hourMarks', 24, 3);
-		drawMarks('#quarterMarks', 4, 4);
-		drawMarks('#minuteMarks', 60, -2);
-		drawNumbers('#hourNumbers', 24, 1, 1, false);
-		drawNumbers('#minuteNumbers', 60, 5, -1.7, true);
+		drawMarks('#hourMarks',  24, 0, -4);
+		drawMarks('#hourMarks2', 24, 2, -8);
+		drawMarks('#minuteMarks', 60, 5, 6);
+		drawNumbers();
 
 		// start clock
 		tick();
