@@ -554,7 +554,7 @@ var SunClock = (function() {
 		if (getItem('showHourMarks') === false) {
 			$('input[name="showHourMarks"]').checked = false;
 			$('#hourMarks').style.display = 'none';
-			$('#quarterMarks').style.display = 'none';
+			$('#hourMarks2').style.display = 'none';
 		}
 		if (getItem('showMinuteHand') === false) {
 			$('input[name="showMinuteHand"]').checked = false;
