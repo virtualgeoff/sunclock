@@ -548,7 +548,6 @@ var SunClock = (function() {
 		themeSelection = (theme === 2) ? './main-dark.css'  : themeSelection;
 		themeSelection = (theme === 3) ? './main-light.css' : themeSelection;
 
-		}
 		themeStylesheet.href = themeSelection;
 
 		let hourNumbers = document.getElementById('hourNumbers')
@@ -556,8 +555,6 @@ var SunClock = (function() {
 
 		if (sunTimes) { drawTimePeriods(); }
 	}
-	
-
 
 	function updateLocation(form) {
 		// handle location submit
