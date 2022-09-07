@@ -8,7 +8,7 @@
 	<meta name="author" content="Geoff Pack">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<link rel="stylesheet" href="./main.css">
+	<link rel="stylesheet" id="theme" type="text/css" href="./main-light.css" />
 
 	<!-- link rel="shortcut icon" href="sunclock.ico" -->
 	<link rel="icon" type="image/png" href="./resources/sunclock.png">
@@ -161,6 +161,11 @@
 					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" placeholder="0 to ±90" required> <!-- small>(0 to ±90)</small --><br>
 					<label for="longitude">Longitude</label> <input name="longitude" type="number" min="-180" max="180" step="0.001" placeholder="0 to ±180" required> <!-- small>(0 to ±180)</small --><br>
 					<label></label> <input type="submit" value="Update">
+				</p>
+				<p id="setTheme">
+					<label><input type="radio" name="setTheme" id="theme_dark"  value="dark"	onchange="SunClock.setOption(this)"> dark</label> &nbsp;
+					<label><input type="radio" name="setTheme" id="theme_light" value="light"	onchange="SunClock.setOption(this)" checked> light</label> &nbsp;
+					<!-- <label><input type="radio" name="setTheme" id="theme_auto"  value="auto"	onchange="SunClock.setOption(this)"> auto</label> --> 
 				</p>
 			</form>
 

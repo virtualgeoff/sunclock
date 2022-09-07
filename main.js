@@ -26,28 +26,29 @@ var SunClock = (function() {
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
 		direction = 1, // 1 = clockwise, -1 = anticlockwise
-		location;      // {"latitude":0,"longitude":0}
+		location,      // {"latitude":0,"longitude":0}
+		theme = 1; 	   // 1 = light, 		2 = dark, 		3 = auto}
 
 	const debug = true,
 		//testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
 		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
 		periods = [
-			// name:                        from:               to:                 color:
-			['earlyMorning',                'nadir',            'nightEnd',         '#192029'],
-			['astronomicalMorningTwilight', 'nightEnd',         'nauticalDawn',     '#213c66'],
-			['nauticalMorningTwilight',     'nauticalDawn',     'dawn',             '#4574bc'],
-			['civilMorningTwilight',        'dawn',             'sunrise',          '#88a6d4'],
-			['sunrise',                     'sunrise',          'sunriseEnd',       '#ff9900'],
-			['morningGoldenHour',           'sunriseEnd',       'goldenHourEnd',    '#ffe988'],
-			['morning',                     'goldenHourEnd',    'solarNoon',        '#dceaff'],
-			['afternoon',                   'solarNoon',        'goldenHour',       '#dceaff'],
-			['eveningGoldenHour',           'goldenHour',       'sunsetStart',      '#ffe988'],
-			['sunset',                      'sunsetStart',      'sunset',           '#ff9900'],
-			['civilEveningTwilight',        'sunset',           'dusk',             '#88a6d4'],
-			['nauticalEveningTwilight',     'dusk',             'nauticalDusk',     '#4574bc'],
-			['astronomicalEveningTwilight', 'nauticalDusk',     'night',            '#213c66'],
-			['lateEvening',                 'night',            'nadir',            '#192029']
+			// name:                        from:               to:                 color:		lightColor:	darkColor;
+			['earlyMorning',                'nadir',            'nightEnd',         '#192029',	'#192029',	'#030303'],
+			['astronomicalMorningTwilight', 'nightEnd',         'nauticalDawn',     '#213c66',	'#213c66',  '#101d33'],
+			['nauticalMorningTwilight',     'nauticalDawn',     'dawn',             '#4574bc',	'#4574bc', 	'#325489'],
+			['civilMorningTwilight',        'dawn',             'sunrise',          '#88a6d4',	'#88a6d4',	'#677ea1'],
+			['sunrise',                     'sunrise',          'sunriseEnd',       '#ff9900',	'#ff9900', 	'#cc7a00'],
+			['morningGoldenHour',           'sunriseEnd',       'goldenHourEnd',    '#ffe988',	'#ffe988', 	'#ccba6c'],
+			['morning',                     'goldenHourEnd',    'solarNoon',        '#dceaff', 	'#dceaff', 	'#b0bbcc'],
+			['afternoon',                   'solarNoon',        'goldenHour',       '#dceaff',	'#dceaff',  '#b0bbcc'],
+			['eveningGoldenHour',           'goldenHour',       'sunsetStart',      '#ffe988',	'#ffe988', 	'#ccba6c'],
+			['sunset',                      'sunsetStart',      'sunset',           '#ff9900',	'#ff9900', 	'#cc7a00'],
+			['civilEveningTwilight',        'sunset',           'dusk',             '#88a6d4',	'#88a6d4', 	'#677ea1'],
+			['nauticalEveningTwilight',     'dusk',             'nauticalDusk',     '#4574bc',	'#4574bc', 	'#325489'],
+			['astronomicalEveningTwilight', 'nauticalDusk',     'night',            '#213c66',	'#213c66',  '#101d33'],
+			['lateEvening',                 'night',            'nadir',            '#192029',	'#192029',	'#030303']
 		],
 		textReplacements = {
 			'nadir' : 'Midnight',
@@ -223,7 +224,13 @@ var SunClock = (function() {
 			point2 = getPointFromTime(sunTimes[p[2]]);
 			path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 			path.setAttribute('id', p[0]);
-			path.setAttribute('fill', p[3]);
+			
+			let fillThemeCol;
+			fillThemeCol = (theme === 3)  ? 3 : 3;
+			fillThemeCol = (theme === 2)  ? 5 : fillThemeCol;
+			fillThemeCol = (theme === 1) ? 4 : fillThemeCol;
+			
+			path.setAttribute('fill', p[fillThemeCol]);
 			path.setAttribute('cursor', 'crosshair');
 			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
 			$('#arcs').appendChild(path);
@@ -516,6 +523,21 @@ var SunClock = (function() {
 			}
 			break;
 
+			case 'setTheme':
+				theme = (checkbox.value === 'auto')  ? 3 : 1;
+				theme = (checkbox.value === 'dark')  ? 2 : theme;
+				theme = (checkbox.value === 'light') ? 1 : theme;
+
+				setItem('theme', theme);
+
+				$('#theme_light').checked = (theme === 1) ? true : false;
+				$('#theme_dark').checked  = (theme === 2) ? true : false;
+				//$('#theme_auto').checked  = (theme === 3) ? true : false;
+
+				refreshTheme();
+
+				break;
+
 		  default:
 			alert('wot?');
 		}
@@ -526,6 +548,21 @@ var SunClock = (function() {
 		// update direction after setOption or loadOptions
 		// n.b. clock hands will update automatically on next animationFrame
 		drawNumbers();
+		if (sunTimes) { drawTimePeriods(); }
+	}
+
+	function refreshTheme() {
+		let themeStylesheet = document.getElementById('theme');
+		let themeSelection = './main-light.css';
+		themeSelection = (theme === 1) ? './main-light.css' : './main-dark.css';
+		themeSelection = (theme === 2) ? './main-dark.css'  : themeSelection;
+		themeSelection = (theme === 3) ? './main-light.css' : themeSelection;
+
+		themeStylesheet.href = themeSelection;
+
+		let hourNumbers = document.getElementById('hourNumbers')
+		hourNumbers.style.fill = (theme == 1) ? '#000' : '#999';
+
 		if (sunTimes) { drawTimePeriods(); }
 	}
 
@@ -550,6 +587,7 @@ var SunClock = (function() {
 		if (getItem('showHourNumbers') === false) {
 			$('input[name="showHourNumbers"]').checked = false;
 			$('#hourNumbers').style.display = 'none';
+			$('#hourNumbers').fill = '#ccc';
 		}
 		if (getItem('showHourMarks') === false) {
 			$('input[name="showHourMarks"]').checked = false;
@@ -593,6 +631,14 @@ var SunClock = (function() {
 			location = getItem('location');
 			$('input[name="latitude"]').value  = getItem('location').latitude;
 			$('input[name="longitude"]').value = getItem('location').longitude;
+		}
+
+		//theme
+		if (getItem('theme') !== null) {
+			theme = getItem('theme');
+			$('#theme_light').checked = (theme === 1) ? true : false;
+			$('#theme_dark').checked  = (theme === 2) ? true : false;
+			//$('#theme_auto').checked  = (theme === 3) ? true : false;
 		}
 	}
 
@@ -655,6 +701,9 @@ var SunClock = (function() {
 		dateText   = $('#dateText');
 
 		loadOptions();
+
+		// set theme before any paint
+		refreshTheme();
 
 		// draw clock
 		radius = parseFloat($('#clockFace').getAttribute('r')) - parseFloat($('#clockFace').getAttribute('stroke-width'))/2;
