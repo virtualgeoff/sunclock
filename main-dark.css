@@ -3,7 +3,7 @@
 /* https://github.com/martinchrzan/ColorPicker */
 
 html {}
-body {margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#9f9f9f; background:#323232;}
+body {margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#ddd; background:#333;}
 h1 {display:none; font-size:1.2em; margin:0; font-weight:normal; text-align:center;}
 h2 {font-size:1.2em; margin:0 0 1em 0;}
 h3 {font-size:1.0em; margin:2em 0 1em 0}
@@ -21,14 +21,15 @@ td {padding:0.1em 0.3em;}
 td:nth-child(2) {text-align:right;}
 
 /* links */
-a:link {color:#000054;}
-a:visited {color:#1d0054;}
-a:hover {color:#650000;}
+a {color:#79f; text-decoration:none;}
+a:visited {color:#a7d;}
+a:hover {text-decoration:underline;}
 
-nav a:link,    a.close {text-decoration:none; font-weight:bold; color:#003;}
-nav a:visited, a.close:visited {color:#003;}
-nav a:hover,   a.close:hover   {color:#650000;}
-.done a:visited {color:#000054;}
+nav a:link,    a.close {text-decoration:none; font-weight:bold; color:#ddd;}
+nav a:visited, a.close:visited {color:#ddd;}
+nav a:hover,   a.close:hover   {color:#f00;}
+.done a:visited {color:#cc9;}
+
 
 /* nav positions */
 nav, main, footer, section, article, div {box-sizing:border-box;}
@@ -41,26 +42,14 @@ nav svg {width:1.625em; height:1.625em;}
 #clock  {display:block; width:100vmin; width:100dvmin; height:100vmin; height:100dvmin; margin:0 auto; padding:0;}
 .info   {display:block; width:100vmin; width:100dvmin; max-width:40em; min-height:12em; margin:0 auto; padding:0.01em 1em; text-align:center;}
 section {display:block; width:100vmin; width:100dvmin; max-width:40em; margin:0 auto; padding:0;} /* default for no-js */
-section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-width:100vw; height:100vh; height:100dvh; margin:0; background:rgba(255,255,255,0.90); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); overflow:scroll; overscroll-behavior:contain;} /* .overlay class added via js */
+section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-width:100vw; height:100vh; height:100dvh; margin:0; background:rgba(64,64,64,0.90); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); overflow:scroll; overscroll-behavior:contain;} /* .overlay class added via js */
 
 /* clock bg */
 .skyBackground {
 	width:300px; height:300px; border-radius:150px;
 	background-image:conic-gradient(from 180deg,
-		#030303 72deg,
-		#101d33 78deg,
-		#325489 84deg,
-		#677ea1 90deg,
-	 	#cc7a00 90deg,
-		#ccba6c 95deg,
-		#b0bbcc 110deg,
-		#b0bbcc 250deg,
-		#ccba6c 265deg,
-		#cc7a00 270deg,
-		#677ea1 270deg,
-		#325489 276deg,
-		#101d33 282deg,
-		#030303 288deg);
+		#030303 72deg, #101d33 78deg, #325489 84deg, #677ea1 90deg, #cc7a00 90deg, #ccba6c 95deg, #b0bbcc 110deg,
+		#b0bbcc 250deg, #ccba6c 265deg, #cc7a00 270deg, #677ea1 270deg, #325489 276deg, #101d33 282deg, #030303 288deg);
 }
 
 /* info */

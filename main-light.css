@@ -19,9 +19,9 @@ td {padding:0.1em 0.3em;}
 td:nth-child(2) {text-align:right;}
 
 /* links */
-a:link {color:#00e;}
-a:visited {color:#50e;}
-a:hover {color:#f00;}
+a {color:#00e; text-decoration:none;}
+a:visited {color:#a0e;}
+a:hover {text-decoration:underline;}
 
 nav a:link,    a.close {text-decoration:none; font-weight:bold; color:#003;}
 nav a:visited, a.close:visited {color:#003;}
