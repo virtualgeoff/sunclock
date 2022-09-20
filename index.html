@@ -107,8 +107,8 @@
 			<p>It also shows the current position and <a href="https://en.wikipedia.org/wiki/Lunar_phase" target="wikipedia">phase</a> of the moon, and its rising and setting times.</p>
 			<noscript><p><b>This site requires JavaScript to work.</b> Page weight is under 50 KB, and there's no advertising or tracking (only a tiny stats script from <a href="https://simpleanalytics.com">Simple Analytics</a>). It's worth it, honest ;)</p></noscript>
 
-			<p>In the Northern Hemisphere the Sun moves across the sky in a clockwise direction; in the Southern Hemisphere, it moves anti-clockwise. Sun Clock matches this by setting its direction of rotation based on your latitude<a href="#note"><sup>1</sup></a>. You can change it in the settings if you wish.</p>
-			<p id="note"><small>1. Ideally you want the clock to turn in the same direction as the sun, regardless of which hemisphere you are in. If you are facing North when at your computer set it to anti-clockwise.</small></p>
+			<p>In the Northern Hemisphere the Sun moves across the sky in a clockwise direction; in the Southern Hemisphere, it moves anti-clockwise. Sun Clock matches this by setting its direction of rotation based on your latitude<a href="#note1"><sup>1</sup></a>. You can change it in the settings if you wish.</p>
+			<p id="note1"><small>1. Ideally you want the clock to turn in the same direction as the sun, regardless of which hemisphere you are in. If you are facing North when at your computer set it to anti-clockwise.</small></p>
 
 			<h3>Tips</h3>
 			<p>Tap on or hover over the segments to get their start and end times. You can also tap/hover on the moon, the hour hand, and the centre dot.</p>
@@ -157,21 +157,23 @@
 					<label><input type="checkbox" name="setDirectionManually" onchange="SunClock.setOption(this)"> set direction manually</label>
 				</p>
 				<p id="setDirection">
-					<label><input type="radio" name="setDirection" id="direction_cw"  value="clockwise"     onchange="SunClock.setOption(this)"> clockwise</label> &nbsp;
-					<label><input type="radio" name="setDirection" id="direction_ccw" value="anticlockwise" onchange="SunClock.setOption(this)"> anti-clockwise</label>
+					<label><input type="radio" name="setDirection" id="direction_cw"   value="clockwise"     onchange="SunClock.setOption(this)"> clockwise</label> &nbsp;
+					<label><input type="radio" name="setDirection" id="direction_ccw"  value="anticlockwise" onchange="SunClock.setOption(this)"> anti-clockwise</label>
 				</p>
 				<p>
 					<label><input type="checkbox" name="setLocationManually" onchange="SunClock.setOption(this)"> set location manually</label>
 				</p>
 				<p id="setLocation">
-					<label for="latitude">Latitude  </label> <input name="latitude"  type="number" min="-90"  max="90"  step="0.001" placeholder="0 to ±90" required> <!-- small>(0 to ±90)</small --><br>
-					<label for="longitude">Longitude</label> <input name="longitude" type="number" min="-180" max="180" step="0.001" placeholder="0 to ±180" required> <!-- small>(0 to ±180)</small --><br>
+					<label for="latitude">Latitude   </label> <input name="latitude"  type="number" min="-90"  max="90"  step="any" placeholder="-90 to 90" required> <a href="#note2">ℹ︎</a><br>
+					<span id="note2"><small>Use <a href="https://en.wikipedia.org/wiki/Decimal_degrees" target="_blank">decimal degrees</a>. Should be a number between -90.0 and 90.0<br>1–2 decimal places is sufficient.</small></span>
+					<label for="longitude">Longitude </label> <input name="longitude" type="number" min="-180" max="180" step="any" placeholder="-180 to 180" required> <a href="#note3">ℹ︎</a><br>
+					<span id="note3"><small>Use <a href="https://en.wikipedia.org/wiki/Decimal_degrees" target="_blank">decimal degrees</a>. Should be a number between -180.0 and 180.0<br>1–2 decimal places is sufficient.</small></span>
 					<label></label> <input type="submit" value="Update">
 				</p>
 				<p id="setTheme">
-					<label><input type="radio" name="setTheme" id="theme_dark"  value="dark"	onchange="SunClock.setOption(this)"> dark</label> &nbsp;
-					<label><input type="radio" name="setTheme" id="theme_light" value="light"	onchange="SunClock.setOption(this)" checked> light</label> &nbsp;
-					<!-- <label><input type="radio" name="setTheme" id="theme_auto"  value="auto"	onchange="SunClock.setOption(this)"> auto</label> --> 
+					<!-- <label><input type="radio" name="setTheme" id="theme_auto"  value="auto"	onchange="SunClock.setOption(this)"> auto</label> &nbsp; -->
+					<label><input type="radio" name="setTheme" id="theme_light" value="light" onchange="SunClock.setOption(this)" checked> light mode</label> &nbsp;
+					<label><input type="radio" name="setTheme" id="theme_dark"  value="dark"  onchange="SunClock.setOption(this)"> dark mode</label>
 				</p>
 			</form>
 
@@ -179,7 +181,7 @@
 		</div>
 	</section>
 
-	<!-- 100% privacy friendly analytics --> 
+	<!-- 100% privacy friendly analytics -->
 	<script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 	<noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
 

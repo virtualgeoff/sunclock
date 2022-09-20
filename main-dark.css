@@ -47,8 +47,8 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 .skyBackground {
 	width:300px; height:300px; border-radius:150px;
 	background-image:conic-gradient(from 180deg,
-		#030303 72deg, 
-		#101d33 78deg, 
+		#030303 72deg,
+		#101d33 78deg,
 		#325489 84deg,
 		#677ea1 90deg,
 	 	#cc7a00 90deg,
@@ -58,7 +58,7 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 		#ccba6c 265deg,
 		#cc7a00 270deg,
 		#677ea1 270deg,
-		#325489 276deg, 
+		#325489 276deg,
 		#101d33 282deg,
 		#030303 288deg);
 }
@@ -88,7 +88,8 @@ section > div {position:relative; margin:0; padding:1em;}
 #setLocation label {display:inline-block; width:6em; font-size:0.9em;}
 #setLocation input {width:8em; font-size:12px;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
-
+#setLocation span {display:inline-block; line-height:1.2;}
+#setLocation span.hide {display:none;}
 
 @media (orientation:portrait) {
 

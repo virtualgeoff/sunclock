@@ -74,7 +74,8 @@ section > div {position:relative; margin:0; padding:1em;}
 #setLocation label {display:inline-block; width:6em; font-size:0.9em;}
 #setLocation input {width:8em; font-size:12px;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
-
+#setLocation span {display:inline-block; line-height:1.2;}
+#setLocation span.hide {display:none;}
 
 @media (orientation:portrait) {
 

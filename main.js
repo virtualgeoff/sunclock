@@ -733,9 +733,11 @@ var SunClock = (function() {
 			});
 		});
 
-		// note link
-		$('#note').classList.add('hide');
-		$('a[href="#note"]').onclick = (e) => { e.preventDefault(); $('#note').classList.toggle('hide'); };
+		// note links
+		$All('#note1, #note2, #note3').forEach(link => { link.classList.add('hide'); });
+		$('a[href="#note1"]').onclick = (e) => { e.preventDefault(); $('#note1').classList.toggle('hide'); };
+		$('a[href="#note2"]').onclick = (e) => { e.preventDefault(); $('#note2').classList.toggle('hide'); $('#note3').classList.add('hide'); };
+		$('a[href="#note3"]').onclick = (e) => { e.preventDefault(); $('#note3').classList.toggle('hide'); $('#note2').classList.add('hide'); };
 
 		// decode email URL
 		// if email addresses are present in the HTML Cloudflare will obfuscate them itself and add its own decoder
