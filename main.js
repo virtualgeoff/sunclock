@@ -677,8 +677,9 @@ var SunClock = (function() {
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
 		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
-		timeText.innerHTML = `${now.toLocaleTimeString()}`;
+		//timeText.innerHTML = `${now.toLocaleTimeString()}`;
 		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+		//dateText.innerHTML += `<br>${now.toLocaleTimeString()}`;
 
 		// refresh the sun times at midnight
 		if (then && (now.getDate() !== then.getDate())) {
@@ -697,7 +698,7 @@ var SunClock = (function() {
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
 		moonPath   = $('#moonPath');
-		timeText   = $('h1');
+		//timeText   = $('h1');
 		dateText   = $('#dateText');
 
 		loadOptions();
