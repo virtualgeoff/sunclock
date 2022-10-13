@@ -697,7 +697,7 @@ var SunClock = (function() {
 		$All('section').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
 
 		// handle navigation links
-		$All('nav a').forEach(link => {
+		$All('a[href="#about"], a[href="#settings"]').forEach(link => {
 			link.addEventListener('click', function(e){
 				$(link.hash).style.display = 'block';
 				e.preventDefault();
@@ -743,3 +743,23 @@ var SunClock = (function() {
 		updateLocation: updateLocation
 	};
 })();
+
+function fullscreen(e) {
+	// toggle fullscreen mode
+	//e.preventDefault();
+	var d = document, dE = d.documentElement;
+
+	if (d.fullscreenElement || d.webkitFullscreenElement) {
+		if (d.exitFullscreen) {
+			d.exitFullscreen();
+		} else if (d.webkitCancelFullScreen) {
+			d.webkitCancelFullScreen();
+		}
+	} else {
+		if (dE.requestFullscreen) {
+			dE.requestFullscreen();
+		} else if (dE.webkitRequestFullScreen) {
+			dE.webkitRequestFullScreen();
+		}
+	}
+}
