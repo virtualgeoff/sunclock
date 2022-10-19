@@ -658,12 +658,16 @@ var SunClock = (function() {
 		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
 		//timeText.innerHTML = `${now.toLocaleTimeString()}`;
-		dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-		//dateText.innerHTML += `<br>${now.toLocaleTimeString()}`;
 
 		// refresh the sun times at midnight
 		if (then && (now.getDate() !== then.getDate())) {
 			getSunTimes();
+			then = null;
+		}
+
+		// write date on first tick (and at midnight)
+		if (!then) {
+			dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 		}
 
 		then = now;
