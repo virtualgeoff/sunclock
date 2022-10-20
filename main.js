@@ -459,6 +459,8 @@ var SunClock = (function() {
 			break;
 		  case 'showHourNumbers':
 			$('#hourNumbers').style.display = (checkbox.checked) ? 'block' : 'none';
+			// if hour numbers are hidden, make the even hour marks the longer ones (rotate long marks 15° = 1 hr)
+			$('#hourMarks2').setAttribute('transform', ((checkbox.checked) ? 'rotate(0)' : 'rotate(15)'));
 			break;
 		  case 'showHourMarks':
 			$('#hourMarks').style.display = (checkbox.checked) ? 'block' : 'none';
@@ -566,7 +568,8 @@ var SunClock = (function() {
 		if (getItem('showHourNumbers') === false) {
 			$('input[name="showHourNumbers"]').checked = false;
 			$('#hourNumbers').style.display = 'none';
-			$('#hourNumbers').fill = '#ccc';
+			// if hour numbers are hidden, make the even hour marks the longer ones (rotate long marks 15° = 1 hr)
+			$('#hourMarks2').setAttribute('transform', 'rotate(15)');
 		}
 		if (getItem('showHourMarks') === false) {
 			$('input[name="showHourMarks"]').checked = false;
