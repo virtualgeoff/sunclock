@@ -27,7 +27,8 @@ var SunClock = (function() {
 		radius,
 		direction = 1, 		// 1 = clockwise, -1 = anticlockwise
 		location,      		// {"latitude":0,"longitude":0}
-		theme = 'light'; 	// 'light' | 'dark' | 'auto'
+		theme = 'light', 	// 'light' | 'dark' | 'auto'
+		currentPeriod;
 
 	const debug = true,
 		//testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
@@ -174,6 +175,32 @@ var SunClock = (function() {
 
 		// draw time period arcs on clock face
 		drawTimePeriods();
+
+		// refresh color theme if auto
+		if (theme === 'auto') { refreshTheme(); }
+	}
+
+	function getCurrentTimePeriod() {
+		let t0, t1, t2, p;
+
+		t0 = Date.parse(now);
+		if (debug) { console.log(`now: ${now} : ${t0}`); }
+		for (let i=0; i<periods.length; i++) {
+			p = periods[i];
+			t1 = Date.parse(sunTimes[p[1]]);
+			t2 = Date.parse(sunTimes[p[2]]);
+			//if (debug) { console.log(`${i}: testing: ${p[0]} : ${p[1]} (${t1}) to ${p[2]} (${t2})`); }
+
+			if ((isNaN(t1)) || (isNaN(t2))) {
+				// TODO: fix this — need to fix issue #7 first !
+			} else if ((t0 > t1) && (t0 < t2)) {
+				currentPeriod = i;
+				break;
+			} else {
+				continue;
+			}
+		}
+		if (debug) { console.log(`currentPeriod is ${currentPeriod}: ${periods[currentPeriod][0]}, ${periods[currentPeriod]}`); }
 	}
 
 	function clearTimePeriods() {
@@ -598,8 +625,30 @@ var SunClock = (function() {
 
 	function refreshTheme() {
 		$('#theme').href = (theme === 'dark') ? './main-dark.css' : './main-light.css';
-		$('#hourNumbers').style.fill = (theme === 'light') ? '#000' : '#222';
-		$('#minuteNumbers').style.fill = (theme === 'light') ? '#000' : '#aaa';
+		$('#hourNumbers').style.fill   = (theme === 'dark') ? '#222' : '#000';
+		$('#minuteNumbers').style.fill = (theme === 'dark') ? '#aaa' : '#000';
+
+		if (sunTimes && (theme === 'auto')) {
+			getCurrentTimePeriod();
+			let p = periods[currentPeriod];
+			document.body.style.backgroundColor = p[3]; // or maybe p[4] ?
+			document.documentElement.style.backgroundColor = p[3];
+
+			if ((currentPeriod <= 2) || (currentPeriod >= 11)) {
+				$('#theme').href = './main-dark.css';
+				$('#hourNumbers').style.fill   = '#222';
+				$('#minuteNumbers').style.fill = '#aaa';
+			}
+
+			// refresh when time period next changes:
+			let delay = Date.parse(sunTimes[p[2]]) - Date.now();
+			if (debug) { console.log(`Next theme change in ${delay} milliseconds`); }
+			setTimeout(refreshTheme, delay);
+		} else {
+			// 'unstick' background color if switching from auto to dark or light
+			document.body.style.backgroundColor = '';
+			document.documentElement.style.backgroundColor = '';
+		}
 		if (sunTimes) { drawTimePeriods(); }
 	}
 
@@ -674,9 +723,9 @@ var SunClock = (function() {
 		// theme
 		if (getItem('theme') !== null) {
 			theme = getItem('theme');
-			//$('#theme_auto').checked  = (theme === 'auto')  ? true : false;
 			$('#theme_light').checked = (theme === 'light') ? true : false;
 			$('#theme_dark').checked  = (theme === 'dark')  ? true : false;
+			$('#theme_auto').checked  = (theme === 'auto')  ? true : false;
 			refreshTheme();
 		}
 	}
