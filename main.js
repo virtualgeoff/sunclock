@@ -154,8 +154,8 @@ var SunClock = (function() {
 		sunTimes = SunCalc.getTimes(now, location.latitude, location.longitude, 0);
 		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, location.latitude, location.longitude);
 		nadirPosition = SunCalc.getPosition(sunTimes.nadir, location.latitude, location.longitude);
-		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun does not set
-		sunAlwaysDown = (toDegrees(noonPosition.altitude)  < -0.833) ? true : false; // sun does not rise
+		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun is always above horizon
+		sunAlwaysDown = (toDegrees(noonPosition.altitude)  < -0.833) ? true : false; // sun is always below horizon
 
 		if (debug) {
 			console.log(sunTimes);
@@ -169,6 +169,8 @@ var SunClock = (function() {
 			if (event == 'Invalid Date') { event = 'Does not occur'; }
 			$('#times').innerHTML += `${textReplacements[subset[i]]}: <span class="nobr">${event}</span><br>`;
 		}
+		$('#times').innerHTML += (sunAlwaysUp)   ? 'Sun is above horizon all day' : '';
+		$('#times').innerHTML += (sunAlwaysDown) ? 'Sun is below horizon all day' : '';
 
 		// draw time period arcs on clock face
 		drawTimePeriods();
@@ -185,6 +187,7 @@ var SunClock = (function() {
 	function drawTimePeriods() {
 		// draw time periods on clock face
 		let p, t1, t2, point1, point2, path;
+		let validTimeCount = 0;
 
 		// clear any previous arc
 		clearTimePeriods();
@@ -192,58 +195,103 @@ var SunClock = (function() {
 		// make a deep copy of periods (so can modify 'from' and 'to', but keep original for next time);
 		periodsTemp = JSON.parse(JSON.stringify(periods));
 
-		// draw time periods
+		// check time periods for valid times
 		for (let i=0; i<periodsTemp.length; i++) {
 			p = periodsTemp[i];
 			t1 = Date.parse(sunTimes[p[1]]);
 			t2 = Date.parse(sunTimes[p[2]]);
 			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
+			if (!isNaN(t1)) validTimeCount++; // count sunTimes events with valid dates - see later
 
-			// test if beginning and end times are valid
+			// test if beginning and end times are valid - and modify from/to times if needed
+			// note nadir and noon are always valid times
 			if ( isNaN(t1) && isNaN(t2) ) {
 				// both times are invalid - period doesn't occur
 				continue;
 			} else if ( isNaN(t1) ) {
 				// beginning time is invalid, end time valid
-				if ((i === 6) && !sunAlwaysUp) { continue; }    // morning
-				if ((i === 13) && !sunAlwaysDown) { continue; } // lateEvening
+				if (i === 6)  continue; // morning
+				if (i === 13) continue; // lateEvening
 				// use nadir (for morning periods) or noon (for evening periods) as t1 instead
 				p[1] = (i <= 6) ? 'nadir' : 'solarNoon';
 			} else if ( isNaN(t2) ) {
 				// beginning time valid, end time invalid
-				if ((i === 0) && !sunAlwaysDown) { continue; } // earlyMorning
-				if ((i === 7) && !sunAlwaysUp) { continue; }   // afternoon
+				if (i === 0) continue; // earlyMorning
+				if (i === 7) continue; // afternoon
 				// use noon (for morning periods) or nadir (for evening periods) as t2 instead
 				p[2] = (i <= 6) ? 'solarNoon' : 'nadir';
 			} else {
 				// both times valid - yay!
 			}
+			// draw the arc - except...
+		}
 
-			// draw the arc
-			point1 = getPointFromTime(sunTimes[p[1]]);
-			point2 = getPointFromTime(sunTimes[p[2]]);
-			path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-			path.setAttribute('id', p[0]);
+		if (validTimeCount <= 2) {
+			// nadir/noon are the only valid times, so 24 hrs of the same time period.
+			// check altitude of sun at noon (note: only happens at high latitudes)
+			let pT = periodsTemp;
+			let alt  = toDegrees(noonPosition.altitude);  // degrees ABOVE horizon
+			let alt2 = toDegrees(nadirPosition.altitude); // degrees ABOVE horizon
+			let pt1, pt2;
+			if (debug) { console.log(`only 2 valid times (noon and nadir). noon.altitude: ${alt}, nadir.altitude: ${alt2}`); }
 
-			let fillThemeCol = (theme === 'dark') ? 4 : 3;
-			path.setAttribute('fill', p[fillThemeCol]);
-			path.setAttribute('cursor', 'crosshair');
-			path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
-			$('#arcs').appendChild(path);
+			if (alt >= 6) {
+				pt1 = 6; pt2 = 7; // morning/afternoon (daytime)
+			} else if ((alt < 6) && (alt >= -0.833)) {
+				pt1 = 5; pt2 = 8; // morning/evening goldenHour
+			} else if ((alt < -0.833) && (alt >= -0.3)) {
+				pt1 = 4; pt2 = 9; // sunrise/sunset
+			} else if ((alt <= -0.3) && (alt > -6)) {
+				pt1 = 3; pt2 = 10; // civil twilight
+			} else if ((alt <= -6) && (alt > -12)) {
+				pt1 = 2; pt2 = 11; // nautical twilight
+			} else if ((alt <= -12) && (alt > -18)) {
+				pt1 = 1; pt2 = 12; // astronomical twilight
+			} else if (alt <= -18) {
+				pt1 = 0; pt2 = 13; // night
+			} else {
+				// wot?
+			}
+			if (debug) { console.log(pt1, pt2); }
+			pT[pt1][1] = 'nadir';
+			pT[pt1][2] = 'solarNoon';
+			pT[pt2][1] = 'solarNoon';
+			pT[pt2][2] = 'nadir';
+		}
 
-			// add hover event to the arc
-			addHoverEvent(path, getPeriodInfo, i);
+		// draw time periods - finally
+		for (let i=0; i<periodsTemp.length; i++) {
+			p = periodsTemp[i];
+			t1 = Date.parse(sunTimes[p[1]]);
+			t2 = Date.parse(sunTimes[p[2]]);
+
+			if ( isNaN(t1) || isNaN(t2) ) {
+				continue;
+			} else {
+				// draw the arc
+				point1 = getPointFromTime(sunTimes[p[1]]);
+				point2 = getPointFromTime(sunTimes[p[2]]);
+				path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+				path.setAttribute('id', p[0]);
+
+				let fillThemeCol = (theme === 'dark') ? 4 : 3;
+				path.setAttribute('fill', p[fillThemeCol]);
+				path.setAttribute('cursor', 'crosshair');
+				path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
+				$('#arcs').appendChild(path);
+
+				// add hover event to the arc
+				addHoverEvent(path, getPeriodInfo, i);
+			}
 		}
 
 		// draw solar noon and midnight lines
 		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
 		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 
-		// add hover event to hour hand
+		// add hover event to hour and moon hands
 		addHoverEvent(hourHand, getSunInfo);
 		addHoverEvent($('#centerCircle'), getSunInfo);
-
-		// add hover event to moon hand
 		addHoverEvent(moonHand, getMoonInfo);
 	}
 
