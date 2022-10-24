@@ -22,16 +22,15 @@ var SunClock = (function() {
 	let now, then, timerStartTime,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, timeText, dateText,
-		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp,
+		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
 		direction = 1, 		// 1 = clockwise, -1 = anticlockwise
 		location,      		// {"latitude":0,"longitude":0}
 		theme = 'light', 	// 'light' | 'dark' | 'auto'
-		currentPeriod;
+		themeTimerID;
 
 	const debug = true,
-		//testDate = new Date('March 20, 2022 12:00:00'), // n.b. 2022 equinoxes and solstices: March 20, June 21, September 23, December 21
 		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
 		periods = [
@@ -85,7 +84,6 @@ var SunClock = (function() {
 		if (getItem('setLocationManually') === true) {
 			showLocation({coords: location});
 		} else if (navigator.geolocation) {
-			// see: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
 			navigator.geolocation.getCurrentPosition(showLocation, showLocationError, geoOptions);
 		} else {
 			showLocationError({message: 'Geolocation is not supported. Please set location manually.'});
@@ -112,14 +110,23 @@ var SunClock = (function() {
 			// get times for this location
 			getSunTimes();
 		} else {
-			clearTimePeriods();
 			$('#location').innerHTML = 'Location not set';
+			clearLocation();
 		}
 	}
 
 	function showLocationError(err) {
 		console.error(err);
 		$('#location').innerHTML = `Location error: ${err.message}`;
+		clearLocation();
+	}
+
+	function clearLocation() {
+		// clear previous (e.g. if going from location to no location)
+		sunTimes = null;
+		$('#times').innerHTML = '';
+		clearTimePeriods();
+		updateTheme();
 	}
 
 	function toDegrees(angle) {
@@ -142,7 +149,6 @@ var SunClock = (function() {
 		// keep in one place
 		if (time == 'Invalid Date') return time;
 		//return time.toLocaleTimeString(); // hh:mm:ss
-		//return time.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - truncated
 		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - rounded to nearest minute
 	}
 
@@ -175,32 +181,16 @@ var SunClock = (function() {
 
 		// draw time period arcs on clock face
 		drawTimePeriods();
+		if (theme === 'auto') { updateTheme(); }
 
-		// refresh color theme if auto
-		if (theme === 'auto') { refreshTheme(); }
-	}
+		// draw solar noon and midnight lines
+		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
+		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 
-	function getCurrentTimePeriod() {
-		let t0, t1, t2, p;
-
-		t0 = Date.parse(now);
-		if (debug) { console.log(`now: ${now} : ${t0}`); }
-		for (let i=0; i<periods.length; i++) {
-			p = periods[i];
-			t1 = Date.parse(sunTimes[p[1]]);
-			t2 = Date.parse(sunTimes[p[2]]);
-			//if (debug) { console.log(`${i}: testing: ${p[0]} : ${p[1]} (${t1}) to ${p[2]} (${t2})`); }
-
-			if ((isNaN(t1)) || (isNaN(t2))) {
-				// TODO: fix this — need to fix issue #7 first !
-			} else if ((t0 > t1) && (t0 < t2)) {
-				currentPeriod = i;
-				break;
-			} else {
-				continue;
-			}
-		}
-		if (debug) { console.log(`currentPeriod is ${currentPeriod}: ${periods[currentPeriod][0]}, ${periods[currentPeriod]}`); }
+		// add hover event to hour and moon hands
+		addHoverEvent(hourHand, getSunInfo);
+		addHoverEvent($('#centerCircle'), getSunInfo);
+		addHoverEvent(moonHand, getMoonInfo);
 	}
 
 	function clearTimePeriods() {
@@ -214,6 +204,7 @@ var SunClock = (function() {
 	function drawTimePeriods() {
 		// draw time periods on clock face
 		let p, t1, t2, point1, point2, path;
+		let fillThemeCol = (theme === 'dark') ? 4 : 3;
 		let validTimeCount = 0;
 
 		// clear any previous arc
@@ -228,7 +219,7 @@ var SunClock = (function() {
 			t1 = Date.parse(sunTimes[p[1]]);
 			t2 = Date.parse(sunTimes[p[2]]);
 			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
-			if (!isNaN(t1)) validTimeCount++; // count sunTimes events with valid dates - see later
+			if (!isNaN(t1)) validTimeCount++; // count sunTimes events with valid dates
 
 			// test if beginning and end times are valid - and modify from/to times if needed
 			// note nadir and noon are always valid times
@@ -257,18 +248,19 @@ var SunClock = (function() {
 			// nadir/noon are the only valid times, so 24 hrs of the same time period.
 			// check altitude of sun at noon (note: only happens at high latitudes)
 			let pT = periodsTemp;
-			let alt  = toDegrees(noonPosition.altitude);  // degrees ABOVE horizon
-			let alt2 = toDegrees(nadirPosition.altitude); // degrees ABOVE horizon
+			let alt1 = toDegrees(noonPosition.altitude);  // degrees above horizon
+			let alt2 = toDegrees(nadirPosition.altitude);
+			let alt  = (alt1 + alt2) / 2;
 			let pt1, pt2;
 			if (debug) { console.log(`only 2 valid times (noon and nadir). noon.altitude: ${alt}, nadir.altitude: ${alt2}`); }
 
 			if (alt >= 6) {
 				pt1 = 6; pt2 = 7; // morning/afternoon (daytime)
-			} else if ((alt < 6) && (alt >= -0.833)) {
+			} else if ((alt < 6) && (alt >= -0.3)) {
 				pt1 = 5; pt2 = 8; // morning/evening goldenHour
-			} else if ((alt < -0.833) && (alt >= -0.3)) {
+			} else if ((alt < -0.3) && (alt >= -0.833)) {
 				pt1 = 4; pt2 = 9; // sunrise/sunset
-			} else if ((alt <= -0.3) && (alt > -6)) {
+			} else if ((alt <= -0.833) && (alt > -6)) {
 				pt1 = 3; pt2 = 10; // civil twilight
 			} else if ((alt <= -6) && (alt > -12)) {
 				pt1 = 2; pt2 = 11; // nautical twilight
@@ -276,8 +268,6 @@ var SunClock = (function() {
 				pt1 = 1; pt2 = 12; // astronomical twilight
 			} else if (alt <= -18) {
 				pt1 = 0; pt2 = 13; // night
-			} else {
-				// wot?
 			}
 			if (debug) { console.log(pt1, pt2); }
 			pT[pt1][1] = 'nadir';
@@ -300,8 +290,6 @@ var SunClock = (function() {
 				point2 = getPointFromTime(sunTimes[p[2]]);
 				path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 				path.setAttribute('id', p[0]);
-
-				let fillThemeCol = (theme === 'dark') ? 4 : 3;
 				path.setAttribute('fill', p[fillThemeCol]);
 				path.setAttribute('cursor', 'crosshair');
 				path.setAttribute('d',`M 0,0 L ${point1} A ${radius} ${radius} 0 0 ${(direction>0) ? 1 : 0} ${point2} z`); // sweep-flag depends on direction
@@ -311,15 +299,35 @@ var SunClock = (function() {
 				addHoverEvent(path, getPeriodInfo, i);
 			}
 		}
+	}
 
-		// draw solar noon and midnight lines
-		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
-		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
+	function getCurrentTimePeriod() {
+		let t0, t1, t2, p;
 
-		// add hover event to hour and moon hands
-		addHoverEvent(hourHand, getSunInfo);
-		addHoverEvent($('#centerCircle'), getSunInfo);
-		addHoverEvent(moonHand, getMoonInfo);
+		t0 = Date.parse(now);
+		if (debug) { console.log(`now: ${now} : ${t0}`); }
+		for (let i=0; i<periodsTemp.length; i++) {
+			p = periodsTemp[i];
+			t1 = Date.parse(sunTimes[p[1]]);
+			t2 = Date.parse(sunTimes[p[2]]);
+
+			// note nadir is at beginning of day, so for PM periods, use nadir + 24 hours
+ 			if ((i >= 7) && (p[2] === 'nadir')) {
+				t2 = Date.parse(sunTimes[p[2]]) + 86400000;
+ 			}
+
+			if ((isNaN(t1)) || (isNaN(t2))) {
+				continue;
+			} else if ((t0 > t1) && (t0 < t2)) {
+				currentPeriod = i;
+				break;
+			} else {
+				continue;
+			}
+		}
+		if (debug) { console.log(`currentPeriod is ${currentPeriod}: ${periodsTemp[currentPeriod][0]}`); }
+
+
 	}
 
 	function addHoverEvent(object, func, a) {
@@ -519,7 +527,7 @@ var SunClock = (function() {
 
 	function drawNumbers() {
 		drawNumbers2('#hourNumbers',  24, 2, -1.5, false, true, false);
-		drawNumbers2('#minuteNumbers', 60, 5, 0.3, true, false, true);
+		drawNumbers2('#minuteNumbers', 60, 5, 0.27, true, false, true);
 	}
 
 	function setItem(itemName, value) {
@@ -607,7 +615,7 @@ var SunClock = (function() {
 		  case 'setTheme':
 			theme = checkbox.value;
 			setItem('theme', JSON.stringify(theme));
-			refreshTheme();
+			updateTheme();
 			break;
 
 		  default:
@@ -623,33 +631,44 @@ var SunClock = (function() {
 		if (sunTimes) { drawTimePeriods(); }
 	}
 
-	function refreshTheme() {
+	function updateTheme() {
 		$('#theme').href = (theme === 'dark') ? './main-dark.css' : './main-light.css';
 		$('#hourNumbers').style.fill   = (theme === 'dark') ? '#222' : '#000';
 		$('#minuteNumbers').style.fill = (theme === 'dark') ? '#aaa' : '#000';
+		// reset background color
+		document.body.style.backgroundColor = '';
+		document.documentElement.style.backgroundColor = '';
 
-		if (sunTimes && (theme === 'auto')) {
-			getCurrentTimePeriod();
-			let p = periods[currentPeriod];
-			document.body.style.backgroundColor = p[3]; // or maybe p[4] ?
-			document.documentElement.style.backgroundColor = p[3];
+		if (sunTimes) {
+			if (theme === 'auto') {
+				getCurrentTimePeriod();
+				let p = periods[currentPeriod];
+				document.body.style.backgroundColor = p[3]; // or maybe p[4] ?
+				document.documentElement.style.backgroundColor = p[3];
 
-			if ((currentPeriod <= 2) || (currentPeriod >= 11)) {
-				$('#theme').href = './main-dark.css';
-				$('#hourNumbers').style.fill   = '#222';
-				$('#minuteNumbers').style.fill = '#aaa';
+				if ((currentPeriod <= 2) || (currentPeriod >= 11)) {
+					$('#theme').href = './main-dark.css';
+					$('#hourNumbers').style.fill   = '#222';
+					$('#minuteNumbers').style.fill = '#aaa';
+				}
+
+				// refresh when time period next changes
+				let delay = Date.parse(sunTimes[p[2]]) - Date.now() + 2000;
+				if (themeTimerID) { clearTimeout(themeTimerID); } // clear any previous timers
+				if (isNaN(delay) || (delay < 0)) {
+					// do nothing - will update at midnight when sun times refreshed
+				} else {
+					themeTimerID = setTimeout(updateTheme, delay);
+					if (debug) { console.log(`Next theme update at ${sunTimes[p[2]]} (in ${delay} milliseconds)`); }
+				}
 			}
-
-			// refresh when time period next changes:
-			let delay = Date.parse(sunTimes[p[2]]) - Date.now();
-			if (debug) { console.log(`Next theme change in ${delay} milliseconds`); }
-			setTimeout(refreshTheme, delay);
-		} else {
-			// 'unstick' background color if switching from auto to dark or light
-			document.body.style.backgroundColor = '';
-			document.documentElement.style.backgroundColor = '';
+			// update period arc colors (don't redraw)
+			for (let i=0; i<periods.length; i++) {
+				if ($('#arcs > #' + periods[i][0])) {
+					$('#arcs > #' + periods[i][0]).style.fill = (theme === 'dark') ? periods[i][4] : periods[i][3];
+				}
+			}
 		}
-		if (sunTimes) { drawTimePeriods(); }
 	}
 
 	function updateLocation(form) {
@@ -726,7 +745,7 @@ var SunClock = (function() {
 			$('#theme_light').checked = (theme === 'light') ? true : false;
 			$('#theme_dark').checked  = (theme === 'dark')  ? true : false;
 			$('#theme_auto').checked  = (theme === 'auto')  ? true : false;
-			refreshTheme();
+			updateTheme();
 		}
 	}
 
