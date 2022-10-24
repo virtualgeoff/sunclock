@@ -632,12 +632,14 @@ var SunClock = (function() {
 	}
 
 	function updateTheme() {
-		$('#theme').href = (theme === 'dark') ? './main-dark.css' : './main-light.css';
-		$('#hourNumbers').style.fill   = (theme === 'dark') ? '#222' : '#000';
-		$('#minuteNumbers').style.fill = (theme === 'dark') ? '#aaa' : '#000';
-		// reset background color
+		//reset values
+		document.documentElement.classList.remove('dark');
 		document.body.style.backgroundColor = '';
 		document.documentElement.style.backgroundColor = '';
+
+		if (theme === 'dark') { document.documentElement.classList.add('dark'); }
+		$('#hourNumbers').style.fill   = (theme === 'dark') ? '#222' : '#000';
+		$('#minuteNumbers').style.fill = (theme === 'dark') ? '#aaa' : '#000';
 
 		if (sunTimes) {
 			if (theme === 'auto') {
@@ -647,7 +649,7 @@ var SunClock = (function() {
 				document.documentElement.style.backgroundColor = p[3];
 
 				if ((currentPeriod <= 2) || (currentPeriod >= 11)) {
-					$('#theme').href = './main-dark.css';
+					document.documentElement.classList.add('dark');
 					$('#hourNumbers').style.fill   = '#222';
 					$('#minuteNumbers').style.fill = '#aaa';
 				}
