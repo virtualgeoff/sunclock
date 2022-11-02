@@ -183,10 +183,6 @@ var SunClock = (function() {
 		drawTimePeriods();
 		if (theme === 'auto') { updateTheme(); }
 
-		// draw solar noon and midnight lines
-		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
-		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
-
 		// add hover event to hour and moon hands
 		addHoverEvent(hourHand, getSunInfo);
 		addHoverEvent($('#centerCircle'), getSunInfo);
@@ -199,6 +195,9 @@ var SunClock = (function() {
 		while (arcs.firstChild) {
 			arcs.removeChild(arcs.firstChild);
 		}
+		// clear solar noon and midnight lines
+		$('#midnight').setAttribute('d','M 0,0 L 0,0');
+		$('#noon').setAttribute('d','M 0,0 L 0,0');
 	}
 
 	function drawTimePeriods() {
@@ -299,6 +298,10 @@ var SunClock = (function() {
 				addHoverEvent(path, getPeriodInfo, i);
 			}
 		}
+
+		// draw solar noon and midnight lines
+		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
+		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 	}
 
 	function getCurrentTimePeriod() {
@@ -326,8 +329,6 @@ var SunClock = (function() {
 			}
 		}
 		if (debug) { console.log(`currentPeriod is ${currentPeriod}: ${periodsTemp[currentPeriod][0]}`); }
-
-
 	}
 
 	function addHoverEvent(object, func, a) {
