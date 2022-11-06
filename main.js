@@ -51,7 +51,7 @@ var SunClock = (function() {
 			['lateEvening',                 'night',            'nadir',            '#192029',	'#030303']
 		],
 		textReplacements = {
-			'nadir' : 'Midnight',
+			'nadir' : 'Solar Midnight',
 			'earlyMorning' : 'Early Morning',
 			'nightEnd' : 'Astronomical Dawn',
 			'astronomicalMorningTwilight' : 'Astronomical Morning Twilight',
