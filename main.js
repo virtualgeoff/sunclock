@@ -19,7 +19,7 @@ var isLandscape = window.matchMedia('(orientation:landscape)').matches;
 var SunClock = (function() {
 	'use strict';
 
-	let now, then, timerStartTime,
+	let now, then, timerStart,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, timeText, dateText,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod,
@@ -30,8 +30,7 @@ var SunClock = (function() {
 		theme = 'light', 	// 'light' | 'dark' | 'auto'
 		themeTimerID;
 
-	const debug = true,
-		geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
+	const geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
 		periods = [
 			// name:                        from:               to:                 color:		darkColor:
@@ -48,7 +47,7 @@ var SunClock = (function() {
 			['civilEveningTwilight',        'sunset',           'dusk',             '#88a6d4',	'#677ea1'],
 			['nauticalEveningTwilight',     'dusk',             'nauticalDusk',     '#4574bc',	'#325489'],
 			['astronomicalEveningTwilight', 'nauticalDusk',     'night',            '#213c66',	'#101d33'],
-			['lateEvening',                 'night',            'nadir',            '#192029',	'#030303']
+			['lateEvening',                 'night',            'nadir2',           '#192029',	'#030303']
 		],
 		textReplacements = {
 			'nadir' : 'Solar Midnight',
@@ -76,8 +75,44 @@ var SunClock = (function() {
 			'nauticalDusk' : 'Nautical Dusk',
 			'astronomicalEveningTwilight' : 'Astronomical Evening Twilight',
 			'night' : 'Astronomical Dusk',
-			'lateEvening' : 'Late Evening'
-		};
+			'lateEvening' : 'Late Evening',
+			'nadir2' : 'Solar Midnight'
+		},
+		// Test Dates
+		testDate = null,
+
+		// 2022 Daylight Savings (Australian Eastern) 	(First Sunday in October - First Sunday in April)
+		//testDate = new Date("2022-04-03T00:00:00+1100") - 5000, // AEDT -> AEST -3h (just before midnight)
+		//testDate = new Date("2022-04-03T00:59:47+1100") - 5000, // AEDT -> AEST -3h (just before solar midnight)
+		//testDate = new Date("2022-04-03T03:00:00+1100") - 5000, // AEDT -> AEST -5s
+
+		//testDate = new Date("2022-10-01T23:45:58+1000") - 5000, // AEST -> AEDT -2h 15m (just before solar midnight)
+		//testDate = new Date("2022-10-02T00:00:00+1000") - 5000, // AEST -> AEDT -2h (just before midnight)
+		//testDate = new Date("2022-10-02T02:00:00+1000") - 5000, // AEST -> AEDT -5s
+
+		// 2022 Equinoxes and Solstices
+		//testDate = new Date("2022-03-20T15:33Z"), // Equinox
+		//testDate = new Date("2022-06-21T09:14Z"), // Solstice
+		//testDate = new Date("2022-09-23T01:04Z"), // Equinox
+		//testDate = new Date("2022-12-21T21:48Z"), // Solstice
+
+		// **** breaking getCurrentPeriod: ****
+		//testDate = new Date("2022-04-03T00:56:29+1100"), // ** works  **
+		//testDate = new Date("2022-04-03T00:56:30+1100"), // ** one SECOND later breaks!
+		// Solar Midnight   Sat Apr 02 2022 01:00:05 GMT+1100 (AEDT)
+		// Solar Midnight   Sun Apr 03 2022 00:59:47 GMT+1100 (AEDT)
+		// Solar Midnight	Sun Apr 03 2022 23:59:29 GMT+1000 (AEST)
+
+		// *** solar midnight can also break, even with the while blocks ~line 230
+		//testDate = new Date("2022-04-01T01:00:24+1100"), // ** also breaks - but one second before or after doesn't !
+		//testDate = new Date("2022-04-02T01:00:05+1100"), // ** also breaks - but one second before or after doesn't !
+		//testDate = new Date("2022-04-03T00:59:47+1100"), // ** also breaks - but one second before or after doesn't !
+
+		//testDate = new Date("2022-11-08T05:44:32") - 1000,
+
+		// finally
+		startTime = new Date(),
+		debug = true;
 
 	function getLocation() {
 		// get location from localStorage or Geolocation API
@@ -125,6 +160,7 @@ var SunClock = (function() {
 		// clear previous (e.g. if going from location to no location)
 		sunTimes = null;
 		$('#times').innerHTML = '';
+		$('#allTimes table tbody').innerHTML = '';
 		clearTimePeriods();
 		updateTheme();
 	}
@@ -141,7 +177,11 @@ var SunClock = (function() {
 
 	function getPointFromTime(date) {
 		// get point on clock perimeter from time
-		var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
+		// note: when daylight savings changes, some times may be in a different time zone to current time, so check offsets
+		var nowOffset = now.getTimezoneOffset();
+		var dateOffset = date.getTimezoneOffset();
+		//var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
+		var angle = ((date.getHours() + date.getMinutes()/60 + (dateOffset-nowOffset)/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
 		return `${Math.sin(angle) * radius * -direction}, ${Math.cos(angle) * radius}`; // return as string for svg path attribute
 	}
 
@@ -152,6 +192,24 @@ var SunClock = (function() {
 		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - rounded to nearest minute
 	}
 
+	function formatDateString(time) {
+		// format date string with an optional <br> if time zone descriptor is >6 characters
+		if (time === 'Does not occur') { return time; }
+		var str = `<span class="nobr">${time.toDateString()}</span> <span class="nobr">${time.toTimeString().substring(0, 17)}</span>`;
+		str += (time.toTimeString().length > 24 ) ? '<br>' : ' ';
+		str += time.toTimeString().substring(17);
+		return str;
+	}
+
+	function getEarlier(time) {
+		// get now - 24 hours
+		return new Date(time.valueOf() - 86400000);
+	}
+	function getLater(time) {
+		// get now + 24 hours
+		return new Date(time.valueOf() + 86400000);
+	}
+
 	function getSunTimes() {
 		let event;
 		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
@@ -159,6 +217,28 @@ var SunClock = (function() {
 		// get times from suncalc.js
 		sunTimes = null;
 		sunTimes = SunCalc.getTimes(now, location.latitude, location.longitude, 0);
+		// get the sun times for the next day so I can get the next nadir
+		// (can't just add 24 hrs to first one, or hack SunCalc.js (nadir2: fromJulian(Jnoon + 0.5))
+		sunTimes.nadir2 = SunCalc.getTimes(getLater(sunTimes.solarNoon), location.latitude, location.longitude, 0).nadir;
+
+		if (debug) {
+			console.log(`now: ${now}`);
+			console.log(sunTimes);
+		}
+
+		// sometimes now is not in the range of times output by SunCalc (e.g. "2022-04-03T00:59:00+1100")
+		while (now < sunTimes.nadir) {
+			if (debug) { console.log('now is earlier than nadir: get earlier sun times'); }
+			sunTimes = SunCalc.getTimes(getEarlier(sunTimes.solarNoon), location.latitude, location.longitude, 0);
+			sunTimes.nadir2 = SunCalc.getTimes(getLater(sunTimes.solarNoon), location.latitude, location.longitude, 0).nadir;
+		}
+		while (now > sunTimes.nadir2) {
+			// is this possible?
+			if (debug) { console.log('now is later than nadir2: get later time sun times'); }
+			sunTimes = SunCalc.getTimes(getLater(sunTimes.solarNoon), location.latitude, location.longitude, 0);
+			sunTimes.nadir2 = SunCalc.getTimes(getLater(sunTimes.solarNoon), location.latitude, location.longitude, 0).nadir;
+		}
+
 		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, location.latitude, location.longitude);
 		nadirPosition = SunCalc.getPosition(sunTimes.nadir, location.latitude, location.longitude);
 		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun is always above horizon
@@ -179,6 +259,15 @@ var SunClock = (function() {
 		$('#times').innerHTML += (sunAlwaysUp)   ? 'Sun is above horizon all day' : '';
 		$('#times').innerHTML += (sunAlwaysDown) ? 'Sun is below horizon all day' : '';
 
+		// write all times to table
+		$('#allTimes table tbody').innerHTML = '';
+		for (let i=0; i<periods.length; i++) {
+			event = (sunTimes[periods[i][1]]);
+			if (event == 'Invalid Date') { event = 'Does not occur'; }
+			$('#allTimes table tbody').innerHTML += `<tr><td>${textReplacements[periods[i][1]]}</td><td>${formatDateString(event)}</td></tr>`;
+		}
+		$('#allTimes table tbody').innerHTML += `<tr><td>${textReplacements.nadir2}</td><td>${formatDateString(sunTimes.nadir2)}</td></tr>`; // date is always valid
+
 		// draw time period arcs on clock face
 		drawTimePeriods();
 		if (theme === 'auto') { updateTheme(); }
@@ -196,8 +285,8 @@ var SunClock = (function() {
 			arcs.removeChild(arcs.firstChild);
 		}
 		// clear solar noon and midnight lines
-		$('#midnight').setAttribute('d','M 0,0 L 0,0');
 		$('#noon').setAttribute('d','M 0,0 L 0,0');
+		$('#midnight').setAttribute('d','M 0,0 L 0,0');
 	}
 
 	function drawTimePeriods() {
@@ -217,7 +306,7 @@ var SunClock = (function() {
 			p = periodsTemp[i];
 			t1 = Date.parse(sunTimes[p[1]]);
 			t2 = Date.parse(sunTimes[p[2]]);
-			if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
+			//if (debug) { console.log(`${i}: ${p[0]}, ${p[1]}: ${t1}, ${p[2]}: ${t2} `); }
 			if (!isNaN(t1)) validTimeCount++; // count sunTimes events with valid dates
 
 			// test if beginning and end times are valid - and modify from/to times if needed
@@ -235,23 +324,23 @@ var SunClock = (function() {
 				// beginning time valid, end time invalid
 				if (i === 0) continue; // earlyMorning
 				if (i === 7) continue; // afternoon
-				// use noon (for morning periods) or nadir (for evening periods) as t2 instead
-				p[2] = (i <= 6) ? 'solarNoon' : 'nadir';
+				// use noon (for morning periods) or nadir2 (for evening periods) as t2 instead
+				p[2] = (i <= 6) ? 'solarNoon' : 'nadir2';
 			} else {
 				// both times valid - yay!
 			}
 			// draw the arc - except...
 		}
 
-		if (validTimeCount <= 2) {
-			// nadir/noon are the only valid times, so 24 hrs of the same time period.
+		if (validTimeCount <= 3) {
+			// nadir/noon/nadir2 are the only valid times, so 24 hrs of the same time period.
 			// check altitude of sun at noon (note: only happens at high latitudes)
 			let pT = periodsTemp;
 			let alt1 = toDegrees(noonPosition.altitude);  // degrees above horizon
 			let alt2 = toDegrees(nadirPosition.altitude);
 			let alt  = (alt1 + alt2) / 2;
 			let pt1, pt2;
-			if (debug) { console.log(`only 2 valid times (noon and nadir). noon.altitude: ${alt}, nadir.altitude: ${alt2}`); }
+			if (debug) { console.log(`only 3 valid times (noon and nadir). noon.altitude: ${alt}, nadir.altitude: ${alt2}`); }
 
 			if (alt >= 6) {
 				pt1 = 6; pt2 = 7; // morning/afternoon (daytime)
@@ -272,7 +361,7 @@ var SunClock = (function() {
 			pT[pt1][1] = 'nadir';
 			pT[pt1][2] = 'solarNoon';
 			pT[pt2][1] = 'solarNoon';
-			pT[pt2][2] = 'nadir';
+			pT[pt2][2] = 'nadir2';
 		}
 
 		// draw time periods - finally
@@ -300,24 +389,18 @@ var SunClock = (function() {
 		}
 
 		// draw solar noon and midnight lines
-		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir)}`);
 		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
+		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir2)}`);
 	}
 
 	function getCurrentTimePeriod() {
 		let t0, t1, t2, p;
 
-		t0 = Date.parse(now);
-		if (debug) { console.log(`now: ${now} : ${t0}`); }
+		t0 = now.valueOf();
 		for (let i=0; i<periodsTemp.length; i++) {
 			p = periodsTemp[i];
 			t1 = Date.parse(sunTimes[p[1]]);
 			t2 = Date.parse(sunTimes[p[2]]);
-
-			// note nadir is at beginning of day, so for PM periods, use nadir + 24 hours
- 			if ((i >= 7) && (p[2] === 'nadir')) {
-				t2 = Date.parse(sunTimes[p[2]]) + 86400000;
- 			}
 
 			if ((isNaN(t1)) || (isNaN(t2))) {
 				continue;
@@ -656,7 +739,7 @@ var SunClock = (function() {
 				}
 
 				// refresh when time period next changes
-				let delay = Date.parse(sunTimes[p[2]]) - Date.now() + 2000;
+				let delay = Date.parse(sunTimes[p[2]]) - now + 2000;
 				if (themeTimerID) { clearTimeout(themeTimerID); } // clear any previous timers
 				if (isNaN(delay) || (delay < 0)) {
 					// do nothing - will update at midnight when sun times refreshed
@@ -766,38 +849,60 @@ var SunClock = (function() {
 	function tick(timestamp) {
 		// animation loop
 		now = new Date();
-
-		// get moonPhase on first tick, then every minute — does not need to be recalculated each frame
-		// 29.53 days per 360° phase change = ~12° per day / 0.5° per hour / 0.00833° per minute
-		if (timerStartTime === undefined) {
-			timerStartTime = timestamp || 0;
-			//console.log('timerStartTime: ' + timerStartTime);
-			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
-			drawMoonIcon(moonPhase);
-		}
-		if ((timestamp - timerStartTime) >= 60000) { timerStartTime = undefined; }
+		if (testDate) { now = new Date(now.valueOf() - startTime.valueOf() + testDate.valueOf()); }
 
 		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
 		minutes = now.getMinutes() + seconds/60;
 		hours   = now.getHours()   + minutes/60;
 
-		// move hands, update text
+		// move hands
 		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
 		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
 		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
-		//timeText.innerHTML = `${now.toLocaleTimeString()}`;
+
+		// moon phase
+		// get every minute — does not need to be recalculated each frame
+		// 29.53 days per 360° phase change = ~12° per day / 0.5° per hour / 0.00833° per minute
+		if (!timerStart) {
+			//console.log('timerStart: ' + timerStart);
+			moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
+			drawMoonIcon(moonPhase);
+			timerStart = timestamp || 0;
+		}
+		if ((timestamp - timerStart) >= 60000) { timerStart = null; }
 
 		// refresh the sun times at midnight
-		if (then && (now.getDate() !== then.getDate())) {
+		if ( then && (now.getDate() !== then.getDate()) ) {
+			console.log('midnight: refreshing sun times!');
 			getSunTimes();
+			then = null;
+		}
+
+		// refresh the sun times at solar midnight
+		if ( then && sunTimes && (now >= sunTimes.nadir2) ) {
+			console.log('solar midnight: refreshing sun times!');
+			getSunTimes();
+			then = null;
+		}
+
+		// redraw time periods if the time zone changes (e.g. daylight savings changes)
+		if ( then && (now.getTimezoneOffset() !== then.getTimezoneOffset()) ) {
+			console.log('redrawing time periods!');
+			drawTimePeriods();
 			then = null;
 		}
 
 		// write date on first tick (and at midnight)
 		if (!then) {
 			dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+		}
+
+		// display time as text if testing dates
+		if (testDate) {
+			timeText.style.display = 'block';
+			timeText.innerHTML = `${now.toLocaleTimeString()}`;
 		}
 
 		then = now;
@@ -812,7 +917,7 @@ var SunClock = (function() {
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
 		moonPath   = $('#moonPath');
-		//timeText   = $('h1');
+		timeText   = $('#timeText');
 		dateText   = $('#dateText');
 
 		loadOptions();
@@ -831,7 +936,7 @@ var SunClock = (function() {
 		$All('section').forEach(item => { item.classList.add('overlay'); }); // visible if JS disabled
 
 		// handle navigation links
-		$All('a[href="#about"], a[href="#settings"]').forEach(link => {
+		$All('a[href="#about"], a[href="#settings"], a[href="#allTimes"]').forEach(link => {
 			link.addEventListener('click', function(e){
 				$(link.hash).style.display = 'block';
 				e.preventDefault();

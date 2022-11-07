@@ -63,8 +63,8 @@
 			<circle id="clockFace" cx="0" cy="0" r="130" fill="none" stroke="#000" stroke-width="0.5" />
 
 			<g id="arcs" fill="none" stroke="none" stroke-width="0"></g>
-			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
 			<path id="noon"     d="M 0,0 L 0,0" stroke="#fff" stroke-width="0.5" />
+			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
 
 			<g id="hourMarks"     fill="none" stroke="#777" stroke-width="1"></g>
 			<g id="hourMarks2"    fill="none" stroke="#777" stroke-width="1"></g>
@@ -100,8 +100,10 @@
 	<div id="info1" class="info">
 		<h1>Sun Clock</h1>
 		<h3 id="dateText">Getting date…</h3>
+		<p id="timeText"></p>
 		<p id="location">Getting location…</p>
 		<p id="times"></p>
+		<p><small><a href="#allTimes">show all times</a></small></p>
 	</div>
 
 	<div id="info2" class="info"></div>
@@ -134,6 +136,25 @@
 				<a href="https://github.com/virtualgeoff/sunclock">Source</a> &nbsp; 〜 &nbsp;
 				<a href="https://github.com/mourner/suncalc">SunCalc</a>
 			</small></p>
+
+			<a href="#" class="close">✕</a>
+		</div>
+	</section>
+
+	<section id="allTimes">
+		<div>
+			<h2>All Times</h2>
+			<p>Times update at Solar Midnight</p>
+			<table>
+				<thead>
+					<tr>
+						<th scope="col">Event</th>
+						<th scope="col">Time</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
 
 			<a href="#" class="close">✕</a>
 		</div>

@@ -16,8 +16,9 @@ sup {font-size:0.75em; margin:0 0.2em;}
 .hide {display:none;}
 
 table {margin:0 0 1em 0; border-collapse:collapse;}
-td {padding:0.1em 0.3em;}
-td:nth-child(2) {text-align:right;}
+th {text-align:left;}
+th, td {padding:0.3em 0.5em; border:1px solid rgba(127,127,127,0.2);}
+/*td:nth-child(2) {text-align:right;}*/
 
 /* links */
 a {color:#00e; text-decoration:none;}
@@ -56,6 +57,7 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 #info2 {display:none;}
 .info h3 {margin:1em 0;}
 .info .done {display:none;}
+#timeText {display:none;}
 
 /* sections */
 section > div {position:relative; margin:0; padding:1em;}
@@ -78,6 +80,12 @@ section > div {position:relative; margin:0; padding:1em;}
 #setLocation input[type="submit"] {width:auto; font-size:1em;}
 #setLocation span {display:inline-block; line-height:1.2;}
 #setLocation span.hide {display:none;}
+
+/* all times */
+#allTimes {display:none;}
+#allTimes table {margin:1em auto;}
+#allTimes td:nth-child(2) {max-width:22em;}
+
 
 @media (orientation:portrait) {
 
