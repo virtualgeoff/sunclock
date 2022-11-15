@@ -178,8 +178,10 @@ var SunClock = (function() {
 
 	function clearLocation() {
 		// clear previous (e.g. if going from location to no location)
+		location = null;
 		sunTimes = null;
 		$('#times').innerHTML = '';
+		$('#info2').innerHTML = '';
 		$('#allTimes table tbody').innerHTML = '';
 		clearTimePeriods();
 		updateTheme();
@@ -291,11 +293,6 @@ var SunClock = (function() {
 		// draw time period arcs on clock face
 		drawTimePeriods();
 		if (theme === 'auto') { updateTheme(); }
-
-		// add hover event to hour and moon hands
-		addHoverEvent(hourHand, getSunInfo);
-		addHoverEvent($('#centerCircle'), getSunInfo);
-		addHoverEvent(moonHand, getMoonInfo);
 	}
 
 	function clearTimePeriods() {
@@ -458,15 +455,19 @@ var SunClock = (function() {
 
 	function getSunInfo() {
 		// get info for Sun
-		sunPosition = SunCalc.getPosition(now, location.latitude, location.longitude);
+		let str = '';
 
-		let str = `<h3>Sun</h3>
-			<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>
-			<p>Altitude at:<br>
-			noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
-			midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>`;
-
+		if (location) {
+			sunPosition = SunCalc.getPosition(now, location.latitude, location.longitude);
+			if (sunPosition) {
+				str = `<h3>Sun</h3>
+					<p>Altitude: ${toDegrees(sunPosition.altitude).toFixed(2)}°<br>
+					Azimuth:  ${convertAzimuth(sunPosition.azimuth).toFixed(2)}°</p>
+					<p>Altitude at:<br>
+					noon: ${toDegrees(noonPosition.altitude).toFixed(2)}°<br>
+					midnight: ${toDegrees(nadirPosition.altitude).toFixed(2)}°</p>`;
+			}
+		}
 		return str;
 	}
 
@@ -523,34 +524,41 @@ var SunClock = (function() {
 
 	function getMoonInfo() {
 		// get info for moon
-		moonTimes = SunCalc.getMoonTimes(now, location.latitude, location.longitude);
-		moonPosition = SunCalc.getMoonPosition(now, location.latitude, location.longitude);
-		moonPhase = SunCalc.getMoonIllumination(now).phase;
-		//if (debug) { console.log(moonTimes, moonPosition); };
-
+		// note: moon phase does not require a location, but positon and times do
 		let str = `<h3>Moon</h3>
 			<p>${getMoonPhaseName(moonPhase).name}<br>(${(moonPhase * 29.53).toFixed(1)} days old)</p>`;
 
-		if ((moonTimes.rise) && (moonTimes.set)) {
-			// sort by time
-			if (moonTimes.rise <= moonTimes.set) {
-				str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span><br>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
-			} else {
-				str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span><br>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
-			}
-		} else if (moonTimes.rise) {
-			str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
-		} else if (moonTimes.set) {
-			str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
-		} else if (moonTimes.alwaysUp) {
-			str += '<p>Moon is up all day</p>';
-		} else if (moonTimes.alwaysDown) {
-			str += '<p>Moon is down all day</p>';
-		}
-		str += `
-			<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
-			Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>`;
+		if (location) {
+			moonTimes = SunCalc.getMoonTimes(now, location.latitude, location.longitude);
+			moonPosition = SunCalc.getMoonPosition(now, location.latitude, location.longitude);
+			//if (debug) { console.log(moonTimes, moonPosition); };
 
+			if (moonTimes) {
+				if ((moonTimes.rise) && (moonTimes.set)) {
+					// sort by time
+					if (moonTimes.rise <= moonTimes.set) {
+						str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span><br>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
+					} else {
+						str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span><br>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
+					}
+				} else if (moonTimes.rise) {
+					str += `<p>Rises: <span class="nobr">${formatTime(moonTimes.rise)}</span></p>`;
+				} else if (moonTimes.set) {
+					str += `<p>Sets: <span class="nobr">${formatTime(moonTimes.set)}</span></p>`;
+				} else if (moonTimes.alwaysUp) {
+					str += '<p>Moon is up all day</p>';
+				} else if (moonTimes.alwaysDown) {
+					str += '<p>Moon is down all day</p>';
+				} else {
+					// ???
+				}
+			}
+			if (moonPosition) {
+				str += `
+					<p>Altitude: ${toDegrees(moonPosition.altitude).toFixed(2)}°<br>
+					Azimuth:  ${convertAzimuth(moonPosition.azimuth).toFixed(2)}°</p>`;
+			}
+		}
 		return str;
 	}
 
@@ -940,6 +948,7 @@ var SunClock = (function() {
 		timeText   = $('#timeText');
 		dateText   = $('#dateText');
 
+		// load settings from localStorage
 		loadOptions();
 
 		// draw clock
@@ -948,6 +957,11 @@ var SunClock = (function() {
 		drawMarks('#hourMarks2', 24, 2, -8);
 		drawMarks('#minuteMarks', 60, 0, 6);
 		drawNumbers();
+
+		// add hover events to the hour and moon hands
+		addHoverEvent(hourHand, getSunInfo);
+		addHoverEvent($('#centerCircle'), getSunInfo);
+		addHoverEvent(moonHand, getMoonInfo);
 
 		// start clock
 		tick();
