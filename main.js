@@ -16,7 +16,7 @@ var supportsHover = window.matchMedia('(hover: hover)').matches;
 var isPortrait = window.matchMedia('(orientation:portrait)').matches;
 var isLandscape = window.matchMedia('(orientation:landscape)').matches;
 
-var fullscreen = function(e) {
+function fullscreen(e) {
 	// toggle fullscreen mode
 	//e.preventDefault();
 	var d = document, dE = d.documentElement;
@@ -34,6 +34,15 @@ var fullscreen = function(e) {
 			dE.webkitRequestFullScreen();
 		}
 	}
+}
+
+function fullscreenAvailable() {
+	// check if fullscreen mode is available (iPhone does not support fullscreen)
+	var dE = document.documentElement;
+	if (dE.requestFullscreen || dE.webkitRequestFullScreen) {
+		return true;
+	}
+	return false;
 }
 
 var SunClock = (function() {
@@ -983,6 +992,9 @@ var SunClock = (function() {
 				e.preventDefault();
 			});
 		});
+
+		// show fullscreen link
+		if (fullscreenAvailable) { $('#fullscreen').style.display = 'inline'; }
 
 		// note links
 		$All('#note1, #note2, #note3').forEach(link => { link.classList.add('hide'); });

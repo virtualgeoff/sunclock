@@ -36,7 +36,7 @@ nav {position:absolute; margin:0;}
 nav svg {width:1.625em; height:1.625em;}
 #nav1 {left:16px; top:16px;}
 #nav2 {right:16px; top:16px; text-align:right;}
-#fullscreen {margin-left:0.5em;}
+#fullscreen {display:none; margin-left:0.5em;}
 
 /* --- LAYOUT --- */
 #clock  {display:block; width:100vmin; width:100dvmin; height:100vmin; height:100dvmin; margin:0 auto; padding:0;}
