@@ -994,7 +994,7 @@ var SunClock = (function() {
 		});
 
 		// show fullscreen link
-		if (fullscreenAvailable) { $('#fullscreen').style.display = 'inline'; }
+		if (fullscreenAvailable()) { $('#fullscreen').style.display = 'inline'; }
 
 		// note links
 		$All('#note1, #note2, #note3').forEach(link => { link.classList.add('hide'); });
