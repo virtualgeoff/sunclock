@@ -51,13 +51,12 @@ var SunClock = (function() {
 	let now, then, timerStart,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, timeText, dateText,
-		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod,
+		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod, nextPeriodTime,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
 		direction = 1, 		// 1 = clockwise, -1 = anticlockwise
 		location,      		// {"latitude":0,"longitude":0}
-		theme = 'light', 	// 'light' | 'dark' | 'auto'
-		themeTimerID;
+		theme = 'light'; 	// 'light' | 'dark' | 'auto'
 
 	const geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
@@ -321,7 +320,7 @@ var SunClock = (function() {
 		let fillThemeCol = (theme === 'dark') ? 4 : 3;
 		let validTimeCount = 0;
 
-		// clear any previous arc
+		// clear any previous arcs
 		clearTimePeriods();
 
 		// make a deep copy of periods (so can modify 'from' and 'to', but keep original for next time);
@@ -420,9 +419,10 @@ var SunClock = (function() {
 	}
 
 	function getCurrentTimePeriod() {
+		// find the time period are we in now
 		let t0, t1, t2, p;
-
 		t0 = now.valueOf();
+
 		for (let i=0; i<periodsTemp.length; i++) {
 			p = periodsTemp[i];
 			t1 = Date.parse(sunTimes[p[1]]);
@@ -775,15 +775,9 @@ var SunClock = (function() {
 					$('#minuteNumbers').style.fill = '#aaa';
 				}
 
-				// refresh when time period next changes
-				let delay = Date.parse(sunTimes[p[2]]) - now + 2000;
-				if (themeTimerID) { clearTimeout(themeTimerID); } // clear any previous timers
-				if (isNaN(delay) || (delay < 0)) {
-					// do nothing - will update at midnight when sun times refreshed
-				} else {
-					themeTimerID = setTimeout(updateTheme, delay);
-					if (debug) { console.log(`Next theme update at ${sunTimes[p[2]]} (in ${delay} milliseconds)`); }
-				}
+				// get time of next period change
+				nextPeriodTime = sunTimes[p[2]];
+				if (debug) { console.log(`Next theme update at ${sunTimes[p[2]]}`); }
 			}
 			// update period arc colors (don't redraw)
 			for (let i=0; i<periods.length; i++) {
@@ -929,6 +923,11 @@ var SunClock = (function() {
 			console.log('redrawing time periods!');
 			drawTimePeriods();
 			then = null;
+		}
+
+		// update theme at next period change time
+		if ( sunTimes && (theme === 'auto') && (now >= nextPeriodTime) ) {
+			updateTheme();
 		}
 
 		// write date on first tick (and at midnight)
