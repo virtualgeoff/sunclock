@@ -1012,7 +1012,7 @@ var SunClock = (function() {
 	window.addEventListener('load', init);
 
 	window.addEventListener('resize', () => {
-		// n.b. Screen.orientation does not work in Safari
+		// n.b. Screen.orientation does not work in Safari < 16.4
 		isPortrait  = window.matchMedia('(orientation:portrait)').matches;
 		isLandscape = window.matchMedia('(orientation:landscape)').matches;
 
