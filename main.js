@@ -51,6 +51,7 @@ var SunClock = (function() {
 	let now, then, timerStart,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand, timeText, dateText,
+		hour12 = false,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod, nextPeriodTime,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
@@ -219,7 +220,7 @@ var SunClock = (function() {
 		// keep in one place
 		if (time == 'Invalid Date') return time;
 		//return time.toLocaleTimeString(); // hh:mm:ss
-		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); // hh:mm - rounded to nearest minute
+		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit', hour12: hour12 }); // hh:mm - rounded to nearest minute
 	}
 
 	function formatDateString(time) {
@@ -690,6 +691,9 @@ var SunClock = (function() {
 		  case 'showSecondHand':
 			secondHand.style.display = (checkbox.checked) ? 'block' : 'none';
 			break;
+		  case 'hour12':
+			hour12 = checkbox.checked;
+			break;
 
 		  case 'setDirectionManually':
 			$('#setDirection').style.display = (checkbox.checked) ? 'block' : 'none';
@@ -832,6 +836,10 @@ var SunClock = (function() {
 		if (getItem('showSecondHand') === false) {
 			$('input[name="showSecondHand"]').checked = false;
 			secondHand.style.display = 'none';
+		}
+		if (getItem('hour12') === true) {
+			$('input[name="hour12"]').checked = true;
+			hour12 = true;
 		}
 
 		// direction
