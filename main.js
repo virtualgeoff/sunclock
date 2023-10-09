@@ -50,7 +50,7 @@ var SunClock = (function() {
 
 	let now, then, timerStart,
 		hours, minutes, seconds,
-		hourHand, minuteHand, secondHand, timeText, dateText,
+		hourHand, minuteHand, secondHand,
 		hour12 = false,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod, nextPeriodTime,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
@@ -189,7 +189,7 @@ var SunClock = (function() {
 		// clear previous (e.g. if going from location to no location)
 		location = null;
 		sunTimes = null;
-		$('#times').innerHTML = '';
+		$('#mainTimes').innerHTML = '';
 		$('#info2').innerHTML = '';
 		$('#allTimes table tbody').innerHTML = '';
 		clearTimePeriods();
@@ -220,7 +220,9 @@ var SunClock = (function() {
 		// keep in one place
 		if (time == 'Invalid Date') return time;
 		//return time.toLocaleTimeString(); // hh:mm:ss
-		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit', hour12: hour12 }); // hh:mm - rounded to nearest minute
+		//return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:'numeric', minute:'2-digit', hour12:hour12 }); // hh:mm - rounded to nearest minute
+		// hour12 is broken in Chrome (12:00 shows as 0:00), so:
+		return (new Date(Math.round(time/60000)*60000)).toLocaleTimeString([], { hour:((hour12)?'numeric':'2-digit'), minute:'2-digit', hourCycle:((hour12)?'h12':'h23') }); // hh:mm - rounded to nearest minute
 	}
 
 	function formatDateString(time) {
@@ -242,9 +244,6 @@ var SunClock = (function() {
 	}
 
 	function getSunTimes() {
-		let event;
-		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
-
 		// get times from suncalc.js
 		sunTimes = null;
 		sunTimes = SunCalc.getTimes(now, location.latitude, location.longitude, 0);
@@ -280,17 +279,33 @@ var SunClock = (function() {
 			console.log(`sunAlwaysUp: ${sunAlwaysUp}, sunAlwaysDown: ${sunAlwaysDown}`);
 		}
 
+		// write times to table and below date
+		writeMainTimes();
+		writeAllTimes();
+
+		// draw time period arcs on clock face
+		drawTimePeriods();
+		if (theme === 'auto') { updateTheme(); }
+	}
+
+	function writeMainTimes() {
 		// write subset of times below date
-		$('#times').innerHTML = '';
+		let event;
+		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
+
+		$('#mainTimes').innerHTML = '';
 		for (let i=0; i<subset.length; i++) {
 			event = formatTime(sunTimes[subset[i]]);
 			if (event == 'Invalid Date') { event = 'Does not occur'; }
-			$('#times').innerHTML += `${textReplacements[subset[i]]}: <span class="nobr">${event}</span><br>`;
+			$('#mainTimes').innerHTML += `${textReplacements[subset[i]]}: <span class="nobr">${event}</span><br>`;
 		}
-		$('#times').innerHTML += (sunAlwaysUp)   ? 'Sun is above horizon all day' : '';
-		$('#times').innerHTML += (sunAlwaysDown) ? 'Sun is below horizon all day' : '';
+		$('#mainTimes').innerHTML += (sunAlwaysUp)   ? 'Sun is above horizon all day' : '';
+		$('#mainTimes').innerHTML += (sunAlwaysDown) ? 'Sun is below horizon all day' : '';
+	}
 
+	function writeAllTimes() {
 		// write all times to table
+		let event;
 		$('#allTimes table tbody').innerHTML = '';
 		for (let i=0; i<periods.length; i++) {
 			event = (sunTimes[periods[i][1]]);
@@ -298,10 +313,6 @@ var SunClock = (function() {
 			$('#allTimes table tbody').innerHTML += `<tr><td>${textReplacements[periods[i][1]]}</td><td>${formatDateString(event)}</td></tr>`;
 		}
 		$('#allTimes table tbody').innerHTML += `<tr><td>${textReplacements.nadir2}</td><td>${formatDateString(sunTimes.nadir2)}</td></tr>`; // date is always valid
-
-		// draw time period arcs on clock face
-		drawTimePeriods();
-		if (theme === 'auto') { updateTheme(); }
 	}
 
 	function clearTimePeriods() {
@@ -693,6 +704,7 @@ var SunClock = (function() {
 			break;
 		  case 'hour12':
 			hour12 = checkbox.checked;
+			writeMainTimes(); // rewrite the main times (the info2 times update when shown)
 			break;
 
 		  case 'setDirectionManually':
@@ -877,7 +889,7 @@ var SunClock = (function() {
 	function showSection(e) {
 		// hide all sections, show the one you want
 		$All('section').forEach( item => { item.style.display = 'none'; });
-		if ($(window.location.hash)) { $(window.location.hash).style.display = 'block'; }
+        if ((window.location.hash) && $(window.location.hash)) { $(window.location.hash).style.display = 'block'; }
 	}
 
 	function decodeURL(anchor) {
@@ -946,13 +958,13 @@ var SunClock = (function() {
 
 		// write date on first tick (and at midnight)
 		if (!then) {
-			dateText.innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+			$('#dateText').innerHTML = `${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 		}
 
 		// display time as text if testing dates
 		if (testDate) {
-			timeText.style.display = 'block';
-			timeText.innerHTML = `${now.toLocaleTimeString()}`;
+			$('#timeText').style.display = 'block';
+			$('#timeText').innerHTML = `${now.toLocaleTimeString()}`;
 		}
 
 		then = now;
@@ -967,8 +979,6 @@ var SunClock = (function() {
 		moonHand   = $('#moonHand');
 		moonIcon   = $('#moonIcon');
 		moonPath   = $('#moonPath');
-		timeText   = $('#timeText');
-		dateText   = $('#dateText');
 
 		// load settings from localStorage
 		loadOptions();
@@ -1024,7 +1034,7 @@ var SunClock = (function() {
 	});
 
 	return {
-		setOption: setOption,
-		updateLocation: updateLocation
+		setOption,
+		updateLocation
 	};
 })();
