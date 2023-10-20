@@ -908,17 +908,6 @@ var SunClock = (function() {
 		now = new Date();
 		if (testDate) { now = new Date(now.valueOf() - startTime.valueOf() + testDate.valueOf()); }
 
-		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
-		minutes = now.getMinutes() + seconds/60;
-		hours   = now.getHours()   + minutes/60;
-
-		// move hands
-		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
-		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
-		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
-		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
-		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
-
 		// moon phase
 		// get every minute — does not need to be recalculated each frame
 		// 29.53 days per 360° phase change = ~12° per day / 0.5° per hour / 0.00833° per minute
@@ -929,6 +918,17 @@ var SunClock = (function() {
 			timerStart = timestamp || 0;
 		}
 		if ((timestamp - timerStart) >= 60000) { timerStart = null; }
+
+		seconds = now.getSeconds() + (now.getMilliseconds())/1000;
+		minutes = now.getMinutes() + seconds/60;
+		hours   = now.getHours()   + minutes/60;
+
+		// move hands
+		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
+		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
+		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
+		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`);  // ~14.5° per hour
+		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
 
 		// refresh the sun times at midnight
 		if ( then && (now.getDate() !== then.getDate()) ) {
