@@ -64,9 +64,9 @@ section > div {position:relative; margin:0; padding:1em;}
 .close {position:absolute; right:1.3em; top:1.3em; margin:0; line-height:1;}
 
 /* about */
-#support {width:210px; margin:0 auto;}
-#support a {color:#000;}
-#support a:hover {color:#f00;}
+#bmc {margin:1em auto; text-align:center;}
+#bmc a {display:inline-block; padding:13px 27px 9px 24px; color:#0d0c23; background:#fd0; border-radius:11px;}
+#bmc a:hover {color:#fd0c23;}
 
 /* settings */
 #settings {display:none;}
