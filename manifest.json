@@ -1,0 +1,52 @@
+{
+	"name": "Sun Clock",
+	"short_name": "SunClock",
+	"description": "Sun Clock is a 24-hour clock that shows sunrise, sunset, golden hour, and twilight times for your current location. It also shows the current position and phase of the moon, and its rising and setting times.",
+	"start_url": "./",
+	"theme_color": "#000",
+	"background_color": "#ccc",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "icons/icon_32.png",
+			"sizes": "32x32",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon_64.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon_128.png",
+			"sizes": "128x128",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon_192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon_256.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml"
+		},
+		{
+			"src": "icons/icon_maskable.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "maskable"
+		}
+	]
+}

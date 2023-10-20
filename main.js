@@ -1038,3 +1038,17 @@ var SunClock = (function() {
 		updateLocation
 	};
 })();
+
+// set up service worker for PWA
+if ("serviceWorker" in navigator) {
+	navigator.serviceWorker.register("worker.js").then(
+		(registration) => {
+			console.log("Service worker registration successful");
+		},
+		(error) => {
+			console.error("Service worker registration failed:", error);
+		}
+	);
+} else {
+	console.error("Service workers are not supported");
+}
