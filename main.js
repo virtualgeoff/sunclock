@@ -51,13 +51,13 @@ var SunClock = (function() {
 	let now, then, timerStart,
 		hours, minutes, seconds,
 		hourHand, minuteHand, secondHand,
-		hour12 = false,
 		sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown, periodsTemp, currentPeriod, nextPeriodTime,
 		moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath,
 		radius,
-		direction = 1, 		// 1 = clockwise, -1 = anticlockwise
-		location,      		// {"latitude":0,"longitude":0}
-		theme = 'light'; 	// 'light' | 'dark' | 'auto'
+		direction = 1,    // 1 = clockwise, -1 = anticlockwise
+		location,         // {"latitude":0,"longitude":0}
+		hour12 = false,   // use 24 hr times
+		theme = 'light';  // 'light' | 'dark' | 'auto'
 
 	const geoOptions = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
 		//geoErrors = ['', 'PERMISSION_DENIED', 'POSITION_UNAVAILABLE', 'TIMEOUT'],
@@ -292,6 +292,7 @@ var SunClock = (function() {
 		// write subset of times below date
 		let event;
 		let subset = ['sunrise', 'solarNoon', 'sunset']; // subset of times to show below location
+		if (!sunTimes) { return; }
 
 		$('#mainTimes').innerHTML = '';
 		for (let i=0; i<subset.length; i++) {
@@ -663,20 +664,52 @@ var SunClock = (function() {
 		drawNumbers2('#minuteNumbers', 60, 5, 0.27, true, false, true);
 	}
 
+	function storageAvailable(type) {
+		// detects whether localStorage is both supported and available
+		// source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+		let storage;
+		try {
+			storage = window[type];
+			const x = "__storage_test__";
+			storage.setItem(x, x);
+			storage.removeItem(x);
+			return true;
+		} catch (e) {
+			return (
+				e instanceof DOMException &&
+				// everything except Firefox
+				(e.code === 22 ||
+					// Firefox
+					e.code === 1014 ||
+					// test name field too, because code might not be present
+					// everything except Firefox
+					e.name === "QuotaExceededError" ||
+					// Firefox
+					e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+				// acknowledge QuotaExceededError only if there's something already stored
+				storage &&
+				storage.length !== 0
+			);
+		}
+	}
+
 	function setItem(itemName, value) {
 		// save item to browser local storage
-		// TODO: test if localStorage available and warn user?
-		localStorage.setItem(itemName, value);
+		if (storageAvailable('localStorage')) {
+			localStorage.setItem(itemName, value);
+		}
 	}
 
 	function getItem(itemName) {
 		// get item from browser local storage
-		// TODO: test if localStorage available and warn user?
-		return JSON.parse(localStorage.getItem(itemName));
+		if (storageAvailable('localStorage')) {
+			return JSON.parse(localStorage.getItem(itemName));
+		}
 	}
 
 	function setOption(checkbox) {
 		// handle options checkboxes (and radio buttons)
+		if (debug) { console.log(checkbox.name, checkbox.checked); }
 		switch (checkbox.name) {
 		  case 'showMoon':
 			moonHand.style.display = (checkbox.checked) ? 'block' : 'none';
@@ -812,12 +845,18 @@ var SunClock = (function() {
 		// parseFloat returns a number or NaN
 		setItem('location', JSON.stringify(location));
 		showLocation({coords: location});
-		$('#settings').style.display = 'none'; // close settings
+		window.location = '#'; // close settings
 		return false;
 	}
 
 	function loadOptions() {
 		// load options from localStorage, and set checkboxes, etc. on page load
+		if (!storageAvailable('localStorage')) {
+			alert('Settings can not be loaded: using default settings');
+			$('#settingsForm').insertAdjacentHTML('beforebegin', '<p style="color:#d00"><strong>Storage not available: settings can not be saved!</strong></p>');			
+			return;
+		}
+
 		if (getItem('showMoon') === false) {
 			$('input[name="showMoon"]').checked = false;
 			moonHand.style.display = 'none';
