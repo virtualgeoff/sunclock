@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 /* globals self, caches */
 
-const currentCache = 'v1.1';
+const currentCache = 'v2';
 const assets = [
 	"/",
 	"/index.html",
