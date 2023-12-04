@@ -45,6 +45,35 @@ function fullscreenAvailable() {
 	return false;
 }
 
+function storageAvailable(type) {
+	// check if localStorage is both supported and available
+	// source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+	let storage;
+	try {
+		storage = window[type];
+		const x = "__storage_test__";
+		storage.setItem(x, x);
+		storage.removeItem(x);
+		return true;
+	} catch (e) {
+		return (
+			e instanceof DOMException &&
+			// everything except Firefox
+			(e.code === 22 ||
+				// Firefox
+				e.code === 1014 ||
+				// test name field too, because code might not be present
+				// everything except Firefox
+				e.name === "QuotaExceededError" ||
+				// Firefox
+				e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+			// acknowledge QuotaExceededError only if there's something already stored
+			storage &&
+			storage.length !== 0
+		);
+	}
+}
+
 var SunClock = (function() {
 	'use strict';
 
@@ -662,35 +691,6 @@ var SunClock = (function() {
 	function drawNumbers() {
 		drawNumbers2('#hourNumbers',  24, 2, -1.5, false, true, false);
 		drawNumbers2('#minuteNumbers', 60, 5, 0.27, true, false, true);
-	}
-
-	function storageAvailable(type) {
-		// detects whether localStorage is both supported and available
-		// source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
-		let storage;
-		try {
-			storage = window[type];
-			const x = "__storage_test__";
-			storage.setItem(x, x);
-			storage.removeItem(x);
-			return true;
-		} catch (e) {
-			return (
-				e instanceof DOMException &&
-				// everything except Firefox
-				(e.code === 22 ||
-					// Firefox
-					e.code === 1014 ||
-					// test name field too, because code might not be present
-					// everything except Firefox
-					e.name === "QuotaExceededError" ||
-					// Firefox
-					e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
-				// acknowledge QuotaExceededError only if there's something already stored
-				storage &&
-				storage.length !== 0
-			);
-		}
 	}
 
 	function setItem(itemName, value) {
