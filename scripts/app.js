@@ -629,7 +629,7 @@ window.addEventListener('DOMContentLoaded', App.init);
 */
 
 if ("serviceWorker" in navigator) {
-	navigator.serviceWorker.register("scripts/worker.js").then(
+	navigator.serviceWorker.register("worker.js").then(
 		(registration) => {
 			console.log("Service worker registration successful");
 		},

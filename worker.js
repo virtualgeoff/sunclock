@@ -11,7 +11,7 @@ const assets = [
 	"/scripts/clock.js",
 	"/scripts/calendar.js",
 	"/libs/suncalc/suncalc.js",
-	"/libs/astronomy/astronomy.browser.js"
+	"/libs/astronomy/astronomy.browser.min.js"
 ];
 
 // install event
