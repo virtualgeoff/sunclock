@@ -217,7 +217,7 @@ const SunCalendar = (function() {
 
 			// new: use SVG path element
 			str += `
-				<g class="moonPhase" data-title="${qTitle}" data-date="${qDate2}" stroke="currentColor" transform="rotate(${qAngle})">
+				<g id="moonQuarter${i}" data-title="${qTitle}" data-date="${qDate2}" stroke="currentColor" transform="rotate(${qAngle})">
 					<g transform="translate(0 ${-radius+15})">
 						<circle cx="0" cy="0" r="3" fill="#000" stroke="#000" stroke-width="0" />
 						${SunClock.drawMoonIcon(quarters[i].quarter/4, 3)}
@@ -229,17 +229,18 @@ const SunCalendar = (function() {
 
 		// add hover events to all astronomicalEvents
 		$All('#astronomicalEvents > g').forEach((o) => {
-			o.addEventListener("pointerover", e => {
-				let date2 = new Date(e.currentTarget.dataset.date);
-				let str = `<h3>${e.currentTarget.dataset.title}</h3>
-					<p>${App.formatDate(date2)}</p>
-					<p>${formatDelta(date2, now)}</p>`;
-				App.showInfo(str);
-			});
-			o.addEventListener("pointerout",  e => {
-				App.hideInfo();
-			});
+			App.showInfoOnHover(o, getAstronomicalEventInfo, o.id);
 		});
+	}
+
+	function getAstronomicalEventInfo(id) {
+		// get info for astronomical events
+		let obj = $('#'+id);
+		let title = obj.dataset.title;
+		let now  = new Date();
+		let date = new Date(obj.dataset.date);
+
+		return `<h3>${title}</h3><p>${App.formatDate(date)}</p><p>${formatDelta(date, now)}</p>`;
 	}
 
 	function updateAngle() {
@@ -282,12 +283,15 @@ const SunCalendar = (function() {
 	function showPointer(e) {
 		// show dateHand2
 		$('#dateHand2').style.display = 'block';
+		getPointerAngle(e);
 	}
 
 	function hidePointer(e) {
 		// hide dateHand2 and clear info2
-		$('#dateHand2').style.display = 'none';
-		App.hideInfo();
+		if (App.supportsHover) {
+			$('#dateHand2').style.display = 'none';
+			App.hideInfo();
+		}
 	}
 
 	function init() {

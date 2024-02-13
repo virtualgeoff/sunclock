@@ -175,10 +175,10 @@ var App = (function() {
 	function showInfoOnHover(object, func, arg) {
 		// add hover or click events to a dom object
 		if (supportsHover) {
-			object.onmouseover = () => showInfo( func(arg) );
+			object.onmouseover = (e) => { e.stopPropagation(); showInfo( func(arg) ); }
 			object.onmouseout  = () => hideInfo();
 		} else {
-			object.onclick = () => showInfo( func(arg) );
+			object.onclick = (e) => { e.stopPropagation(); showInfo( func(arg) ); }
 		}
 	}
 
@@ -603,7 +603,7 @@ var App = (function() {
 	}
 
 	return {
-		isPortrait,
+		supportsHover,
 		settings,
 		isDarkModeEnabled,
 		toggleFullscreen,
@@ -640,4 +640,5 @@ if ("serviceWorker" in navigator) {
 } else {
 	console.error("Service workers are not supported");
 }
+
 
