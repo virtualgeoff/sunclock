@@ -1,0 +1,177 @@
+/* sunclock colors.css */
+
+:root {
+	--text:       #000;
+	--bg-color1:  #fff;
+	--bg-color2:  #ddd;
+
+	--link-color1:  #00e;
+	--vlink-color1: #a0e;
+	--alink-color1: #00e;
+
+	--link-color2:  #003;
+	--vlink-color2: #003;
+	--alink-color2: #f00;
+
+	--bg-overlay1: rgba(255,255,255,0.90);
+	--bg-overlay2: rgba(204,204,204,0.90);
+	--bg-overlay3: rgba(255,255,255,0.70);
+	--overlay-border: #999;
+
+	/* time period bg colors */
+	--bg-day:        #dceaff;
+	--bg-goldenHour: #ffe988;
+	--bg-sunset:     #ff9900;
+	--bg-twilight1:  #88a6d4;
+	--bg-twilight2:  #4574bc;
+	--bg-twilight3:  #213c66;
+	--bg-night:      #192029;
+
+	/* months bg colors*/
+	--bg-m1:  hsl(180 60% 90%);
+	--bg-m2:  hsl(150 60% 90%);
+	--bg-m3:  hsl(120 60% 90%);
+	--bg-m4:  hsl(90 60% 90%);
+	--bg-m5:  hsl(60 60% 90%);
+	--bg-m6:  hsl(30 60% 90%);
+	--bg-m7:  hsl(0 60% 90%);
+	--bg-m8:  hsl(-30 60% 90%);
+	--bg-m9:  hsl(-60 60% 90%);
+	--bg-m10: hsl(-90 60% 90%);
+	--bg-m11: hsl(-120 60% 90%);
+	--bg-m12: hsl(-150 60% 90%);
+
+	/* astronomical events bg colors */
+	--bg-sE:  hsl(120 60% 70%);
+	--bg-sS:  hsl(30 60% 70%);
+	--bg-aE:  hsl(-60 60% 70%);
+	--bg-wS:  hsl(-150 60% 70%);
+	--bg-pH:  hsl(180 0% 70%);
+	--bg-aH:  hsl(0 0% 70%);
+
+	--sky-gradient: conic-gradient(from 180deg,
+		#192029 72deg, #213c66 78deg, #4574bc 84deg, #88a6d4 90deg, #ff9900 90deg, #ffe988 95deg, #dceaff 110deg,
+		#dceaff 250deg, #ffe988 265deg, #ff9900 270deg, #88a6d4 270deg, #4574bc 276deg, #213c66 282deg, #192029 288deg);
+
+}
+
+:root[data-theme="dark"] {
+	--text:       #ddd;
+	--bg-color1:  #222;
+	--bg-color2:  #222;
+
+	--link-color1:  #79f;
+	--vlink-color1: #a7d;
+	--alink-color1: #79f;
+
+	--link-color2:  #ddd;
+	--vlink-color2: #ddd;
+	--alink-color2: #f00;
+
+	--bg-overlay1: rgba(34,34,34,0.90);
+	--bg-overlay2: rgba(22,22,22,0.90);
+	--bg-overlay3: rgba(34,34,34,0.70);
+	--overlay-border: #4c4c4c;
+
+	/* time period bg colors */
+	--bg-day:        #b0bbcc;
+	--bg-goldenHour: #ccba6c;
+	--bg-sunset:     #cc7a00;
+	--bg-twilight1:  #677ea1;
+	--bg-twilight2:  #325489;
+	--bg-twilight3:  #101d33;
+	--bg-night:      #030303;
+
+	/* months bg colors*/
+	--bg-m1:  hsl(180 60% 25%);
+	--bg-m2:  hsl(150 60% 25%);
+	--bg-m3:  hsl(120 60% 25%);
+	--bg-m4:  hsl(90 60% 25%);
+	--bg-m5:  hsl(60 60% 25%);
+	--bg-m6:  hsl(30 60% 25%);
+	--bg-m7:  hsl(0 60% 25%);
+	--bg-m8:  hsl(-30 60% 25%);
+	--bg-m9:  hsl(-60 60% 25%);
+	--bg-m10: hsl(-90 60% 25%);
+	--bg-m11: hsl(-120 60% 25%);
+	--bg-m12: hsl(-150 60% 25%);
+
+	/* astronomical events bg colors */
+	--bg-sE:  hsl(120 60% 33%);
+	--bg-sS:  hsl(30 60% 33%);
+	--bg-aE:  hsl(-60 60% 33%);
+	--bg-wS:  hsl(-150 60% 33%);
+	--bg-pH:  hsl(180 0% 33%);
+	--bg-aH:  hsl(0 0% 33%);
+
+	--sky-gradient: conic-gradient(from 180deg,
+		#030303 72deg, #101d33 78deg, #325489 84deg, #677ea1 90deg, #cc7a00 90deg, #ccba6c 95deg, #b0bbcc 110deg,
+		#b0bbcc 250deg, #ccba6c 265deg, #cc7a00 270deg, #677ea1 270deg, #325489 276deg, #101d33 282deg, #030303 288deg);
+
+}
+
+
+/* body */
+html, body {color:var(--text); background:var(--bg-color1);}
+
+/* links */
+a         {color:var(--link-color1);}
+a:visited {color:var(--vlink-color1);}
+a:hover   {color:var(--link-color1);}
+.done a:visited {color:var(--link-color1);}
+
+/* nav links */
+nav a:link,    a.close         {color:var(--link-color2);}
+nav a:visited, a.close:visited {color:var(--vlink-color2);}
+nav a:hover,   a.close:hover   {color:var(--alink-color2);}
+
+/* section overlays */
+section.overlay {background:var(--bg-overlay1);}
+
+/* clock background */
+.skyBackground {background-image:var(--sky-gradient);}
+
+/* time periods */
+#earlyMorning                {fill:#192029; fill:var(--bg-night);}
+#astronomicalMorningTwilight {fill:#213c66; fill:var(--bg-twilight3);}
+#nauticalMorningTwilight     {fill:#4574bc; fill:var(--bg-twilight2);}
+#civilMorningTwilight        {fill:#88a6d4; fill:var(--bg-twilight1);}
+#sunrise                     {fill:#ff9900; fill:var(--bg-sunset);}
+#morningGoldenHour           {fill:#ffe988; fill:var(--bg-goldenHour);}
+#morning                     {fill:#dceaff; fill:var(--bg-day);}
+#afternoon                   {fill:#dceaff; fill:var(--bg-day);}
+#eveningGoldenHour           {fill:#ffe988; fill:var(--bg-goldenHour);}
+#sunset                      {fill:#ff9900; fill:var(--bg-sunset);}
+#civilEveningTwilight        {fill:#88a6d4; fill:var(--bg-twilight1);}
+#nauticalEveningTwilight     {fill:#4574bc; fill:var(--bg-twilight2);}
+#astronomicalEveningTwilight {fill:#213c66; fill:var(--bg-twilight3);}
+#lateEvening                 {fill:#192029; fill:var(--bg-night);}
+
+/* months */
+.m1  {stroke:hsl(180 60% 90%);  stroke:var(--bg-m1);}
+.m2  {stroke:hsl(150 60% 90%);  stroke:var(--bg-m2);}
+.m3  {stroke:hsl(120 60% 90%);  stroke:var(--bg-m3);}
+.m4  {stroke:hsl(90 60% 90%);   stroke:var(--bg-m4);}
+.m5  {stroke:hsl(60 60% 90%);   stroke:var(--bg-m5);}
+.m6  {stroke:hsl(30 60% 90%);   stroke:var(--bg-m6);}
+.m7  {stroke:hsl(0 60% 90%);    stroke:var(--bg-m7);}
+.m8  {stroke:hsl(-30 60% 90%);  stroke:var(--bg-m8);}
+.m9  {stroke:hsl(-60 60% 90%);  stroke:var(--bg-m9);}
+.m10 {stroke:hsl(-90 60% 90%);  stroke:var(--bg-m10);}
+.m11 {stroke:hsl(-120 60% 90%); stroke:var(--bg-m11);}
+.m12 {stroke:hsl(-150 60% 90%); stroke:var(--bg-m12);}
+
+/* astronomical events */
+#springEquinox  {stroke:hsl(120 60% 70%);  stroke:var(--bg-sE);}
+#summerSolstice {stroke:hsl(30 60% 70%);   stroke:var(--bg-sS);}
+#autumnEquinox  {stroke:hsl(-60 60% 70%);  stroke:var(--bg-aE);}
+#winterSolstice {stroke:hsl(-150 60% 70%); stroke:var(--bg-wS);}
+#perihelion     {stroke:hsl(180 0% 70%);   stroke:var(--bg-pH);}
+#aphelion       {stroke:hsl(0 0% 70%);     stroke:var(--bg-aH);}
+
+
+@media (min-width:30rem) {
+	html, html body {background:var(--bg-color2);}
+	section.overlay {background:var(--bg-overlay2);}
+	section.overlay > div {background:var(--bg-overlay3); border-color: var(--overlay-border);}
+}

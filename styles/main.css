@@ -1,8 +1,9 @@
-/* sunclock/main.css */
+/* sunclock main.css */
 
 html, body {color:#000; background:#fff;}
-body {margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;}
+body {margin:0; padding:0; font-size:1em; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; overflow:auto;}
 
+/* text */
 h1 {display:none; font-size:1.2em; margin:0; font-weight:normal; text-align:center;}
 h2 {font-size:1.2em; margin:0 0 1em 0;}
 h3 {font-size:1.0em; margin:2em 0 1em 0}
@@ -25,6 +26,7 @@ a {color:#00e; text-decoration:none;}
 a:visited {color:#a0e;}
 a:hover {text-decoration:underline;}
 
+/* nav links */
 nav a:link,    a.close {text-decoration:none; font-weight:bold; color:#003;}
 nav a:visited, a.close:visited {color:#003;}
 nav a:hover,   a.close:hover   {color:#f00;}
@@ -36,13 +38,19 @@ nav {position:absolute; margin:0;}
 nav svg {width:1.625em; height:1.625em;}
 #nav1 {left:16px; top:16px;}
 #nav2 {right:16px; top:16px; text-align:right;}
-#fullscreen {display:none; margin-left:0.5em;}
+#nav1 {left:16px; top:16px;}
+#nav1 a[title="Clock"] {display:none;}
+
+#fullscreen {display:none; margin-left:0em;}
+#fullscreen .exit {display:none;}
+
 
 /* --- LAYOUT --- */
 #clock  {display:block; width:100vmin; width:100dvmin; height:100vmin; height:100dvmin; margin:0 auto; padding:0;}
+#calendar {display:none; width:100vmin; width:100dvmin; height:100vmin; height:100dvmin; margin:0 auto; padding:0;}
 .info   {display:block; width:100vmin; width:100dvmin; max-width:40em; min-height:12em; margin:0 auto; padding:0.01em 1em; text-align:center;}
-section {display:block; width:100vmin; width:100dvmin; max-width:40em; margin:0 auto; padding:0;} /* default for no-js */
-section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-width:100vw; height:100vh; height:100dvh; margin:0; background:rgba(255,255,255,0.90); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px); overflow:scroll; overscroll-behavior:contain;} /* .overlay class added via js */
+section {display:block; width:100vmin; width:100dvmin; max-width:40em; margin:0 auto; padding:0; overflow-x:hidden; overflow-y:scroll; overscroll-behavior:contain;} /* default for no-js */
+section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-width:100vw; height:100vh; height:100dvh; margin:0; background:rgba(255,255,255,0.90); backdrop-filter:blur(3px); -webkit-backdrop-filter: blur(3px);} /* .overlay class added via js */
 
 /* clock bg */
 .skyBackground {
@@ -54,7 +62,7 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 
 /* info */
 #info1 {display:block;}
-#info2 {display:none;}
+#info2 {display:block;}
 .info h3 {margin:1em 0;}
 .info .done {display:none;}
 #timeText {display:none;}
@@ -87,50 +95,25 @@ section > div {position:relative; margin:0; padding:1em;}
 #allTimes td:nth-child(2) {max-width:22em;}
 
 
-@media (orientation:portrait) {
-
-}
-
 @media (orientation:landscape) {
-	#clock {width:100vmin; width:100dvmin; height:100vmin; height:100dvmin;}
+	#clock, #calendar {width:100vmin; width:100dvmin; height:100vmin; height:100dvmin;}
+
 	.info {position:absolute; left:0; top:4em; width:calc(50vw - 50vmin); width:calc(50vw - 50dvmin); height:calc(100vh - 4em); height:calc(100dvh - 4em); overflow:visible;}
 	#info1 {padding-right:0; text-align:left;}
-	#info2 {display:none; left:auto; right:0em; padding-left:0; text-align:right;}
+	#info2 {display:block; left:auto; right:0em; padding-left:0; text-align:right;}
+}
+
+@media (orientation:portrait) {
+	#clock, #calendar {margin-top:1.8em;}
 }
 
 @media (min-width:30rem) {
 	html, html body {background:#ccc;}
 	section.overlay {background:rgba(204,204,204,0.9); overflow:hidden;}
-	section.overlay > div {width:40em; max-width:80vw; height:auto; max-height:90vh; max-height:90dvh; margin:5vh auto; margin:5dvh auto; background:rgba(255,255,255,0.7); border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2); overflow:scroll; overscroll-behavior:contain;}
+	section.overlay > div {width:40em; max-width:80vw; height:auto; max-height:90vh; max-height:90dvh; margin:5vh auto; margin:5dvh auto; background:rgba(255,255,255,0.7); overflow-x:hidden; overflow-y:auto; border:1px solid #999; border-radius:7px; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);;}
 	#settings.overlay > div {width:20em;}
 }
 
 @media (hover:none) {
 	.info .done {display:block;}
-}
-
-
-/* --- DARK COLOR THEME --- */
-
-html.dark, html.dark body {color:#ddd; background:#333;}
-
-html.dark a {color:#79f;}
-html.dark a:visited {color:#a7d;}
-
-html.dark nav a:link,    html.dark a.close {text-decoration:none; font-weight:bold; color:#ddd;}
-html.dark nav a:visited, html.dark a.close:visited {color:#ddd;}
-
-html.dark section.overlay {background:rgba(64,64,64,0.90);}
-
-/* clock bg */
-html.dark .skyBackground {
-	background-image:conic-gradient(from 180deg,
-		#030303 72deg, #101d33 78deg, #325489 84deg, #677ea1 90deg, #cc7a00 90deg, #ccba6c 95deg, #b0bbcc 110deg,
-		#b0bbcc 250deg, #ccba6c 265deg, #cc7a00 270deg, #677ea1 270deg, #325489 276deg, #101d33 282deg, #030303 288deg);
-}
-
-@media (min-width:30rem) {
-	html.dark, html.dark body {background:#323232;}
-	html.dark section.overlay {background:rgba(64,64,64,0.9);}
-	html.dark section.overlay > div {background:rgba(65,65,65,0.7); border:1px solid #4c4c4c; box-shadow:0 5px 10px 8px rgba(0, 0, 0, 0.2);}
 }

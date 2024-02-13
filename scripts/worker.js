@@ -1,13 +1,17 @@
 /* jshint esversion: 6 */
 /* globals self, caches */
 
-const currentCache = 'v3';
+const currentCache = 'v4';
 const assets = [
 	"/",
 	"/index.html",
-	"/main.css",
-	"/main.js",
-	"/libs/suncalc/suncalc.js"
+	"/styles/main.css",
+	"/styles/colors.css",
+	"/scripts/app.js",
+	"/scripts/clock.js",
+	"/scripts/calendar.js",
+	"/libs/suncalc/suncalc.js",
+	"/libs/astronomy/astronomy.browser.js"
 ];
 
 // install event
