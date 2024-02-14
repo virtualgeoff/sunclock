@@ -250,7 +250,7 @@ const SunCalendar = (function() {
 	function updateAngle() {
 		// update the angle of dateHand2 and text
 		let date = angleToDate(angleDegrees);
-		let str, date2;
+		let str, date2, dayOfYear;
 
 		if (snap) {
 			date2 = new Date(thisYear, date.getMonth(), date.getDate(), 0, 0, 0, 0); // round down
@@ -261,14 +261,10 @@ const SunCalendar = (function() {
 			// rotate indicator line
 			$('#dateHand2').setAttribute('transform', `rotate(${ angleDegrees })`);
 		}
-		//let date3 = new Date(thisYear-1, date.getMonth(), date.getDate(), 0, 0, 0, 0);
-		//let date4 = new Date(thisYear+1, date.getMonth(), date.getDate(), 0, 0, 0, 0);
+		dayOfYear = Math.round((date2 - yearStart) / msPerDay) + 1; // no day 0
 
 		// update info2
-		str =  `<h3>${date2.getFullYear()}</h3><p>${App.formatDate(date2)}</p><p>${formatDelta(date2, now)}</p>`;
-		//str += `<h3>Last Year</h3><p>${App.formatDate(date3)}<br>${formatDelta(date3, now)}</p>`;
-		//str += `<h3>Next Year</h3><p>${App.formatDate(date4)}<br>${formatDelta(date4, now)}</p>`;
-
+		str =  `<h3>Day ${dayOfYear}</h3><p>${App.formatDate(date2)}</p><p>${formatDelta(date2, now)}</p>`;
 		if (debug) { str += `<p>${angleDegrees.toFixed(3)}°</p>`; }
 		App.showInfo(str);
 	}
