@@ -241,6 +241,9 @@ const SunCalendar = (function() {
 		let now  = new Date();
 		let date = new Date(obj.dataset.date);
 
+		// shouldn't be needed, but on touch pointerout event doesn't alway fire when astro events are tapped on
+		$('#dateHand2').style.display = 'none';
+
 		return `<h3>${title}</h3><p>${App.formatDate(date)}</p><p>${formatDelta(date, now)}</p>`;
 	}
 
