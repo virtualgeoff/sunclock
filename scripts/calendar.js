@@ -219,6 +219,7 @@ const SunCalendar = (function() {
 			str += `
 				<g id="moonQuarter${i}" data-title="${qTitle}" data-date="${qDate2}" stroke="currentColor" transform="rotate(${qAngle})">
 					<g transform="translate(0 ${-radius+15})">
+						<circle cx="0" cy="0" r="${App.supportsHover ? '5' : '7.5'}" fill="rgba(0,255,0,0)" stroke="none" />
 						<circle cx="0" cy="0" r="3" fill="#000" stroke="#000" stroke-width="0" />
 						${SunClock.drawMoonIcon(quarters[i].quarter/4, 3)}
 					</g>
