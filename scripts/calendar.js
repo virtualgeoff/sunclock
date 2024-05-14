@@ -65,7 +65,7 @@ const SunCalendar = (function() {
 	}
 
 	function update() {
-		// update: set hand position, repeat on the minute
+		// set hand position, repeat on the minute
 		now = new Date();
 		if (debug) { console.log(`updating calendar: ${now.toTimeString()}`); }
 
@@ -155,7 +155,7 @@ const SunCalendar = (function() {
 	}
 
 	function drawAstronomicalEvents() {
-		//draw astronomical events: moon phases, equinoxes, solstices, perihelion, aphelion
+		// draw astronomical events: moon phases, equinoxes, solstices, perihelion, aphelion
 		let seasons = Astronomy.Seasons(thisYear);
 		let perihelion = Astronomy.SearchPlanetApsis(Astronomy.Body.Earth, yearStart);
 		let aphelion = Astronomy.NextPlanetApsis(Astronomy.Body.Earth, perihelion);
@@ -241,7 +241,7 @@ const SunCalendar = (function() {
 		let now  = new Date();
 		let date = new Date(obj.dataset.date);
 
-		// shouldn't be needed, but on touch pointerout event doesn't alway fire when astro events are tapped on
+		// shouldn't be needed, but on touch pointerout event doesn't always fire when astro events are tapped on
 		$('#dateHand2').style.display = 'none';
 
 		return `<h3>${title}</h3><p>${App.formatDate(date)}</p><p>${formatDelta(date, now)}</p>`;
