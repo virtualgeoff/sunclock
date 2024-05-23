@@ -484,13 +484,21 @@ var SunClock = (function() {
 		}
 
 		// create new numbers
-		for (let i=0; i<=(n-1); i+=m) {
+		for (let i=0; i<=n; i+=m) {
+			if (i===0) { continue; } // start counting from zero, but don't draw zeros (can't just start at 1, since counting by m)
 			g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 			g.setAttribute('x', 0);
 			g.setAttribute('y', 0);
 			angle = ((i * direction * (360/n) + angleOffset + 360) % 360); // 0 <= angle < 360
 			g.setAttribute('transform', `rotate(${angle}) translate(0,${radius + h * offset})`);
-			str = zeroPad ? (i ? pad2(i) : pad2(n)) : (i ? i : n);  // if i==0, i=n
+
+			if ((parent === '#hourNumbers') && App.settings.hour12) {
+				let j = i;
+				if (i>12) { j = i-12; }
+				str = zeroPad ? pad2(j) : j;
+			} else {
+				str = zeroPad ? pad2(i) : i;
+			}
 
 			if (vertical) {
 				g.innerHTML = `<circle cx="0" cy="0" r="${(h*0.833)}" fill="rgba(255,255,255,0.33)" stroke="none" />`;
@@ -507,8 +515,8 @@ var SunClock = (function() {
 	}
 
 	function drawNumbers() {
-		drawNumbers2('#hourNumbers',  24, 2, -1.5, false, true, false);
-		drawNumbers2('#minuteNumbers', 60, 5, 0.25, true, false, true);
+		drawNumbers2('#hourNumbers',   24, 1, -1.5, false, true, false);
+		drawNumbers2('#minuteNumbers', 60, 5, 0.25, true,  false, true);
 	}
 
 	function updateDirection() {
@@ -677,6 +685,7 @@ var SunClock = (function() {
 		clearDynamicTheme,
 		updateDynamicTheme,
 		updateDirection,
+		drawNumbers,
 		drawMoonIcon,
 		init
 	};

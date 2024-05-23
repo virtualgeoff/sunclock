@@ -351,6 +351,7 @@ var App = (function() {
 		  case 'hour12':
 			settings.hour12 = checkbox.checked;
 			SunClock.writeMainTimes(); // rewrite the main times (the info2 times update when shown)
+			SunClock.drawNumbers();    // redraw the numbers on the clock face
 			break;
 
 		  case 'setDirectionManually':
