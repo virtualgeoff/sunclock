@@ -60,6 +60,10 @@ section.overlay {display:none; position:fixed; left:0; top:0; width:100vw; max-w
 		#dceaff 250deg, #ffe988 265deg, #ff9900 270deg, #88a6d4 270deg, #4574bc 276deg, #213c66 282deg, #192029 288deg);
 }
 
+/* hide odd hour numbers by default */
+#hourNumbers g:nth-child(odd) {display:none;}
+#hourNumbers.showOdd g:nth-child(odd) {display:block;}
+
 /* info */
 #info1 {display:block;}
 #info2 {display:block;}
@@ -79,7 +83,8 @@ section > div {position:relative; margin:0; padding:1em;}
 /* settings */
 #settings {display:none;}
 #settings p {line-height:1.7em;}
-#settings input[name="showHourMarks"], #settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2.2em;}
+#settings input[name="showOddHourNumbers"], #settings input[name="showHourMarks"],
+#settings input[name="showMinuteMarks"], #settings input[name="showMinuteNumbers"] {margin-left:2.2em;}
 #setDirection {display:none; margin:-1em 0 1em 1.5em;}
 #setDirection label {font-size:0.9em;}
 #setLocation {display:none; margin:-0.5em 0 1em 1.5em;}

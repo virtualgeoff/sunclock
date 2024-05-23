@@ -250,7 +250,6 @@ var App = (function() {
 			$('#settingsForm').insertAdjacentHTML('beforebegin', '<p style="color:#d00"><strong>Storage not available: settings can not be saved!</strong></p>');
 			return;
 		}
-
 		if (getItem('showMoon') === false) {
 			$('input[name="showMoon"]').checked = false;
 			$('#moonHand').style.display = 'none';
@@ -260,6 +259,11 @@ var App = (function() {
 			$('#hourNumbers').style.display = 'none';
 			// if hour numbers are hidden, make the even hour marks the longer ones (rotate long marks 15° = 1 hr)
 			$('#hourMarks2').setAttribute('transform', 'rotate(15)');
+		}
+		if (getItem('showOddHourNumbers') === true) {
+			$('input[name="showOddHourNumbers"]').checked = true;
+			$('#hourNumbers').classList.add('showOdd');
+			$('#hourMarks2').style.display = 'none';
 		}
 		if (getItem('showHourMarks') === false) {
 			$('input[name="showHourMarks"]').checked = false;
@@ -332,9 +336,14 @@ var App = (function() {
 			// if hour numbers are hidden, make the even hour marks the longer ones (rotate long marks 15° = 1 hr)
 			$('#hourMarks2').setAttribute('transform', ((checkbox.checked) ? 'rotate(0)' : 'rotate(15)'));
 			break;
+		  case 'showOddHourNumbers':
+			$('#hourNumbers').classList.toggle('showOdd');
+			$('#hourMarks2').style.display = (checkbox.checked) ? 'none' : 'block';
+			break;
 		  case 'showHourMarks':
 			$('#hourMarks').style.display = (checkbox.checked) ? 'block' : 'none';
-			$('#hourMarks2').style.display = (checkbox.checked) ? 'block' : 'none';
+			let oddHours = $('input[name="showOddHourNumbers"]');
+			$('#hourMarks2').style.display = (checkbox.checked && !oddHours.checked) ? 'block' : 'none';
 			break;
 		  case 'showMinuteHand':
 			$('#minuteHand').style.display = (checkbox.checked) ? 'block' : 'none';
