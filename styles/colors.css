@@ -168,6 +168,7 @@ section.overlay {background:var(--bg-overlay1);}
 #winterSolstice {stroke:hsl(-150 60% 70%); stroke:var(--bg-wS);}
 #perihelion     {stroke:hsl(180 0% 70%);   stroke:var(--bg-pH);}
 #aphelion       {stroke:hsl(0 0% 70%);     stroke:var(--bg-aH);}
+#febMidpoint, #mayMidpoint, #augMidpoint, #novMidpoint {stroke:hsl(0 10% 60%);}
 
 
 @media (min-width:30rem) {

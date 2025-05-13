@@ -12,7 +12,7 @@
 // shortcuts
 const $ = document.querySelector.bind(document);
 const $All = document.querySelectorAll.bind(document);
-const debug = false;
+const debug = true;
 
 
 /*
@@ -123,7 +123,7 @@ var App = (function() {
 	function showSection(e) {
 		// hide all sections, show one
 		let hash = window.location.hash;
-		if (debug) { console.log(e); }
+		if (debug) { console.log('section: ' + hash, e); }
 		$All('section').forEach( section => { section.style.display = 'none'; });
 
 		// show section, and clock or calendar

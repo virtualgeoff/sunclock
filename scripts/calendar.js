@@ -77,6 +77,7 @@ const SunCalendar = (function() {
 			// clear moon phases and redraw astronomical events
 			$All('.moonPhase').forEach((o) => { o.remove(); });
 			drawAstronomicalEvents();
+			drawMoonPhases();
 		}
 
 		// set date hand
@@ -152,6 +153,7 @@ const SunCalendar = (function() {
 		$('#dayMarks').innerHTML   = str3;
 
 		drawAstronomicalEvents();
+		drawMoonPhases();
 	}
 
 	function drawAstronomicalEvents() {
@@ -159,25 +161,39 @@ const SunCalendar = (function() {
 		let seasons = Astronomy.Seasons(thisYear);
 		let perihelion = Astronomy.SearchPlanetApsis(Astronomy.Body.Earth, yearStart);
 		let aphelion = Astronomy.NextPlanetApsis(Astronomy.Body.Earth, perihelion);
-
 		let South = ((App.settings.location) && (App.settings.location.latitude < 0));
+
 		let thisYearsEvents = {
 			'springEquinox':  (South ? seasons.sep_equinox  : seasons.mar_equinox),
 			'summerSolstice': (South ? seasons.dec_solstice : seasons.jun_solstice),
 			'autumnEquinox':  (South ? seasons.mar_equinox  : seasons.sep_equinox),
 			'winterSolstice': (South ? seasons.jun_solstice : seasons.dec_solstice),
 			'perihelion':     perihelion.time,
-			'aphelion':       aphelion.time
+			'aphelion':       aphelion.time,
+
+			// solar midpoints, or 'mid-quarter days' are halfway between the equinoxes and solstices (by angle, not time)
+			// they are close to but not the same as the 'cross-quarter' days
+			'febMidpoint': ( Astronomy.SearchSunLongitude(315, (new Date(thisYear, 1,  1)), 20) ),
+			'mayMidpoint': ( Astronomy.SearchSunLongitude(45,  (new Date(thisYear, 4,  1)), 20) ),
+			'augMidpoint': ( Astronomy.SearchSunLongitude(135, (new Date(thisYear, 7,  1)), 20) ),
+			'novMidpoint': ( Astronomy.SearchSunLongitude(225, (new Date(thisYear, 10, 1)), 20) )
 		};
 
 		if (debug) { console.group('Astronomical events'); }
-		$All('#springEquinox, #summerSolstice, #autumnEquinox, #winterSolstice, #perihelion, #aphelion').forEach((o) => {
-			if (debug) { console.log(o.id, thisYearsEvents[o.id]); }
-			o.dataset.date = thisYearsEvents[o.id];
+		$All('#astronomicalEvents > g').forEach((o) => {
+			o.dataset.date = thisYearsEvents[o.id]; // date gets stringified to UTC date (ISO 8601)
 			o.setAttribute('transform', `rotate(${ dateToAngle(new Date(thisYearsEvents[o.id])) })`);
+			if (debug) { console.log(`${o.id}: ${thisYearsEvents[o.id].date}:`); }
 		});
 		if (debug) { console.groupEnd(); }
 
+		// add hover events to all astronomicalEvents
+		$All('#astronomicalEvents > g').forEach((o) => {
+			App.showInfoOnHover(o, getAstronomicalEventInfo, o.id);
+		});
+	}
+
+	function drawMoonPhases() {
 		// draw phases of the moon
 		let quarters = [];
 		let qAngle, qDate, qDate2, qTitle, qIcon, str;
@@ -226,10 +242,10 @@ const SunCalendar = (function() {
 				</g>`;
 		}
 		if (debug) { console.groupEnd(); }
-		$('#astronomicalEvents').innerHTML += str;
+		$('#moonPhases').innerHTML += str;
 
-		// add hover events to all astronomicalEvents
-		$All('#astronomicalEvents > g').forEach((o) => {
+		// add hover events to all moonPhases
+		$All('#moonPhases > g').forEach((o) => {
 			App.showInfoOnHover(o, getAstronomicalEventInfo, o.id);
 		});
 	}
