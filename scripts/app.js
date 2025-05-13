@@ -324,8 +324,9 @@ var App = (function() {
 		}
 	}
 
-	function setOption(checkbox) {
+	function setOption(e) {
 		// handle options checkboxes and radio buttons
+		let checkbox = e.target;
 		if (debug) { console.log(checkbox.name, checkbox.checked); }
 		switch (checkbox.name) {
 		  case 'showMoon':
@@ -604,6 +605,9 @@ var App = (function() {
 
 		// handle resize events
 		window.addEventListener('resize', handleResize);
+
+		// handle form input onchange events
+		$All('#settingsForm input:not([type="number"])').forEach(input => { input.addEventListener('change', setOption); });
 
 		// listen for color scheme change
 		prefersDark.addEventListener("change", e => { setDark(e); });
