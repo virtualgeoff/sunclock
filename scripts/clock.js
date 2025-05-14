@@ -20,6 +20,7 @@ var SunClock = (function() {
 	let periodsTemp, currentPeriod, nextPeriodTime;
 	let moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath;
 	let radius = 130;
+	const tau = 2 * Math.PI;
 
 	const periods = [
 		// name:                        from:               to:                 color:		darkColor:
@@ -70,7 +71,7 @@ var SunClock = (function() {
 
 	function toDegrees(angle) {
 		// convert radians to degrees
-		return (angle / (2 * Math.PI) * 360);
+		return (angle / tau * 360);
 	}
 
 	function convertAzimuth(angle) {
@@ -84,8 +85,8 @@ var SunClock = (function() {
 		let nowOffset = now.getTimezoneOffset();
 		let dateOffset = date.getTimezoneOffset();
 		let direction = App.settings.direction;
-		//var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
-		var angle = ((date.getHours() + date.getMinutes()/60 + (dateOffset-nowOffset)/60 + date.getSeconds()/3600) / 24 * 2 * Math.PI); // radians
+		//var angle = ((date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600) / 24 * tau); // radians
+		var angle = ((date.getHours() + date.getMinutes()/60 + (dateOffset-nowOffset)/60 + date.getSeconds()/3600) / 24 * tau); // radians
 		return `${Math.sin(angle) * radius * -direction}, ${Math.cos(angle) * radius}`; // return as string for svg path attribute
 	}
 
@@ -128,7 +129,7 @@ var SunClock = (function() {
 			sunTimes.nadir2 = SunCalc.getTimes(getLater(sunTimes.solarNoon), location.latitude, location.longitude, 0).nadir;
 		}
 
-		noonPosition = SunCalc.getPosition(sunTimes.solarNoon, location.latitude, location.longitude);
+		noonPosition  = SunCalc.getPosition(sunTimes.solarNoon, location.latitude, location.longitude);
 		nadirPosition = SunCalc.getPosition(sunTimes.nadir, location.latitude, location.longitude);
 		sunAlwaysUp   = (toDegrees(nadirPosition.altitude) > -0.833) ? true : false; // sun is always above horizon
 		sunAlwaysDown = (toDegrees(noonPosition.altitude)  < -0.833) ? true : false; // sun is always below horizon
@@ -392,7 +393,7 @@ var SunClock = (function() {
 		// draw the moon icon (instead of using unicode characters)
 		// get x radius and sweep direction for each half of the path
 		let r = radius || 6; // moon radius
-		let cosX = Math.cos( phase * 2 * Math.PI );
+		let cosX = Math.cos( phase * tau );
 		let rx1 = (phase < 0.50) ? r * cosX : r;
 		let rx2 = (phase < 0.50) ? r : r * -cosX;
 		let sweep1 = (phase < 0.25) ? 0 : 1;
