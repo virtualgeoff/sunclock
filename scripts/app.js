@@ -140,7 +140,7 @@ var App = (function() {
 			$('#clock').style.display = 'block';
 			$('#calendar').style.display = 'none';
 			$('#nav1 a[title="Clock"]').style.display = 'none';
-			$('#nav1 a[title="Calendar"').style.display = 'inline';
+			$('#nav1 a[title="Calendar"]').style.display = 'inline';
         }
 
         // save lastSection, unless user came to page via direct link to a section

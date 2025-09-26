@@ -14,8 +14,8 @@ const SunCalendar = (function() {
 	const tau = 2 * Math.PI;
 	const msPerDay = 24 * 60 * 60 * 1000; // milliseconds per day
 	const snap = true;
+	const radius = 136;
 
-	let radius = 136;
 	let angleDegrees = 0;
 	let now, then = null;
 	let thisYear, yearStart, yearEnd, leapYear;

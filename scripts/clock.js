@@ -12,6 +12,9 @@
 var SunClock = (function() {
 	'use strict';
 
+	const tau = 2 * Math.PI;
+	const radius = 130;
+
 	let now, then, timerStart;
 	let hours, minutes, seconds;
 	let hourHand, minuteHand, secondHand;
@@ -19,8 +22,6 @@ var SunClock = (function() {
 	let sunTimes, sunPosition, noonPosition, nadirPosition, sunAlwaysUp, sunAlwaysDown;
 	let periodsTemp, currentPeriod, nextPeriodTime;
 	let moonTimes, moonPosition, moonPhase, moonHand, moonIcon, moonPath;
-	let radius = 130;
-	const tau = 2 * Math.PI;
 
 	const periods = [
 		// name:                        from:               to:                 color:		darkColor:
