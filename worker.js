@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 /* globals self, caches */
 
-const currentCache = 'v4.6';
+const currentCache = 'v4.7';
 const assets = [
 	"/",
 	"/index.html",
@@ -25,6 +25,10 @@ self.addEventListener('install', event => {
 			console.log('Caching assets');
 			cache.addAll(assets);
 		})
+		.then(() => {
+			// Skip waiting to activate the new service worker immediately
+			return self.skipWaiting();
+		})
 	);
 
 });
@@ -33,7 +37,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
 	console.log('Service worker activate event', event);
 
-	// delete old caches
+	// delete old caches and claim clients immediately
 	event.waitUntil(
 		caches.keys()
 		.then(cacheNames => {
@@ -42,6 +46,10 @@ self.addEventListener('activate', event => {
 					return caches.delete(cacheName);
 				}
 			});
+		})
+		.then(() => {
+			// Take control of all clients immediately
+			return self.clients.claim();
 		})
 	);
 });

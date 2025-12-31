@@ -173,11 +173,13 @@ const SunCalendar = (function() {
 
 			// solar midpoints, or 'mid-quarter days' are halfway between the equinoxes and solstices (by angle, not time)
 			// they are close to but not the same as the 'cross-quarter' days
+			/*
 			'febMidpoint': ( Astronomy.SearchSunLongitude(315, (new Date(thisYear, 1,  1)), 20) ),
 			'mayMidpoint': ( Astronomy.SearchSunLongitude(45,  (new Date(thisYear, 4,  1)), 20) ),
 			'augMidpoint': ( Astronomy.SearchSunLongitude(135, (new Date(thisYear, 7,  1)), 20) ),
 			'novMidpoint': ( Astronomy.SearchSunLongitude(225, (new Date(thisYear, 10, 1)), 20) )
-		};
+			*/
+			};
 
 		if (debug) { console.group('Astronomical events'); }
 		$All('#astronomicalEvents > g').forEach((o) => {
@@ -233,7 +235,7 @@ const SunCalendar = (function() {
 
 			// new: use SVG path element
 			str += `
-				<g id="moonQuarter${i}" data-title="${qTitle}" data-date="${qDate2}" stroke="currentColor" transform="rotate(${qAngle})">
+				<g id="moonQuarter${i}" class="moonPhase" data-title="${qTitle}" data-date="${qDate2}" stroke="currentColor" transform="rotate(${qAngle})">
 					<g transform="translate(0 ${-radius+15})">
 						<circle cx="0" cy="0" r="${App.supportsHover ? '5' : '7.5'}" fill="rgba(0,255,0,0)" stroke="none" />
 						<circle cx="0" cy="0" r="3" fill="#000" stroke="#000" stroke-width="0" />

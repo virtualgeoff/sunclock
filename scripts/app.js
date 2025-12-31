@@ -643,7 +643,9 @@ window.addEventListener('DOMContentLoaded', App.init);
 */
 
 if ("serviceWorker" in navigator) {
-	navigator.serviceWorker.register("worker.js").then(
+	navigator.serviceWorker.register("worker.js", {
+		updateViaCache: 'none'  // Bypass HTTP cache when checking for updates
+	}).then(
 		(registration) => {
 			console.log("Service worker registration successful");
 		},

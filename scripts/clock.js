@@ -351,7 +351,7 @@ var SunClock = (function() {
 
 	function getMoonPhase() {
 		moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
-		if (debug) { console.log('moon phase: ' + moonPhase); }
+		if (debug) { console.log('moon phase: ' + moonPhase + ' ' + getMoonPhaseName(moonPhase).name); }
 		$('#moonIcon').innerHTML += drawMoonIcon(moonPhase);
 	}
 
@@ -393,15 +393,21 @@ var SunClock = (function() {
 	function drawMoonIcon(phase, radius) {
 		// draw the moon icon (instead of using unicode characters)
 		// get x radius and sweep direction for each half of the path
-		let r = radius || 6; // moon radius
-		let cosX = Math.cos( phase * tau );
-		let rx1 = (phase < 0.50) ? r * cosX : r;
-		let rx2 = (phase < 0.50) ? r : r * -cosX;
-		let sweep1 = (phase < 0.25) ? 0 : 1;
-		let sweep2 = (phase < 0.75) ? 1 : 0;
+
+		let ry = radius || 6;
+		let cosX = Math.abs(Math.cos( phase * tau ));
+		// x-radius
+		let rx1 = (phase < 0.50) ? ry * cosX : ry;  // left arc
+		let rx2 = (phase < 0.50) ? ry : ry * cosX;  // right arc
+		// sweep-flag: 0 = CCW, 1 = CW
+		let sweep1 = (phase < 0.25) ? 0 : 1;        // left arc
+		let sweep2 = (phase < 0.75) ? 1 : 0;        // right arc
 
 		// return svg path element (2 elliptical arcs)
-		return `<path fill="#ccc" stroke="#ccc" stroke-width="0" d="M 0,${r} A ${rx1} ${r} 0 1 ${sweep1} 0,${-r} A ${rx2} ${r} 0 1 ${sweep2} 0,${r} z" />`;
+		// Arc syntax: A rx ry x-axis-rotation large-arc-flag sweep-flag x-final y-final
+		return `<path fill="#ccc" stroke="#ccc" stroke-width="0" d="M 0 ${ry} 
+			A ${rx1} ${ry} 0 0 ${sweep1} 0 ${-ry} 
+			A ${rx2} ${ry} 0 0 ${sweep2} 0 ${ry} z" />`;
 	}
 
 	function getMoonInfo() {
