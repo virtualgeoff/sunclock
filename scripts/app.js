@@ -13,7 +13,9 @@
 const $ = document.querySelector.bind(document);
 const $All = document.querySelectorAll.bind(document);
 const debug = true;
+const version = '4.7.1';
 
+console.info('version: ' + version);
 
 /*
 	App handles navigation, routes, settings, dark mode, and date formatting
@@ -643,18 +645,13 @@ window.addEventListener('DOMContentLoaded', App.init);
 */
 
 if ("serviceWorker" in navigator) {
-	navigator.serviceWorker.register("worker.js", {
-		updateViaCache: 'none'  // Bypass HTTP cache when checking for updates
-	}).then(
-		(registration) => {
-			console.log("Service worker registration successful");
-		},
-		(error) => {
-			console.error("Service worker registration failed:", error);
-		}
-	);
+	navigator.serviceWorker.register('worker.js?v=' + version) 
+	.then(registration => {
+		console.log('Service Worker registered:', registration);
+	})
+	.catch(error => {
+		console.error('Service Worker registration failed:', error);
+	});
 } else {
 	console.error("Service workers are not supported");
 }
-
-
