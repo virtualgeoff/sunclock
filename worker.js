@@ -2,7 +2,7 @@
 /* globals self, caches */
 
 const debug = self.location?.hostname === 'localhost' || self.location?.hostname === '127.0.0.1' || self.location?.search?.includes('debug=1');
-const currentCache = '4.8.1';
+const currentCache = '4.8.2';
 const assets = [
 	"/",
 	"/index.html",
