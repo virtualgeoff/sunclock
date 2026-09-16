@@ -612,8 +612,8 @@ const SunClock = (function() {
 		clockIconMinutes.setAttribute('transform', `rotate(${ minutes * direction * 6  })`);
 
 		// one minute timer
-		if (!timerStart) { timerStart = timestamp || 0; }
-		if ((timestamp - timerStart) >= 60000) {
+		if (!timerStart) { timerStart = minutes || 0; }
+		if ((minutes - timerStart) >= 1 || (minutes - timerStart) <0) {
 			// update moon phase every minute — does not need to be recalculated each frame
 			// 29.53 days per 360° phase change = ~12.2° per day = ~0.51° per hour = ~0.0085° per minute (i.e. even every minute is excessive!)
 			getMoonPhase();
