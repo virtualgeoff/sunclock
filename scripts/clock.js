@@ -143,6 +143,8 @@ const SunClock = (function() {
 		// write times to table and below date
 		writeMainTimes();
 		writeAllTimes();
+		if (typeof SunSky !== 'undefined') { SunSky.update(); }
+		if (typeof Forecast !== 'undefined') { Forecast.update(); }
 
 		// draw time period arcs on clock face
 		drawTimePeriods();
@@ -294,6 +296,7 @@ const SunClock = (function() {
 		// draw solar noon and midnight lines
 		$('#noon').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.solarNoon)}`);
 		$('#midnight').setAttribute('d',`M 0,0 L ${getPointFromTime(sunTimes.nadir2)}`);
+		if (typeof SunSky !== 'undefined') { SunSky.drawSkyMap(); }
 	}
 
 	function getCurrentTimePeriod() {
@@ -352,7 +355,7 @@ const SunClock = (function() {
 	function getMoonPhase() {
 		moonPhase = SunCalc.getMoonIllumination(now).phase; // note: does not require location
 		if (debug) { console.log('moon phase: ' + moonPhase + ' ' + getMoonPhaseName(moonPhase).name); }
-		$('#moonIcon path').setAttribute('d', drawMoonIcon(moonPhase) );
+		$('#moonIcon path').setAttribute('d', drawMoonIcon(moonPhase, 8) );
 	}
 
 	function getMoonPhaseName(phase) {
@@ -604,7 +607,8 @@ const SunClock = (function() {
 		secondHand.setAttribute('transform', `rotate(${ seconds * direction * 6 })`); //  6° per second
 		minuteHand.setAttribute('transform', `rotate(${ minutes * direction * 6 })`); //  6° per minute
 		hourHand.setAttribute('transform',   `rotate(${ hours  * direction * 15 })`); // 15° per hour
-		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonPhase * direction * 360) })`); // ~14.5° per hour
+		let moonLead = (typeof SunSky !== 'undefined' && SunSky.moonLead() !== null) ? SunSky.moonLead() : moonPhase * 360;
+		moonHand.setAttribute('transform', `rotate(${ (hours * direction * 15) - (moonLead * direction) })`); // ~14.5° per hour
 		moonIcon.setAttribute('transform', `translate(0 80) rotate(${90 + direction * 90})`); // only on direction change
 
 		// clock icon hand

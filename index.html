@@ -24,9 +24,12 @@
 	<script src="libs/suncalc/suncalc.js"></script>
 	<script src="libs/astronomy/astronomy.browser.min.js"></script>
 
-	<script src="scripts/app.js?v=4.8.1"></script>
-	<script src="scripts/clock.js?v=4.8.1"></script>
+	<script src="scripts/app.js?v=4.9.0"></script>
+	<script src="scripts/clock.js?v=4.9.0"></script>
 	<script src="scripts/calendar.js?v=4.8.1"></script>
+	<script src="scripts/skydata.js?v=4.9.0"></script>
+	<script src="scripts/sky.js?v=4.9.0"></script>
+	<script src="scripts/forecast.js?v=4.9.0"></script>
 </head>
 <body>
 
@@ -56,6 +59,24 @@
 				<circle cx="20" cy="20" r="15" stroke="currentColor" stroke-width="3.5" fill="none"/>
 				<circle cx="20" cy="12.5" r="2" stroke="none" fill="currentColor"/>
 				<path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M20.5 17.5 L20.5 26.5 M17.0 17.5 L20.0 17.5 M16.0 26.5 L25.0 26.5" />
+			</svg>
+		</a>
+		<a href="#" role="button" data-setting="showMoon" title="Show/hide the moon">
+			<svg width="26" height="26" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" version="1.1">
+				<mask id="moonIconMask"><rect width="40" height="40" fill="#fff"/><circle cx="27" cy="14" r="11" fill="#000"/></mask>
+				<circle cx="20" cy="20" r="14" fill="currentColor" mask="url(#moonIconMask)"/>
+			</svg>
+		</a>
+		<a href="#" role="button" data-setting="showPlanets" title="Show/hide the planets">
+			<svg width="26" height="26" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" version="1.1">
+				<circle cx="20" cy="20" r="8" fill="currentColor"/>
+				<ellipse cx="20" cy="20" rx="16.5" ry="5" transform="rotate(-20 20 20)" fill="none" stroke="currentColor" stroke-width="2.5"/>
+			</svg>
+		</a>
+		<a href="#" role="button" data-setting="showConstellations" title="Show/hide the constellations">
+			<svg width="26" height="26" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" version="1.1">
+				<polyline points="5,13 12,10 18,14 23,20 23,31 35,31 35,21 23,20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+				<g fill="currentColor"><circle cx="5" cy="13" r="2.8"/><circle cx="12" cy="10" r="2.8"/><circle cx="18" cy="14" r="2.8"/><circle cx="23" cy="20" r="2.8"/><circle cx="23" cy="31" r="2.8"/><circle cx="35" cy="31" r="2.8"/><circle cx="35" cy="21" r="2.8"/></g>
 			</svg>
 		</a>
 	</nav>
@@ -92,18 +113,24 @@
 			<path id="noon"     d="M 0,0 L 0,0" stroke="#fff" stroke-width="0.5" />
 			<path id="midnight" d="M 0,0 L 0,0" stroke="#000" stroke-width="0.5" />
 
+			<clipPath id="nightClip"></clipPath>
+			<clipPath id="dayClip"></clipPath>
+			<g id="skyMap" pointer-events="none"></g>
+
 			<g id="hourMarks"     fill="none" stroke="#777" stroke-width="1.0"></g>
 			<g id="hourMarks2"    fill="none" stroke="#777" stroke-width="1.0"></g>
 			<g id="minuteMarks"   fill="none" stroke="#000" stroke-width="0.5"></g>
 			<g id="hourNumbers"   fill="#000" font-size="12px" style="letter-spacing:-1;"></g>
 			<g id="minuteNumbers" fill="#000" font-size="5px"  style="letter-spacing:0.8;"></g>
 
+			<g id="planetHands"></g>
 			<g id="moonHand" cursor="crosshair" transform="rotate(180)">
-				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#aaa" stroke-width="1" />
+				<line x1="0" y1="0" x2="0" y2="80" fill="none" stroke="#999" stroke-width="1.25" />
 				<g id="moonIcon" transform="translate(0 80) rotate(180)">
 					<circle cx="0" cy="0" r="12" fill="transparent" />
-					<circle cx="0" cy="0" r="6" fill="#000" stroke="#000" stroke-width="0" />
-					<path fill="#ccc" stroke="#ccc" stroke-width="0" d="" />
+					<circle cx="0" cy="0" r="10.5" fill="rgba(255,255,255,0.18)" stroke="#999" stroke-width="0.6" />
+					<circle cx="0" cy="0" r="8" fill="#1c1c1c" stroke="#ccc" stroke-width="0.6" />
+					<path fill="#f4f4f4" stroke="#f4f4f4" stroke-width="0" d="" />
 				</g>
 			</g>
 			<g id="hourHand" cursor="crosshair" transform="rotate(180)">
@@ -199,6 +226,10 @@
 		<p id="timeText"></p>
 		<p id="location">Getting location…</p>
 		<p id="mainTimes"></p>
+		<p id="zenithNow"></p>
+		<p id="solsticeNow"></p>
+		<a id="solsticeMini" href="#solstice" title="Solstice progress (open the chart)"></a>
+		<div id="forecast"></div>
 		<p><small><a href="#allTimes">show all times</a></small></p>
 
 		<h1>Sun Calendar</h1>
@@ -235,13 +266,16 @@
 			</p>
 
 			<h3>Privacy</h3>
-			<p>We collect aggregate user stats only. Your location and settings are stored in your web browser and are not sent to the server. No cookies are saved or sent.</p>
+			<p>We collect aggregate user stats only. Your location and settings are stored in your web browser and are not sent to the server. To show the forecast, your browser sends your approximate location (rounded to about 1 km) to <a href="https://open-meteo.com">Open-Meteo</a>. No cookies are saved or sent.</p>
 
 			<br>
 			<p class="center"><small>
 				<a href="#" data-address="6d 61 69 6c 74 6f 3a 73 75 6e 63 6c 6f 63 6b 40 76 69 72 74 75 61 6c 67 65 6f 66 66 2e 63 6f 6d">Feedback</a> &nbsp; 〜 &nbsp;
 				<a href="https://github.com/virtualgeoff/sunclock">Source</a> &nbsp; 〜 &nbsp;
-				<a href="https://github.com/mourner/suncalc">SunCalc</a>
+				<a href="https://github.com/mourner/suncalc">SunCalc</a> &nbsp; 〜 &nbsp;
+				<a href="https://github.com/cosinekitty/astronomy">Astronomy Engine</a> &nbsp; 〜 &nbsp;
+				<a href="https://github.com/ofrohn/d3-celestial">d3-celestial</a> &nbsp; 〜 &nbsp;
+				<a href="https://open-meteo.com">Open-Meteo</a>
 			</small></p>
 
 			<a href="#" class="close">✕</a>
@@ -321,7 +355,9 @@
 
 			<form id="settingsForm" onsubmit="return App.updateLocation(this);">
 				<p>
-					<label><input type="checkbox" name="showMoon"> show moon</label>
+					<label><input type="checkbox" name="showMoon"> show moon</label><br>
+					<label><input type="checkbox" name="showPlanets"> show planets</label><br>
+					<label><input type="checkbox" name="showConstellations"> show constellations</label>
 				</p>
 				<p>
 					<label><input type="checkbox" name="showHourNumbers"> show hour numbers</label><br>
@@ -365,6 +401,42 @@
 					<label><input type="radio" name="setColorScheme" id="scheme_dynamic" value="dynamic"> dynamic</label>
 				</p>
 			</form>
+
+			<a href="#" class="close">✕</a>
+		</div>
+	</section>
+
+	<section id="sky">
+		<div>
+			<h2>Zenith Sky</h2>
+			<p>The constellation directly overhead (at the zenith) through today. The lower strip shows how dark the sky is; the zenith constellation is only visible once it is dark.</p>
+			<div id="skyChart"></div>
+			<table id="skyTable">
+				<thead>
+					<tr>
+						<th scope="col">From</th>
+						<th scope="col">To</th>
+						<th scope="col">Constellation</th>
+						<th scope="col">Sky</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+
+			<a href="#" class="close">✕</a>
+		</div>
+	</section>
+
+	<section id="solstice">
+		<div>
+			<h2>Solstice Progress</h2>
+			<p id="solsticeProgress"></p>
+			<div id="solsticeChart"></div>
+			<table id="solsticeStats">
+				<tbody>
+				</tbody>
+			</table>
 
 			<a href="#" class="close">✕</a>
 		</div>

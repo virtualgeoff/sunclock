@@ -2,7 +2,7 @@
 /* globals self, caches */
 
 const debug = self.location?.hostname === 'localhost' || self.location?.hostname === '127.0.0.1' || self.location?.search?.includes('debug=1');
-const currentCache = '4.8.2';
+const currentCache = '4.9.0';
 const assets = [
 	"/",
 	"/index.html",
@@ -11,6 +11,9 @@ const assets = [
 	"/scripts/app.js",
 	"/scripts/clock.js",
 	"/scripts/calendar.js",
+	"/scripts/sky.js",
+	"/scripts/skydata.js",
+	"/scripts/forecast.js",
 	"/libs/suncalc/suncalc.js",
 	"/libs/astronomy/astronomy.browser.min.js",
 	"/icons/icon_32.png",
@@ -66,6 +69,9 @@ self.addEventListener('activate', event => {
 // fetch event: network first for HTML, then cache first for assets
 self.addEventListener('fetch', event => {
 	if (debug) { console.log(`Fetching: ${event.request.url}`); }
+
+	// leave cross-origin requests (the forecast API) to the browser
+	if (new URL(event.request.url).origin !== self.location.origin) { return; }
 
 	// Network-first for HTML
 	if (event.request.mode === 'navigate') {

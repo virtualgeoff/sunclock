@@ -41,6 +41,8 @@ nav svg {width:1.625em; height:1.625em;}
 #nav2 {right:16px; top:16px; text-align:right;}
 #nav1 {left:16px; top:16px;}
 #nav1 a[title="Clock"] {display:none;}
+#nav1 a[data-setting] {margin-left:0.15em;}
+#nav1 a.off {opacity:0.35;}
 
 #fullscreen {display:none; margin-left:0em;}
 #fullscreen .exit {display:none;}
@@ -123,3 +125,77 @@ section > div {position:relative; margin:0; padding:1em;}
 @media (hover:none) {
 	.info .done {display:block;}
 }
+
+/* sky.js (zenith constellation, solstice progress) */
+#sky, #solstice {display:none;}
+#zenithNow, #solsticeNow {margin:0.5em 0;}
+.skychart {display:block; width:100%; height:auto; margin:1em 0; font-size:13px;}
+.skychart text {fill:var(--text);}
+.skychart text.strong {font-weight:bold;}
+.skychart text.nowlabel {fill:#f30;}
+.skychart .grid {stroke:var(--text); stroke-opacity:0.2;}
+.skychart .band rect {stroke:var(--bg-color1); stroke-width:1;}
+.skychart .band.current rect {stroke:#f30; stroke-width:2;}
+.skychart .now {stroke:#f30; stroke-width:2;}
+.skychart .today {fill:#f30; stroke:var(--bg-color1); stroke-width:1.5;}
+.skychart .endpoint {fill:var(--text);}
+.skychart .past {fill:var(--bg-sunset); fill-opacity:0.7;}
+.skychart .future {fill:var(--bg-goldenHour); fill-opacity:0.6;}
+.skychart .curve {fill:none; stroke:var(--bg-sunset); stroke-width:2;}
+.skychart .equinox {stroke:var(--text); stroke-opacity:0.5; stroke-dasharray:4 3;}
+.skychart .sky-day          {fill:var(--bg-day);}
+.skychart .sky-civil        {fill:var(--bg-twilight1);}
+.skychart .sky-nautical     {fill:var(--bg-twilight2);}
+.skychart .sky-astronomical {fill:var(--bg-twilight3);}
+.skychart .sky-night        {fill:var(--bg-night);}
+#skyTable, #solsticeStats {margin:1em auto; text-align:left; border-collapse:collapse;}
+#skyTable td, #solsticeStats td, #solsticeStats th {padding:0.15em 0.6em;}
+#skyTable tr.current {font-weight:bold;}
+#solsticeStats th {font-weight:normal; text-align:right;}
+.swatch {display:inline-block; width:0.8em; height:0.8em; margin-right:0.4em; border-radius:2px; vertical-align:baseline;}
+.progress {display:inline-block; width:8em; height:0.55em; background:var(--bg-color2); border-radius:0.3em; overflow:hidden; vertical-align:middle;}
+.progress > span {display:block; height:100%; background:var(--bg-sunset);}
+.progress.wide {display:block; width:100%; max-width:30em; height:0.8em; margin:0.5em auto 0;}
+#solsticeMini {display:block; width:100%; max-width:20em; margin:0.5em auto;}
+#solsticeMini .skychart {margin:0;}
+.skychart.mini {font-size:17px;}
+@media (orientation:landscape) {
+	#solsticeMini {position:fixed; left:12px; bottom:12px; width:calc(50vw - 50vmin - 24px); width:calc(50vw - 50dvmin - 24px); max-width:28em; margin:0;}
+}
+
+/* forecast.js */
+#forecast {display:block; width:100%; max-width:20em; margin:0.5em auto;}
+#forecast p {margin:0.25em 0;}
+#forecast .fcTemp {font-size:1.6em; font-weight:bold; margin-right:0.15em;}
+#forecast .fcNote {font-size:0.8em; opacity:0.75;}
+#forecast .skychart {margin:0.3em 0 0;}
+.skychart .temp {fill:none; stroke:#e8743b; stroke-width:2.5; stroke-linejoin:round;}
+.skychart .precip {fill:#4574bc; fill-opacity:0.6;}
+.skychart .nightband {fill:#88a6d4; fill-opacity:0.15;}
+@media (orientation:landscape) {
+	#forecast {position:fixed; right:12px; bottom:12px; width:calc(50vw - 50vmin - 24px); width:calc(50vw - 50dvmin - 24px); max-width:28em; margin:0; text-align:right;}
+}
+@media (orientation:landscape) and (max-aspect-ratio:13/9) {
+	#solsticeMini, #forecast {display:none;}
+}
+
+/* sky map on the clock face */
+#skyMap .figure {fill:none; stroke:#7d9ccc; stroke-width:0.45; stroke-opacity:0.75; stroke-linejoin:round; stroke-linecap:round;}
+#skyMap .figure.current {stroke:#ffc95e; stroke-width:0.9; stroke-opacity:1;}
+#skyMap .star {fill:#fff; fill-opacity:0.9;}
+#skyMap text {fill:#9db4d8; fill-opacity:0.85; font-size:4.2px;}
+#skyMap text.current {fill:#ffc95e; fill-opacity:1; font-weight:bold; font-size:5px;}
+#skyMap .zenithCircle {fill:none; stroke:#ffc95e; stroke-width:0.4; stroke-opacity:0.4; stroke-dasharray:1.5 2;}
+#skyMap .zenithMark {fill:none; stroke:#ffc95e; stroke-width:0.8;}
+#skyMap .day .figure {stroke:#14284a; stroke-opacity:0.3;}
+#skyMap .day .figure.current {stroke:#a86400; stroke-opacity:0.75;}
+#skyMap .day .star {fill:#14284a; fill-opacity:0.35;}
+#skyMap .day text {fill:#14284a; fill-opacity:0.45;}
+#skyMap .day text.current {fill:#a86400; fill-opacity:0.85;}
+#skyMap .day .zenithCircle, #skyMap .day .zenithMark {stroke:#a86400;}
+
+/* planet hands */
+#planetHands .planet {cursor:crosshair;}
+#planetHands line {stroke-width:0.6; stroke-dasharray:1.5 1.5; stroke-opacity:0.85;}
+#planetHands .disc {stroke:#000; stroke-width:0.4;}
+#planetHands text {font-size:4.5px; fill:#fff; stroke:#000; stroke-width:1.4px; stroke-opacity:0.85; paint-order:stroke; text-anchor:start;}
