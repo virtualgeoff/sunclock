@@ -33,6 +33,8 @@ const App = (function() {
 	// app settings - single source of truth for defaults and current values
 	let settings = {
 		showMoon           : true,
+		showPlanets        : true,
+		showConstellations : true,
 		showHourNumbers    : true,
 		showOddHourNumbers : false,
 		showHourMarks      : true,
@@ -257,6 +259,13 @@ const App = (function() {
 
 	function syncFormFromSettings() {
 		$('input[name="showMoon"]').checked           = settings.showMoon;
+		$('input[name="showPlanets"]').checked        = settings.showPlanets;
+		$('input[name="showConstellations"]').checked = settings.showConstellations;
+		$All('#nav1 a[data-setting]').forEach(a => {
+			let on = !!settings[a.dataset.setting];
+			a.classList.toggle('off', !on);
+			a.setAttribute('aria-pressed', on);
+		});
 		$('input[name="showHourNumbers"]').checked    = settings.showHourNumbers;
 		$('input[name="showOddHourNumbers"]').checked = settings.showOddHourNumbers;
 		$('input[name="showHourMarks"]').checked      = settings.showHourMarks;
@@ -286,6 +295,8 @@ const App = (function() {
 	function applySettingsToDOM() {
 		// Clock display visibility
 		$('#moonHand').style.display       = settings.showMoon ? 'block' : 'none';
+		$('#planetHands').style.display    = settings.showPlanets ? 'block' : 'none';
+		$('#skyMap').style.display         = settings.showConstellations ? 'block' : 'none';
 		$('#hourNumbers').style.display    = settings.showHourNumbers ? 'block' : 'none';
 		$('#hourMarks2').setAttribute('transform', settings.showHourNumbers ? 'rotate(0)' : 'rotate(15)');
 
@@ -574,6 +585,18 @@ const App = (function() {
 
 		// handle resize events
 		window.addEventListener('resize', handleResize);
+
+		// clock-face layer toggles in the top-left nav
+		$All('#nav1 a[data-setting]').forEach(a => {
+			a.addEventListener('click', (e) => {
+				e.preventDefault();
+				let key = a.dataset.setting;
+				settings[key] = !settings[key];
+				setItem(key, settings[key]);
+				syncFormFromSettings();
+				applySettingsToDOM();
+			});
+		});
 
 		// handle form input onchange events
 		$All('#settingsForm input:not([type="number"])').forEach(input => { input.addEventListener('change', setOption); });
